@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ImmigraAssist</title>
+    <link rel="stylesheet" href="styles/main.css?v=1.1">
+    <link rel="stylesheet" href="styles/custom.css">
+    <link rel="stylesheet" href="styles/dashboard.css?v=1.1">
+    <link rel="stylesheet" href="styles/visa-form.css">
+    <link rel="stylesheet" href="styles/modal.css">
+    <link rel="stylesheet" href="styles/upload-modal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="js/api.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">
+                    <div class="logo-top">
+                        <div class="logo-container">
+                            <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                            <div class="logo-content">
+                                <div class="logo-text">ImmigraAssist</div>
+                            </div>
+                        </div>
+                        <div class="logo-tagline">Empowering Immigration with Intelligence</div>
+                    </div>
+                    <div class="vg-logo-container">
+                        <img src="images/vg_logo.png" alt="VG Group Logo" class="vg-logo-img">
+                        <div class="vg-text">A V GROUP INITIATIVE</div>
+                    </div>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                
+                <a href="dashboard.html" class="active">Dashboard</a>
+                <a href="services.html">Services</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+            </div>
+            <div class="auth-buttons">
+                <a href="#" class="btn-login" id="logout-btn">Logout</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="dashboard-container">
+        <!-- News Ticker for USCIS Updates -->
+        <div class="news-ticker-container">
+            <div class="ticker-label"><i class="fas fa-bullhorn"></i> USCIS Updates:</div>
+            <div class="ticker-content">
+                <div class="ticker-items">
+                    <!-- Dynamic content will be inserted here by uscis-updates.js -->
+                    <span>Loading USCIS updates...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Left Section: Visa Application Processing -->
+            <div class="visa-processing-section">
+                <div class="section-header">
+                    <h2>Select Visa Type</h2>
+                    <p>Upload documents and check visa eligibility</p>
+                </div>
+
+                <!-- Visa Type Selection -->
+                <div class="visa-type-selection">
+                    <div class="visa-types">
+                        <div class="visa-type" id="h1b-visa">
+                            <div class="visa-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="visa-info">
+                                <h3>H-1B Visa</h3>
+                                <!-- <p>For specialized workers in specific occupations requiring theoretical and practical application of specialized knowledge</p> -->
+                            </div>
+                            <button id="show-i129-form" class="action-btn"><i class="fas fa-file-alt"></i>&nbsp; Start I-129 Form</button>
+                        </div>
+                        
+                        <div class="visa-type" id="l1-visa">
+                            <div class="visa-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="visa-info">
+                                <h3>L-1 Visa</h3>
+                                <!-- <p>For intracompany transferees who have worked abroad for a qualifying organization for at least one year</p> -->
+                            </div>
+                            <button class="action-btn" disabled style="opacity: 0.6;"><i class="fas fa-clock"></i>&nbsp; Coming Soon</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- I-129 Form Section -->
+                <div id="i129-form-section" class="i129-form-section hidden">
+                    <div class="section-header">
+                        <h3>Form I-129: Petition for Nonimmigrant Worker</h3>
+                        <p>Complete the form below to begin your H-1B visa application process</p>
+                    </div>
+                    
+                    <!-- Form Pagination -->
+                    <div class="form-pagination">
+                        <div class="page-indicator active" id="form-page-indicator">
+                            <div class="page-number">1</div>
+                            <div class="page-title">Form I-129</div>
+                        </div>
+                        <div class="page-indicator" id="documents-page-indicator">
+                            <div class="page-number">2</div>
+                            <div class="page-title">Required Documents</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-container">
+                        <div id="form-success-message" class="success-message hidden">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Form I-129 information saved successfully! Please proceed to document upload.</p>
+                        </div>
+                        
+                        <form id="i129-form" class="visa-form">
+                            <!-- Part 1: Petitioner Information -->
+                            <div class="form-section">
+                                <h4>Part 1: Petitioner Information</h4>
+                                
+                                <div class="form-field">
+                                    <label for="petitioner-legal-name">1. Legal Name of Individual Petitioner</label>
+                                    <div class="name-fields">
+                                        <div class="field-group">
+                                            <input type="text" id="petitioner-family-name" name="petitionerFamilyName" placeholder="Family Name (Last Name)" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="petitioner-given-name" name="petitionerGivenName" placeholder="Given Name (First Name)" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="petitioner-middle-name" name="petitionerMiddleName" placeholder="Middle Name">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="company-name">2. Company or Organization Name</label>
+                                    <input type="text" id="company-name" name="companyName" required>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>3. Mailing Address</label>
+                                    <input type="text" id="in-care-of" name="inCareOf" placeholder="In Care Of Name">
+                                    <input type="text" id="street-address" name="streetAddress" placeholder="Street Number and Name" required>
+                                    <div class="address-line">
+                                        <input type="text" id="apt-ste-flr" name="aptSteFlr" placeholder="Apt/Suite/Floor Number">
+                                        <input type="text" id="city" name="city" placeholder="City or Town" required>
+                                    </div>
+                                    <div class="address-line">
+                                        <select id="state" name="state" required>
+                                            <option value="">Select State</option>
+                                            <option value="AL">Alabama</option>
+                                            <option value="AK">Alaska</option>
+                                            <!-- Add all states -->
+                                            <option value="WY">Wyoming</option>
+                                        </select>
+                                        <input type="text" id="zip-code" name="zipCode" placeholder="ZIP Code" required>
+                                    </div>
+                                    <div class="address-line">
+                                        <input type="text" id="province" name="province" placeholder="Province (if applicable)">
+                                        <input type="text" id="postal-code" name="postalCode" placeholder="Postal Code (if applicable)">
+                                    </div>
+                                    <select id="country" name="country" required>
+                                        <option value="US" selected>United States</option>
+                                        <option value="CA">Canada</option>
+                                        <!-- Add more countries as needed -->
+                                    </select>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>4. Contact Information</label>
+                                    <div class="contact-fields">
+                                        <input type="tel" id="daytime-phone" name="daytimePhone" placeholder="Daytime Telephone Number" required>
+                                        <input type="tel" id="mobile-phone" name="mobilePhone" placeholder="Mobile Telephone Number">
+                                        <input type="email" id="email" name="email" placeholder="Email Address" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="fein">5. Federal Employer Identification Number (FEIN)</label>
+                                    <input type="text" id="fein" name="fein" pattern="[0-9]{9}" placeholder="9-digit FEIN" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Part 2: Basis for Classification -->
+                            <div class="form-section">
+                                <h4>Part 2: Basis for Classification</h4>
+                                
+                                <div class="form-field">
+                                    <label>1. Basis for Classification (select only one)</label>
+                                    <div class="radio-options">
+                                        <label class="radio-label">
+                                            <input type="radio" name="basisForClassification" value="newEmployment" required checked>
+                                            a. New employment
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="basisForClassification" value="continuationWithoutChange">
+                                            b. Continuation of previously approved employment without change
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="basisForClassification" value="changeInEmployment">
+                                            c. Change in previously approved employment
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="basisForClassification" value="newConcurrentEmployment">
+                                            d. New concurrent employment
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="basisForClassification" value="changeOfEmployer">
+                                            e. Change of employer
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="basisForClassification" value="amendedPetition">
+                                            f. Amended petition
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Part 3: Beneficiary Information -->
+                            <div class="form-section">
+                                <h4>Part 3: Beneficiary Information</h4>
+                                
+                                <div class="form-field">
+                                    <label>1. Name of Beneficiary</label>
+                                    <div class="name-fields">
+                                        <div class="field-group">
+                                            <input type="text" id="beneficiary-family-name" name="beneficiaryFamilyName" placeholder="Family Name (Last Name)" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="beneficiary-given-name" name="beneficiaryGivenName" placeholder="Given Name (First Name)" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="beneficiary-middle-name" name="beneficiaryMiddleName" placeholder="Middle Name">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>2. Other Names Used (if any)</label>
+                                    <div class="name-fields">
+                                        <div class="field-group">
+                                            <input type="text" id="other-family-name" name="otherFamilyName" placeholder="Family Name (Last Name)">
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="other-given-name" name="otherGivenName" placeholder="Given Name (First Name)">
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="other-middle-name" name="otherMiddleName" placeholder="Middle Name">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>3. Other Information</label>
+                                    <div class="other-info-fields">
+                                        <div class="field-group">
+                                            <label for="birth-date">Date of Birth (mm/dd/yyyy)</label>
+                                            <input type="date" id="birth-date" name="birthDate" required>
+                                        </div>
+                                        
+                                        <div class="field-group">
+                                            <label>Gender</label>
+                                            <div class="radio-inline">
+                                                <label class="radio-label">
+                                                    <input type="radio" name="gender" value="male" required>
+                                                    Male
+                                                </label>
+                                                <label class="radio-label">
+                                                    <input type="radio" name="gender" value="female">
+                                                    Female
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="ssn">U.S. Social Security Number (if any)</label>
+                                        <input type="text" id="ssn" name="ssn" pattern="[0-9]{9}" placeholder="9-digit SSN (if applicable)">
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="alien-number">Alien Registration Number (A-Number)</label>
+                                        <div class="a-number-field">
+                                            <span class="prefix">A-</span>
+                                            <input type="text" id="alien-number" name="alienNumber" pattern="[0-9]{8,9}" placeholder="Alien Registration Number">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="country-of-birth">Country of Birth</label>
+                                        <input type="text" id="country-of-birth" name="countryOfBirth" required>
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="country-of-citizenship">Country of Citizenship or Nationality</label>
+                                        <input type="text" id="country-of-citizenship" name="countryOfCitizenship" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Part 4: Processing Information -->
+                            <div class="form-section">
+                                <h4>Part 4: Processing Information</h4>
+                                
+                                <div class="form-field">
+                                    <label>1. Beneficiary's Foreign Address</label>
+                                    <input type="text" id="foreign-street" name="foreignStreet" placeholder="Street Number and Name" required>
+                                    <div class="address-line">
+                                        <input type="text" id="foreign-apt" name="foreignApt" placeholder="Apt/Suite/Floor Number">
+                                        <input type="text" id="foreign-city" name="foreignCity" placeholder="City or Town" required>
+                                    </div>
+                                    <div class="address-line">
+                                        <input type="text" id="foreign-state" name="foreignState" placeholder="State/Province">
+                                        <input type="text" id="foreign-postal" name="foreignPostal" placeholder="Postal Code">
+                                    </div>
+                                    <input type="text" id="foreign-country" name="foreignCountry" placeholder="Country" required>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>2. Does each person in this petition have a valid passport?</label>
+                                    <div class="radio-options inline-radio">
+                                        <label class="radio-label">
+                                            <input type="radio" name="validPassport" value="yes" required>
+                                            Yes
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="validPassport" value="no">
+                                            No
+                                        </label>
+                                    </div>
+                                    <div id="passport-explanation" class="conditional-field hidden">
+                                        <label for="passport-explanation-text">If no, provide explanation:</label>
+                                        <textarea id="passport-explanation-text" name="passportExplanation" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Part 5: Basic Information About Proposed Employment -->
+                            <div class="form-section">
+                                <h4>Part 5: Basic Information About the Proposed Employment and Employer</h4>
+                                
+                                <div class="form-field">
+                                    <label for="job-title">1. Job Title</label>
+                                    <input type="text" id="job-title" name="jobTitle" required>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label for="lca-number">2. LCA or ETA Case Number</label>
+                                    <input type="text" id="lca-number" name="lcaNumber" required>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>3. Address(es) where the beneficiary will work</label>
+                                    <p class="field-note">If different from address in Part 1</p>
+                                    
+                                    <div class="address-header">
+                                        <h5>Address 1</h5>
+                                    </div>
+                                    <input type="text" id="work-street-1" name="workStreet1" placeholder="Street Number and Name">
+                                    <div class="address-line">
+                                        <input type="text" id="work-apt-1" name="workApt1" placeholder="Apt/Suite/Floor Number">
+                                        <input type="text" id="work-city-1" name="workCity1" placeholder="City or Town">
+                                    </div>
+                                    <div class="address-line">
+                                        <select id="work-state-1" name="workState1">
+                                            <option value="">Select State</option>
+                                            <option value="AL">Alabama</option>
+                                            <option value="AK">Alaska</option>
+                                            <!-- Add all states -->
+                                            <option value="WY">Wyoming</option>
+                                        </select>
+                                        <input type="text" id="work-zip-1" name="workZip1" placeholder="ZIP Code">
+                                    </div>
+                                    
+                                    <div class="form-field">
+                                        <label>Is this a third-party location?</label>
+                                        <div class="radio-options inline-radio">
+                                            <label class="radio-label">
+                                                <input type="radio" name="thirdParty1" value="yes">
+                                                Yes
+                                            </label>
+                                            <label class="radio-label">
+                                                <input type="radio" name="thirdParty1" value="no" checked>
+                                                No
+                                            </label>
+                                        </div>
+                                        <div id="third-party-name-1" class="conditional-field hidden">
+                                            <label for="third-party-org-1">Name of third-party organization:</label>
+                                            <input type="text" id="third-party-org-1" name="thirdPartyOrg1">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>4. Did you include an itinerary with the petition?</label>
+                                    <div class="radio-options inline-radio">
+                                        <label class="radio-label">
+                                            <input type="radio" name="itinerary" value="yes">
+                                            Yes
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="itinerary" value="no" checked>
+                                            No
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>5. Will the beneficiary work off-site at another company or organization's location?</label>
+                                    <div class="radio-options inline-radio">
+                                        <label class="radio-label">
+                                            <input type="radio" name="workOffsite" value="yes">
+                                            Yes
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="workOffsite" value="no" checked>
+                                            No
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>6. Is this a full-time position?</label>
+                                    <div class="radio-options inline-radio">
+                                        <label class="radio-label">
+                                            <input type="radio" name="fullTime" value="yes" checked>
+                                            Yes
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="fullTime" value="no">
+                                            No
+                                        </label>
+                                    </div>
+                                    <div id="part-time-hours" class="conditional-field hidden">
+                                        <label for="hours-per-week">If no, how many hours per week?</label>
+                                        <input type="number" id="hours-per-week" name="hoursPerWeek" min="1" max="39">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>7. Wages:</label>
+                                    <div class="wage-fields">
+                                        <div class="wage-amount">
+                                            <span class="dollar-sign">$</span>
+                                            <input type="number" id="wage-amount" name="wageAmount" min="0" step="0.01" required>
+                                        </div>
+                                        <div class="wage-per">
+                                            <span>per</span>
+                                            <select id="wage-period" name="wagePeriod" required>
+                                                <option value="hour">Hour</option>
+                                                <option value="week">Week</option>
+                                                <option value="month">Month</option>
+                                                <option value="year" selected>Year</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="reset" id="reset-form" class="btn-secondary">Reset Form</button>
+                                <button type="submit" class="btn-primary">Submit Form</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- H-1B Document Requirements -->
+                <div id="h1b-document-requirements" class="document-requirements-section hidden" style="display: none;">
+                    <div class="section-header">
+                        <div class="header-with-back">
+                            <button id="back-to-form" class="back-button"><i class="fas fa-arrow-left"></i> Back to Form</button>
+                            <div>
+                                <h3>Required Documents for H-1B Visa</h3>
+                                <p>Please upload the following documents to complete your application</p>
+                            </div>
+                        </div>
+                        <div class="document-header-actions">
+                            <button class="bulk-upload-btn" id="open-bulk-upload">
+                                <div class="btn-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <span>Bulk Upload</span>
+                                <span class="new-badge">New</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="documents-grid">
+                        <div class="document-card completed">
+                            <div class="document-icon">
+                                <i class="fas fa-file-alt"></i>
+                                <div class="completed-badge">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                            <div class="document-info">
+                                <h4>Form I-129</h4>
+                                <p>Petition for Nonimmigrant Worker</p>
+                                <div class="form-completed-info">
+                                    <span class="completed-text"><i class="fas fa-check-circle"></i> Completed via online form</span>
+                                    <div class="form-actions">
+                                        <button id="view-form-data" class="btn-secondary btn-sm"><i class="fas fa-eye"></i> View Form</button>
+                                        <button id="download-form" class="btn-primary btn-sm"><i class="fas fa-download"></i> Download PDF</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="document-card">
+                            <div class="document-icon">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="document-info">
+                                <h4>Labor Condition Application (LCA)</h4>
+                                <p>Approved by the Department of Labor</p>
+                                <div class="document-upload">
+                                    <input type="file" id="lca-upload" accept=".pdf,.jpg,.jpeg,.png">
+                                    <label for="lca-upload" class="upload-btn">Select File</label>
+                                    <span id="lca-status" class="upload-status">No file selected</span>
+                                </div>
+                                <button onclick="uploadDocument('lca')" class="btn-upload">Upload</button>
+                            </div>
+                        </div>
+                        
+                        <div class="document-card">
+                            <div class="document-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="document-info">
+                                <h4>Educational Credentials</h4>
+                                <p>Degrees, transcripts, and evaluations</p>
+                                <div class="document-upload">
+                                    <input type="file" id="education-upload" accept=".pdf,.jpg,.jpeg,.png">
+                                    <label for="education-upload" class="upload-btn">Select File</label>
+                                    <span id="education-status" class="upload-status">No file selected</span>
+                                </div>
+                                <button onclick="uploadDocument('education')" class="btn-upload">Upload</button>
+                            </div>
+                        </div>
+                        
+                        <div class="document-card">
+                            <div class="document-icon">
+                                <i class="fas fa-file-signature"></i>
+                            </div>
+                            <div class="document-info">
+                                <h4>Employer Support Letter</h4>
+                                <p>Detailing job duties and requirements</p>
+                                <div class="document-upload">
+                                    <input type="file" id="support-upload" accept=".pdf,.jpg,.jpeg,.png">
+                                    <label for="support-upload" class="upload-btn">Select File</label>
+                                    <span id="support-status" class="upload-status">No file selected</span>
+                                </div>
+                                <button onclick="uploadDocument('support')" class="btn-upload">Upload</button>
+                            </div>
+                        </div>
+                        
+                        <div class="document-card">
+                            <div class="document-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="document-info">
+                                <h4>Resume/CV</h4>
+                                <p>Professional experience and qualifications</p>
+                                <div class="document-upload">
+                                    <input type="file" id="resume-upload" accept=".pdf,.jpg,.jpeg,.png">
+                                    <label for="resume-upload" class="upload-btn">Select File</label>
+                                    <span id="resume-status" class="upload-status">No file selected</span>
+                                </div>
+                                <button onclick="uploadDocument('resume')" class="btn-upload">Upload</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="uploaded-documents">
+                        <h4>Uploaded Documents</h4>
+                        <ul id="uploaded-documents-list" class="documents-list">
+                            <!-- Documents will be added here via JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Document Checklist -->
+                <div class="document-checklist" style="display: none;">
+                    <div class="document-header-actions">
+                        <div>
+                            <h3>Top 5 Required Documents</h3>
+                            <p class="document-intro">These are the most critical documents needed for your visa application.</p>
+                        </div>
+                        <button id="bulk-upload-button" class="btn-secondary bulk-upload-btn">
+                            <i class="fas fa-cloud-upload-alt"></i> Bulk Upload
+                        </button>
+                    </div>
+                    
+                    <!-- H1B Documents - Top 5 most important -->
+                    <div class="checklist-container" id="h1b-checklist">
+                        <!-- Documents will be dynamically populated by document-upload.js -->
+                    </div>
+
+                    <!-- L1 Documents - Top 5 most important -->
+                    <div class="checklist-container" id="l1-checklist" style="display: none;">
+                        <!-- Documents will be dynamically populated by document-upload.js -->
+                    </div>
+
+                    <!-- Document Upload Modal -->
+                    <div id="upload-modal" class="modal">
+                        <div class="modal-content">
+                            <span class="close-modal">&times;</span>
+                            <h3>Upload Document</h3>
+                            <p id="upload-document-type">Document Type: <span>-</span></p>
+                            <div class="upload-area">
+                                <input type="file" id="document-file" accept=".pdf,.jpg,.jpeg,.png">
+                                <label for="document-file">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Drag & drop your file here or click to browse</p>
+                                    <span>Supported formats: PDF, JPG, PNG</span>
+                                </label>
+                            </div>
+                            <div class="upload-actions">
+                                <button id="upload-submit" class="btn-primary">Upload Document</button>
+                                <button class="btn-secondary cancel-upload">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bulk Upload Modal -->
+                    <div id="bulk-upload-modal" class="modal">
+                        <div class="modal-content">
+                            <span class="close-modal">&times;</span>
+                            <h3>Bulk Document Upload</h3>
+                            <div class="bulk-upload-info">
+                                <i class="fas fa-info-circle"></i>
+                                <p>Bulk upload allows you to upload multiple documents at once. The system will automatically categorize them based on content analysis.</p>
+                            </div>
+                            <div class="upload-area">
+                                <input type="file" id="bulk-document-files" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                <label for="bulk-document-files">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Drag & drop multiple files here or click to browse</p>
+                                    <span>Up to 10 files (max 50MB total)</span>
+                                </label>
+                            </div>
+                            <div class="bulk-file-list" id="bulk-file-list">
+                                <!-- Files will be listed here -->
+                            </div>
+                            <div class="upload-actions">
+                                <button id="bulk-upload-submit" class="btn-primary">Upload All Documents</button>
+                                <button class="btn-secondary cancel-bulk-upload">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Process Application Button -->
+                <div class="process-application">
+                    <button id="process-btn" class="btn-primary btn-large">
+                        <i class="fas fa-cogs"></i> Process Application
+                    </button>
+                    <p class="help-text">Upload all required documents to check eligibility</p>
+                    <div class="document-tips">
+                        <h4><i class="fas fa-lightbulb"></i> Document Tips</h4>
+                        <ul>
+                            <li><strong>Critical</strong> documents are absolutely essential for your application.</li>
+                            <li><strong>High</strong> importance documents significantly strengthen your case.</li>
+                            <li>Upload clear, complete copies of all documents.</li>
+                            <li>Ensure all text is legible and nothing is cut off.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section: Application Status and Updates -->
+            <div class="application-status-section">
+                <div class="section-header">
+                    <h2>Application Status</h2>
+                    <span class="status-badge" id="status-badge">Not Started</span>
+                </div>
+
+                <div class="processing-status" id="processing-status">
+                    <div class="status-step completed">
+                        <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                        <div class="step-details">
+                            <h4>Account Created</h4>
+                            <p>Your ImmigraAssist account is active</p>
+                        </div>
+                    </div>
+                    <div class="status-step" id="document-step">
+                        <div class="step-icon"><i class="fas fa-file-alt"></i></div>
+                        <div class="step-details">
+                            <h4>Document Upload</h4>
+                            <p>Upload all required documents</p>
+                        </div>
+                    </div>
+                    <div class="status-step" id="verification-step">
+                        <div class="step-icon"><i class="fas fa-search"></i></div>
+                        <div class="step-details">
+                            <h4>Document Verification</h4>
+                            <p>OCR extraction and verification</p>
+                        </div>
+                    </div>
+                    <div class="status-step" id="analysis-step">
+                        <div class="step-icon"><i class="fas fa-chart-bar"></i></div>
+                        <div class="step-details">
+                            <h4>Application Analysis</h4>
+                            <p>Evaluating visa eligibility</p>
+                        </div>
+                    </div>
+                    <div class="status-step" id="result-step">
+                        <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
+                        <div class="step-details">
+                            <h4>Final Results</h4>
+                            <p>Application status and recommendations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- USCIS Policy Updates -->
+                <div class="policy-updates">
+                    <h3><i class="fas fa-globe-americas"></i> Recent USCIS Policy Updates</h3>
+                    <div class="policy-update-list" id="policy-update-list">
+                        <!-- Dynamic policy updates will be loaded here by uscis-updates.js -->
+                        <div class="policy-update-item loading">
+                            <div class="loading-indicator">
+                                <i class="fas fa-spinner fa-pulse"></i> Loading USCIS updates...
+                            </div>
+                        </div>
+                    </div>
+                    <a href="https://www.uscis.gov/news/all-news" target="_blank" class="view-all-updates">
+                        View All Updates <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+
+                <!-- Result Section (initially hidden) -->
+                <div class="result-container" id="result-container" style="display: none;">
+                    <h3>Application Assessment Results</h3>
+                    <div class="result-summary">
+                        <div class="result-icon" id="result-icon">
+                            <i class="fas fa-spinner fa-pulse"></i>
+                        </div>
+                        <div class="result-details">
+                            <h4 id="result-title">Processing</h4>
+                            <p id="result-description">Your application is being processed...</p>
+                        </div>
+                    </div>
+                    <div class="eligibility-factors">
+                        <h4>Eligibility Factors</h4>
+                        <ul id="eligibility-list">
+                            <!-- Eligibility factors will be added here dynamically -->
+                        </ul>
+                    </div>
+                    <div class="recommendations">
+                        <h4>Recommendations</h4>
+                        <ul id="recommendations-list">
+                            <!-- Recommendations will be added here dynamically -->
+                        </ul>
+                    </div>
+                    <div class="result-actions">
+                        <button class="btn-primary" id="download-report">Download Full Report</button>
+                        <button class="btn-secondary" id="schedule-consultation">Schedule Consultation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="index.html">
+                    <div class="logo-container">
+                        <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                        <div class="logo-text">ImmigraAssist</div>
+                    </div>
+                </a>
+                <p>Empowering Immigration with Intelligence</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-group">
+                    <h3>Company</h3>
+                    <a href="about.html">About Us</a>
+                    <a href="team.html">Our Team</a>
+                    <a href="careers.html">Careers</a>
+                    <a href="contact.html">Contact Us</a>
+                </div>
+                <div class="link-group">
+                    <h3>Resources</h3>
+                    <a href="blog.html">Blog</a>
+                    <a href="guides.html">Immigration Guides</a>
+                    <a href="faq.html">FAQ</a>
+                    <a href="support.html">Support</a>
+                </div>
+                <div class="link-group">
+                    <h3>Legal</h3>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="disclaimer.html">Disclaimer</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ImmigraAssist. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            if (window.immigraAPI && window.immigraAPI.auth) {
+                const isLoggedIn = window.immigraAPI.auth.isLoggedIn();
+                if (!isLoggedIn) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Get user info
+                const userInfo = JSON.parse(localStorage.getItem('user') || '{}');
+                if (userInfo && userInfo.firstName) {
+                    document.getElementById('user-name').textContent = userInfo.firstName;
+                }
+            }
+            
+            // Handle logout
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.immigraAPI && window.immigraAPI.auth) {
+                    window.immigraAPI.auth.logout();
+                    window.location.href = 'index.html';
+                }
+            });
+            
+            // Visa type selection
+            const h1bRadio = document.getElementById('h1b');
+            const l1Radio = document.getElementById('l1');
+            const h1bChecklist = document.getElementById('h1b-checklist');
+            const l1Checklist = document.getElementById('l1-checklist');
+            
+            h1bRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    h1bChecklist.style.display = 'flex';
+                    l1Checklist.style.display = 'none';
+                }
+            });
+            
+            l1Radio.addEventListener('change', function() {
+                if (this.checked) {
+                    h1bChecklist.style.display = 'none';
+                    l1Checklist.style.display = 'flex';
+                }
+            });
+            
+            // Document upload modal
+            const modal = document.getElementById('upload-modal');
+            const uploadBtns = document.querySelectorAll('.upload-btn');
+            const closeModal = document.querySelector('.close-modal');
+            const cancelUpload = document.querySelector('.cancel-upload');
+            const uploadDocumentType = document.getElementById('upload-document-type');
+            let currentDocumentId = '';
+            
+            uploadBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentDocumentId = this.dataset.document;
+                    uploadDocumentType.querySelector('span').textContent = this.previousElementSibling.textContent;
+                    modal.style.display = 'flex';
+                });
+            });
+            
+            function closeUploadModal() {
+                modal.style.display = 'none';
+                document.getElementById('document-file').value = '';
+            }
+            
+            closeModal.addEventListener('click', closeUploadModal);
+            cancelUpload.addEventListener('click', closeUploadModal);
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeUploadModal();
+                }
+            });
+            
+            // Handle file upload
+            const uploadSubmit = document.getElementById('upload-submit');
+            const documentFile = document.getElementById('document-file');
+            
+            uploadSubmit.addEventListener('click', function() {
+                if (!documentFile.files.length) {
+                    alert('Please select a file to upload');
+                    return;
+                }
+                
+                const file = documentFile.files[0];
+                
+                // Here you would normally upload the file to your server
+                // For this demo, we'll simulate a successful upload
+                setTimeout(() => {
+                    // Check the corresponding checkbox
+                    const checkbox = document.getElementById(currentDocumentId);
+                    checkbox.checked = true;
+                    
+                    // Update document step if all documents are uploaded
+                    updateDocumentStep();
+                    
+                    // Close the modal
+                    closeUploadModal();
+                    
+                    // Show success message
+                    alert(`${file.name} uploaded successfully!`);
+                }, 1500);
+            });
+            
+            // Process application
+            const processBtn = document.getElementById('process-btn');
+            const statusBadge = document.getElementById('status-badge');
+            const documentStep = document.getElementById('document-step');
+            const verificationStep = document.getElementById('verification-step');
+            const analysisStep = document.getElementById('analysis-step');
+            const resultStep = document.getElementById('result-step');
+            const resultContainer = document.getElementById('result-container');
+            
+            function updateDocumentStep() {
+                let allUploaded = true;
+                
+                // Check which visa type is selected
+                const selectedVisa = document.querySelector('input[name="visa-type"]:checked').value;
+                const checklistItems = document.querySelectorAll(`#${selectedVisa}-checklist .checklist-checkbox`);
+                
+                checklistItems.forEach(checkbox => {
+                    if (!checkbox.checked) {
+                        allUploaded = false;
+                    }
+                });
+                
+                if (allUploaded) {
+                    documentStep.classList.add('completed');
+                    processBtn.disabled = false;
+                    processBtn.classList.remove('disabled');
+                } else {
+                    documentStep.classList.remove('completed');
+                    processBtn.disabled = true;
+                    processBtn.classList.add('disabled');
+                }
+            }
+            
+            // Initialize document step
+            updateDocumentStep();
+            
+            // Handle visa type change
+            h1bRadio.addEventListener('change', updateDocumentStep);
+            l1Radio.addEventListener('change', updateDocumentStep);
+            
+            // Process application
+            processBtn.addEventListener('click', function() {
+                if (this.disabled) {
+                    return;
+                }
+                
+                // Update status badge
+                statusBadge.textContent = 'Processing';
+                statusBadge.className = 'status-badge processing';
+                
+                // Start document verification
+                verificationStep.classList.add('in-progress');
+                
+                // Simulate OCR and document verification
+                setTimeout(() => {
+                    // Document verification complete
+                    verificationStep.classList.remove('in-progress');
+                    verificationStep.classList.add('completed');
+                    
+                    // Start application analysis
+                    analysisStep.classList.add('in-progress');
+                    
+                    // Simulate application analysis
+                    setTimeout(() => {
+                        // Analysis complete
+                        analysisStep.classList.remove('in-progress');
+                        analysisStep.classList.add('completed');
+                        
+                        // Show results
+                        resultStep.classList.add('completed');
+                        
+                        // Update status badge
+                        const selectedVisa = document.querySelector('input[name="visa-type"]:checked').value;
+                        let resultStatus = '';
+                        
+                        if (selectedVisa === 'h1b') {
+                            resultStatus = 'approved';
+                        } else {
+                            resultStatus = 'pending';
+                        }
+                        
+                        statusBadge.textContent = resultStatus === 'approved' ? 'Approved' : 'Pending Review';
+                        statusBadge.className = `status-badge ${resultStatus === 'approved' ? 'approved' : 'pending'}`;
+                        
+                        // Show result container
+                        resultContainer.style.display = 'block';
+                        
+                        // Update result details
+                        const resultIcon = document.getElementById('result-icon');
+                        const resultTitle = document.getElementById('result-title');
+                        const resultDescription = document.getElementById('result-description');
+                        const eligibilityList = document.getElementById('eligibility-list');
+                        const recommendationsList = document.getElementById('recommendations-list');
+                        
+                        resultIcon.innerHTML = resultStatus === 'approved' 
+                            ? '<i class="fas fa-check-circle"></i>' 
+                            : '<i class="fas fa-exclamation-triangle"></i>';
+                        resultIcon.className = `result-icon ${resultStatus === 'approved' ? 'success' : 'warning'}`;
+                        
+                        resultTitle.textContent = resultStatus === 'approved' 
+                            ? 'Application Approved' 
+                            : 'Additional Review Required';
+                            
+                        resultDescription.textContent = resultStatus === 'approved'
+                            ? 'Based on our analysis, your application meets the eligibility criteria for the selected visa category.'
+                            : 'Your application requires additional review due to some eligibility factors. Please see details below.';
+                            
+                        // Add eligibility factors
+                        eligibilityList.innerHTML = '';
+                        if (selectedVisa === 'h1b') {
+                            eligibilityList.innerHTML += '<li>Educational qualifications match specialty occupation requirements</li>';
+                            eligibilityList.innerHTML += '<li>Wage meets prevailing wage requirements</li>';
+                            eligibilityList.innerHTML += '<li>Position qualifies as a specialty occupation</li>';
+                            eligibilityList.innerHTML += '<li>Employer-employee relationship is established</li>';
+                        } else {
+                            eligibilityList.innerHTML += '<li>One year of employment with foreign entity established</li>';
+                            eligibilityList.innerHTML += '<li>Position qualifies for L-1 classification</li>';
+                            eligibilityList.innerHTML += '<li><span style="color: #856404;">Additional documentation recommended for qualifying relationship between entities</span></li>';
+                        }
+                        
+                        // Add recommendations
+                        recommendationsList.innerHTML = '';
+                        if (selectedVisa === 'h1b') {
+                            recommendationsList.innerHTML += '<li>Ensure LCA is posted at worksite</li>';
+                            recommendationsList.innerHTML += '<li>Prepare for potential RFE regarding specialty occupation</li>';
+                            recommendationsList.innerHTML += '<li>Consider premium processing for faster adjudication</li>';
+                        } else {
+                            recommendationsList.innerHTML += '<li>Submit additional evidence of qualifying relationship between entities</li>';
+                            recommendationsList.innerHTML += '<li>Provide more detailed job descriptions for both positions</li>';
+                            recommendationsList.innerHTML += '<li>Include organizational charts for both companies</li>';
+                        }
+                    }, 3000); // Analysis time simulation
+                }, 2000); // Verification time simulation
+            });
+        });
+    </script>
+    
+    <script>
+        // Document checklist toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const h1bRadio = document.getElementById('h1b');
+            const l1Radio = document.getElementById('l1');
+            const h1bChecklist = document.getElementById('h1b-checklist');
+            const l1Checklist = document.getElementById('l1-checklist');
+            
+            // Add event listeners to radio buttons
+            h1bRadio.addEventListener('click', function() {
+                h1bChecklist.style.display = 'block';
+                l1Checklist.style.display = 'none';
+                console.log('H1B selected');
+            });
+            
+            l1Radio.addEventListener('click', function() {
+                h1bChecklist.style.display = 'none';
+                l1Checklist.style.display = 'block';
+                console.log('L1 selected');
+            });
+        });
+    </script>
+    <!-- Document Upload Modal -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Upload Document</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Upload your <span id="upload-document-type"></span> document</p>
+                <div class="file-upload-container">
+                    <input type="file" id="document-file" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                    <label for="document-file" class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Choose a file</span>
+                    </label>
+                    <div id="file-info" class="file-info">No file selected</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary cancel-upload">Cancel</button>
+                <button id="upload-submit" class="btn-primary">Upload</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bulk Upload Modal -->
+    <div id="bulk-upload-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Bulk Upload Documents</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Upload multiple documents at once</p>
+                <div class="file-upload-container bulk-upload-container">
+                    <input type="file" id="bulk-document-files" class="file-input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" multiple>
+                    <label for="bulk-document-files" class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Choose files</span>
+                    </label>
+                    <div class="file-upload-help">
+                        <i class="fas fa-info-circle"></i>
+                        <span>You can select multiple files to upload at once</span>
+                    </div>
+                    <div id="bulk-files-preview" class="bulk-files-preview">
+                        <div class="no-files-message">No files selected</div>
+                        <ul class="selected-files-list"></ul>
+                    </div>
+                </div>
+                <div class="ai-processing-info">
+                    <div class="ai-processing-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="ai-processing-text">
+                        <h4>AI-Powered Document Analysis</h4>
+                        <p>Our system will automatically analyze and categorize your documents</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary cancel-bulk-upload">Cancel</button>
+                <button id="bulk-upload-submit" class="btn-primary">Upload All Files</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/uscis-updates.js"></script>
+    <script src="js/document-upload.js"></script>
+    <script src="js/visa-form.js"></script>
+    <script src="js/form-viewer.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

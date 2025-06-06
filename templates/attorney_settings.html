@@ -1,0 +1,391 @@
+{% extends "attorney_base.html" %}
+
+{% block title %}Settings - Admin Corner{% endblock %}
+
+{% block attorney_content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Settings</h2>
+    </div>
+    <div class="card-body">
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="profile">Profile</div>
+                <div class="tab" data-tab="notifications">Notifications</div>
+                <div class="tab" data-tab="preferences">Preferences</div>
+                <div class="tab" data-tab="security">Security</div>
+            </div>
+            <div class="tab-content">
+                <!-- Profile Settings -->
+                <div class="tab-pane active" id="profile">
+                    <form id="profile-form" method="post" action="{{ url_for('update_admin_profile') }}">
+                        <div class="form-section">
+                            <h3>Personal Information</h3>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="firstname">First Name</label>
+                                    <input type="text" id="firstname" name="firstname" class="form-control" value="{{ admin.firstname }}" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="lastname">Last Name</label>
+                                    <input type="text" id="lastname" name="lastname" class="form-control" value="{{ admin.lastname }}" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" name="email" class="form-control" value="{{ admin.email }}" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" id="phone" name="phone" class="form-control" value="{{ admin.phone|default('') }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Professional Information</h3>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="bar_number">Bar Number</label>
+                                    <input type="text" id="bar_number" name="bar_number" class="form-control" value="{{ admin.bar_number|default('') }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="jurisdiction">Jurisdiction</label>
+                                    <input type="text" id="jurisdiction" name="jurisdiction" class="form-control" value="{{ admin.jurisdiction|default('') }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="practice_areas">Practice Areas</label>
+                                <select id="practice_areas" name="practice_areas" class="form-control" multiple>
+                                    <option value="family" {% if 'family' in admin.practice_areas %}selected{% endif %}>Family-Based Immigration</option>
+                                    <option value="employment" {% if 'employment' in admin.practice_areas %}selected{% endif %}>Employment-Based Immigration</option>
+                                    <option value="asylum" {% if 'asylum' in admin.practice_areas %}selected{% endif %}>Asylum & Refugee</option>
+                                    <option value="removal" {% if 'removal' in admin.practice_areas %}selected{% endif %}>Removal Defense</option>
+                                    <option value="citizenship" {% if 'citizenship' in admin.practice_areas %}selected{% endif %}>Citizenship & Naturalization</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="bio">Professional Biography</label>
+                                <textarea id="bio" name="bio" class="form-control" rows="4">{{ admin.bio|default('') }}</textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Notification Settings -->
+                <div class="tab-pane" id="notifications">
+                    <form id="notifications-form" method="post" action="{{ url_for('update_admin_notifications') }}">
+                        <div class="form-section">
+                            <h3>Email Notifications</h3>
+                            <div class="notification-option">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="email_new_cases" {% if admin.notifications.email_new_cases %}checked{% endif %}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <div class="notification-text">
+                                    <span>New Case Assignments</span>
+                                    <p class="text-muted">Receive notifications when you are assigned to a new case</p>
+                                </div>
+                            </div>
+                            <div class="notification-option">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="email_case_updates" {% if admin.notifications.email_case_updates %}checked{% endif %}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <div class="notification-text">
+                                    <span>Case Updates</span>
+                                    <p class="text-muted">Receive notifications when there are updates to your cases</p>
+                                </div>
+                            </div>
+                            <div class="notification-option">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="email_deadlines" {% if admin.notifications.email_deadlines %}checked{% endif %}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <div class="notification-text">
+                                    <span>Deadline Reminders</span>
+                                    <p class="text-muted">Receive reminders about upcoming deadlines</p>
+                                </div>
+                            </div>
+                            <div class="notification-option">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="email_appointments" {% if admin.notifications.email_appointments %}checked{% endif %}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <div class="notification-text">
+                                    <span>Appointment Reminders</span>
+                                    <p class="text-muted">Receive reminders about upcoming appointments</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>System Notifications</h3>
+                            <div class="notification-option">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="system_messages" {% if admin.notifications.system_messages %}checked{% endif %}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <div class="notification-text">
+                                    <span>System Messages</span>
+                                    <p class="text-muted">Receive in-app notifications for system messages</p>
+                                </div>
+                            </div>
+                            <div class="notification-option">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="system_client_messages" {% if admin.notifications.system_client_messages %}checked{% endif %}>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                                <div class="notification-text">
+                                    <span>Client Messages</span>
+                                    <p class="text-muted">Receive in-app notifications when clients send messages</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Preferences</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Preferences Settings -->
+                <div class="tab-pane" id="preferences">
+                    <form id="preferences-form" method="post" action="{{ url_for('update_admin_preferences') }}">
+                        <div class="form-section">
+                            <h3>Display Settings</h3>
+                            <div class="form-group">
+                                <label for="theme">Theme</label>
+                                <select id="theme" name="theme" class="form-control">
+                                    <option value="light" {% if admin.preferences.theme == 'light' %}selected{% endif %}>Light</option>
+                                    <option value="dark" {% if admin.preferences.theme == 'dark' %}selected{% endif %}>Dark</option>
+                                    <option value="system" {% if admin.preferences.theme == 'system' %}selected{% endif %}>Use System Setting</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="dashboard_layout">Dashboard Layout</label>
+                                <select id="dashboard_layout" name="dashboard_layout" class="form-control">
+                                    <option value="compact" {% if admin.preferences.dashboard_layout == 'compact' %}selected{% endif %}>Compact</option>
+                                    <option value="detailed" {% if admin.preferences.dashboard_layout == 'detailed' %}selected{% endif %}>Detailed</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Calendar Settings</h3>
+                            <div class="form-group">
+                                <label for="default_calendar_view">Default Calendar View</label>
+                                <select id="default_calendar_view" name="default_calendar_view" class="form-control">
+                                    <option value="month" {% if admin.preferences.default_calendar_view == 'month' %}selected{% endif %}>Month</option>
+                                    <option value="week" {% if admin.preferences.default_calendar_view == 'week' %}selected{% endif %}>Week</option>
+                                    <option value="day" {% if admin.preferences.default_calendar_view == 'day' %}selected{% endif %}>Day</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Preferences</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Security Settings -->
+                <div class="tab-pane" id="security">
+                    <form id="password-form" method="post" action="{{ url_for('update_admin_password') }}">
+                        <div class="form-section">
+                            <h3>Change Password</h3>
+                            <div class="form-group">
+                                <label for="current_password">Current Password</label>
+                                <input type="password" id="current_password" name="current_password" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_password">New Password</label>
+                                <input type="password" id="new_password" name="new_password" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm_password">Confirm New Password</label>
+                                <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                            </div>
+                            <div class="password-requirements">
+                                <p>Password must:</p>
+                                <ul>
+                                    <li>Be at least 8 characters long</li>
+                                    <li>Include at least one uppercase letter</li>
+                                    <li>Include at least one number</li>
+                                    <li>Include at least one special character</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3>Two-Factor Authentication</h3>
+                            <div class="two-factor-status">
+                                <p>
+                                    Status: 
+                                    <span class="status-badge {% if admin.two_factor_enabled %}status-approved{% else %}status-pending{% endif %}">
+                                        {{ 'Enabled' if admin.two_factor_enabled else 'Disabled' }}
+                                    </span>
+                                </p>
+                                {% if admin.two_factor_enabled %}
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#disableTwoFactorModal">
+                                    Disable Two-Factor
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#enableTwoFactorModal">
+                                    Enable Two-Factor
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Update Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enable Two-Factor Modal -->
+<div class="modal" id="enableTwoFactorModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Enable Two-Factor Authentication</h3>
+                <button class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="two-factor-setup">
+                    <p>Scan the QR code below with your authenticator app:</p>
+                    <div class="qr-code-container">
+                        <img src="{{ qr_code_url }}" alt="Two-Factor QR Code" class="qr-code">
+                    </div>
+                    <div class="manual-key">
+                        <p>Or enter this key manually: <code>{{ two_factor_key }}</code></p>
+                    </div>
+                    <form id="verify-two-factor-form" method="post" action="{{ url_for('enable_two_factor') }}">
+                        <div class="form-group">
+                            <label for="verification_code">Verification Code</label>
+                            <input type="text" id="verification_code" name="verification_code" class="form-control" placeholder="Enter code from authenticator app" required>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button form="verify-two-factor-form" type="submit" class="btn btn-primary">Verify & Enable</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Disable Two-Factor Modal -->
+<div class="modal" id="disableTwoFactorModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Disable Two-Factor Authentication</h3>
+                <button class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirmation-message">
+                    <p>Are you sure you want to disable two-factor authentication? This will make your account less secure.</p>
+                    <form id="disable-two-factor-form" method="post" action="{{ url_for('disable_two_factor') }}">
+                        <div class="form-group">
+                            <label for="password_confirm">Enter your password to confirm</label>
+                            <input type="password" id="password_confirm" name="password" class="form-control" required>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button form="disable-two-factor-form" type="submit" class="btn btn-danger">Disable Two-Factor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Deactivate all tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            tabPanes.forEach(p => p.classList.remove('active'));
+            
+            // Activate selected tab
+            this.classList.add('active');
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+    
+    // Password confirmation validation
+    const newPasswordInput = document.getElementById('new_password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', function() {
+            if (this.value !== newPasswordInput.value) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    // Modal functionality
+    const modals = document.querySelectorAll('.modal');
+    const closeButtons = document.querySelectorAll('.modal .close, .modal .btn-secondary[data-dismiss="modal"]');
+    const modalToggles = document.querySelectorAll('[data-toggle="modal"]');
+    
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.classList.add('modal-open');
+        }
+    }
+    
+    function closeModal(modal) {
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+    
+    modalToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetModal = this.getAttribute('data-target').substring(1);
+            openModal(targetModal);
+        });
+    });
+    
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            closeModal(modal);
+        });
+    });
+    
+    window.addEventListener('click', function(e) {
+        modals.forEach(modal => {
+            if (e.target === modal) {
+                closeModal(modal);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

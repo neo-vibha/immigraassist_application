@@ -1,0 +1,463 @@
+{% extends "attorney_base.html" %}
+
+{% block title %}Review Immigration Form - Admin Corner{% endblock %}
+
+{% block attorney_content %}
+<div class="review-container">
+    <div class="card">
+        <div class="card-header">
+            <h2>Review Immigration Form</h2>
+            <div class="petition-meta">
+                <span class="petition-id">Petition ID: {{ petition.id }}</span>
+                <span class="petition-type">Form: {{ petition.form_type }}</span>
+                <div class="status-badge status-{{ state|lower }}">{{ state }}</div>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="petitioner-info">
+                <h3>Petitioner Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value">{{ petition.first_name }} {{ petition.last_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ petition.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value">{{ petition.phone }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Submission Date:</span>
+                        <span class="info-value">{{ petition.submission_date }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="completion-status">
+                <h3>Completion Status</h3>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" data-percentage="{{ petition.completion_percentage }}"></div>
+                    </div>
+                    <span class="progress-text">{{ petition.completion_percentage }}% Complete</span>
+                </div>
+                <div class="eligibility-status">
+                    <span class="status-label">Eligibility Status:</span>
+                    <span class="status-value {% if petition.is_eligible %}eligible{% else %}not-eligible{% endif %}">
+                        {% if petition.is_eligible %}Eligible{% else %}Not Eligible{% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="form-document-matching">
+                <h3>Form and Document Matching</h3>
+                <div class="match-status">
+                    <div class="match-indicator {% if petition.has_mismatches %}mismatch{% else %}match{% endif %}">
+                        <i class="fas {% if petition.has_mismatches %}fa-times-circle{% else %}fa-check-circle{% endif %}"></i>
+                        <span>{% if petition.has_mismatches %}Mismatches Found{% else %}All Fields Match{% endif %}</span>
+                    </div>
+                    <button id="check-matches-btn" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Re-Check Matches
+                    </button>
+                </div>
+                
+                <div class="match-details">
+                    <h4>Field Matching Details</h4>
+                    <div class="match-list">
+                        {% for field in petition.field_matches %}
+                        <div class="match-item {% if field.matches %}match{% else %}mismatch{% endif %}">
+                            <div class="match-field">{{ field.field_name }}</div>
+                            <div class="match-status">
+                                <i class="fas {% if field.matches %}fa-check{% else %}fa-times{% endif %}"></i>
+                                {% if field.matches %}Matches{% else %}Mismatch{% endif %}
+                            </div>
+                            {% if not field.matches %}
+                            <div class="mismatch-details">
+                                <div class="form-value">Form: {{ field.form_value }}</div>
+                                <div class="doc-value">Document: {{ field.doc_value }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-content">
+                <h3>Form Content</h3>
+                <div class="form-sections">
+                    {% for section in petition.form_sections %}
+                    <div class="form-section">
+                        <h4>{{ section.title }}</h4>
+                        <div class="section-fields">
+                            {% for field in section.fields %}
+                            <div class="form-field {% if field.id in petition.mismatch_fields %}mismatch{% endif %}">
+                                <div class="field-label">{{ field.label }}</div>
+                                <div class="field-value">{{ field.value }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="uploaded-documents">
+                <h3>Uploaded Documents</h3>
+                <div class="document-list">
+                    {% for doc in petition.documents %}
+                    <div class="document-item">
+                        <div class="doc-icon">
+                            <i class="fas {{ doc.icon }}"></i>
+                        </div>
+                        <div class="doc-info">
+                            <div class="doc-name">{{ doc.name }}</div>
+                            <div class="doc-meta">
+                                <span class="doc-type">{{ doc.type }}</span>
+                                <span class="doc-date">Uploaded: {{ doc.upload_date }}</span>
+                            </div>
+
+                        </div>
+                        <div class="doc-actions">
+                            <button class="btn btn-sm btn-secondary view-doc-btn" data-doc-id="{{ doc.id }}">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="admin-feedback">
+                <h3>Admin Feedback</h3>
+                <div class="feedback-form">
+                    <form action="{{ url_for('attorney_save_feedback', petition_id=petition.id) }}" method="post">
+                        <div class="form-group">
+                            <label for="feedback-notes">Notes</label>
+                            <textarea id="feedback-notes" name="notes" class="form-control" rows="4" placeholder="Enter your notes and feedback here..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Feedback
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="feedback-history">
+                    <h4>Previous Feedback</h4>
+                    {% if petition.feedback_history %}
+                    <ul class="feedback-list">
+                        {% for feedback in petition.feedback_history %}
+                        <li class="feedback-item">
+                            <div class="feedback-meta">
+                                <span class="feedback-date">{{ feedback.date }}</span>
+                                <span class="feedback-admin">{{ feedback.admin }}</span>
+                            </div>
+                            <div class="feedback-content">{{ feedback.content }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="no-feedback">No previous feedback available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-footer">
+            <div class="review-decision-section">
+                <h3><i class="fas fa-gavel"></i> Form Decision</h3>
+                <div class="decision-options">
+                    <form action="{{ url_for('attorney_update_petition_status', petition_id=petition.id) }}" method="post" id="petition-decision-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="status" id="decision-status" value="">
+                        
+                        <div class="form-group mb-3">
+                            <label for="decision-notes" class="form-label">Decision Notes</label>
+                            <textarea name="notes" id="decision-notes" class="form-control" rows="4" placeholder="Enter your decision notes here..."></textarea>
+                        </div>
+                        
+                        <div class="decision-buttons">
+                            <button type="button" class="btn btn-success btn-lg decision-btn" data-status="Approved" id="approve-btn">
+                                <i class="fas fa-check-circle"></i> Approve Form
+                            </button>
+                            <button type="button" class="btn btn-danger btn-lg decision-btn" data-status="Rejected" id="reject-btn">
+                                <i class="fas fa-times-circle"></i> Reject Form
+                            </button>
+                            <button type="button" class="btn btn-warning btn-lg decision-btn" data-status="Needs Information" id="needs-info-btn">
+                                <i class="fas fa-question-circle"></i> Request More Information
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="button-container mt-4">
+                <a href="{{ url_for('attorney_i129_form', petition_id=petition.id) }}" class="btn btn-primary">
+                    <i class="fas fa-file-alt"></i> Complete I-129 Form
+                </a>
+                <a href="{{ url_for('attorney_i140_form', petition_id=petition.id) }}" class="btn btn-success ms-2">
+                    <i class="fas fa-file-alt"></i> Complete I-140 Form
+                </a>
+                <a href="{{ url_for('attorney') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Document Viewer Modal -->
+<div class="modal" id="documentViewerModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="document-title">Document Title</h3>
+                <button class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="document-viewer">
+                    <div class="document-loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading document...
+                    </div>
+                    <iframe id="document-frame" style="width: 100%; height: 500px; display: none;"></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a id="download-document" href="#" class="btn btn-primary" download>
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal" id="confirmationModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="confirmation-title">Confirm Action</h3>
+                <button class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmation-message">Are you sure you want to proceed with this action?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button id="confirm-action-btn" class="btn btn-primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize progress bars
+    const progressFills = document.querySelectorAll('.progress-fill');
+    progressFills.forEach(fill => {
+        const percentage = fill.getAttribute('data-percentage');
+        if (percentage) {
+            fill.style.width = percentage + '%';
+        }
+    });
+    
+    // Document viewer functionality
+    const viewDocButtons = document.querySelectorAll('.view-doc-btn');
+    const documentFrame = document.getElementById('document-frame');
+    const documentTitle = document.getElementById('document-title');
+    const downloadDocument = document.getElementById('download-document');
+    
+    viewDocButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const docId = this.getAttribute('data-doc-id');
+            const docName = this.closest('.document-item').querySelector('.doc-name').textContent;
+            
+            // Show loading indicator
+            documentFrame.style.display = 'none';
+            document.querySelector('.document-loading').style.display = 'block';
+            
+            // Set document title
+            documentTitle.textContent = docName;
+            
+            // Simulate loading document (in a real app, you'd fetch the document URL)
+            setTimeout(() => {
+                // Hide loading indicator and show document
+                document.querySelector('.document-loading').style.display = 'none';
+                documentFrame.style.display = 'block';
+                
+                // Set document source (simulated)
+                documentFrame.src = `/api/admin/document/${docId}/view`;
+                
+                // Set download link
+                downloadDocument.href = `/api/admin/document/${docId}/download`;
+                
+                // Show modal
+                openModal('documentViewerModal');
+            }, 1000);
+        });
+    });
+    
+    // Check matches button
+    const checkMatchesBtn = document.getElementById('check-matches-btn');
+    if (checkMatchesBtn) {
+        checkMatchesBtn.addEventListener('click', function() {
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+            
+            // In a real app, you would call an API to check matches
+            // For demo purposes, we'll just simulate a delay and reload
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        });
+    }
+    
+    // Save feedback button
+    const saveFeedbackBtn = document.getElementById('save-feedback-btn');
+    if (saveFeedbackBtn) {
+        saveFeedbackBtn.addEventListener('click', function() {
+            const feedbackNotes = document.getElementById('feedback-notes').value;
+            
+            if (!feedbackNotes.trim()) {
+                alert('Please enter feedback before saving');
+                return;
+            }
+            
+            // Show loading state
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            // In a real app, you would call an API to save feedback
+            // For demo purposes, we'll just simulate a delay and reload
+            setTimeout(() => {
+                alert('Feedback saved successfully!');
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-save"></i> Save Feedback';
+            }, 1000);
+        });
+    }
+    
+    // Action buttons (approve, request changes, reject)
+    const approveBtn = document.getElementById('approve-btn');
+    const requestChangesBtn = document.getElementById('request-changes-btn');
+    const rejectBtn = document.getElementById('reject-btn');
+    const confirmActionBtn = document.getElementById('confirm-action-btn');
+    let currentAction = null;
+    
+    function showConfirmation(title, message, action) {
+        document.getElementById('confirmation-title').textContent = title;
+        document.getElementById('confirmation-message').textContent = message;
+        currentAction = action;
+        openModal('confirmationModal');
+    }
+    
+    if (confirmActionBtn) {
+        confirmActionBtn.addEventListener('click', function() {
+            closeModal(document.getElementById('confirmationModal'));
+            if (currentAction) {
+                currentAction();
+            }
+        });
+    }
+    
+    if (approveBtn) {
+        approveBtn.addEventListener('click', function() {
+            showConfirmation(
+                'Confirm Approval',
+                'Are you sure you want to approve this form? This will notify the petitioner that their form has been approved.',
+                function() {
+                    // Show loading state
+                    approveBtn.disabled = true;
+                    approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Approving...';
+                    
+                    // In a real app, you would call an API to approve the form
+                    // For demo purposes, we'll just simulate a delay and redirect
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('admin') }}";
+                    }, 1000);
+                }
+            );
+        });
+    }
+    
+    if (requestChangesBtn) {
+        requestChangesBtn.addEventListener('click', function() {
+            showConfirmation(
+                'Confirm Request Changes',
+                'Are you sure you want to request changes to this form? This will notify the petitioner that they need to make changes.',
+                function() {
+                    // Show loading state
+                    requestChangesBtn.disabled = true;
+                    requestChangesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Requesting Changes...';
+                    
+                    // In a real app, you would call an API to request changes
+                    // For demo purposes, we'll just simulate a delay and redirect
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('admin') }}";
+                    }, 1000);
+                }
+            );
+        });
+    }
+    
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', function() {
+            showConfirmation(
+                'Confirm Rejection',
+                'Are you sure you want to reject this form? This will notify the petitioner that their form has been rejected.',
+                function() {
+                    // Show loading state
+                    rejectBtn.disabled = true;
+                    rejectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rejecting...';
+                    
+                    // In a real app, you would call an API to reject the form
+                    // For demo purposes, we'll just simulate a delay and redirect
+                    setTimeout(() => {
+                        window.location.href = "{{ url_for('admin') }}";
+                    }, 1000);
+                }
+            );
+        });
+    }
+    
+    // Modal functionality
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.classList.add('modal-open');
+        }
+    }
+    
+    function closeModal(modal) {
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+    
+    // Close modals when clicking close button or outside
+    const closeButtons = document.querySelectorAll('.modal .close, .modal .btn-secondary[data-dismiss="modal"]');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            closeModal(modal);
+        });
+    });
+    
+    window.addEventListener('click', function(e) {
+        document.querySelectorAll('.modal').forEach(modal => {
+            if (e.target === modal) {
+                closeModal(modal);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

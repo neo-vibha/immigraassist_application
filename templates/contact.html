@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - ImmigraAssist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/custom.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/contact.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <!-- <script>
+        // JavaScript for authentication
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in when page loads
+            const checkAuth = function() {
+                if (window.immigraAPI) {
+                    // Check if user is logged in
+                    if (!window.immigraAPI.auth.isLoggedIn()) {
+                        // Redirect to login page if not logged in
+                        window.location.href = "{{ url_for('login') }}";
+                    } else {
+                        // User is logged in, update the user name in the header
+                        const userInfo = window.immigraAPI.auth.getCurrentUser();
+                        if (userInfo && userInfo.firstName) {
+                            document.getElementById('user-name').textContent = userInfo.firstName;
+                        }
+                    }
+                } else {
+                    // If immigraAPI is not loaded yet, wait a bit and try again
+                    setTimeout(checkAuth, 100);
+                }
+            };
+            
+            // Start the auth check process
+            checkAuth();
+            
+            // Setup logout button
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.immigraAPI && window.immigraAPI.auth) {
+                    window.immigraAPI.auth.logout();
+                    window.location.href = "{{ url_for('index')}}";
+                }
+            });
+
+            // Contact form submission
+            const contactForm = document.getElementById('contact-form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(contactForm);
+                    const formObject = {};
+                    formData.forEach((value, key) => {
+                        formObject[key] = value;
+                    });
+                    
+                    // Show loading state
+                    const submitBtn = contactForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                    submitBtn.disabled = true;
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        // Show success message
+                        const successMessage = document.createElement('div');
+                        successMessage.classList.add('success-message');
+                        successMessage.innerHTML = '<i class="fas fa-check-circle"></i> Your message has been sent successfully. We\'ll get back to you soon!';
+                        
+                        contactForm.reset();
+                        contactForm.appendChild(successMessage);
+                        
+                        // Reset button
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        
+                        // Remove success message after 5 seconds
+                        setTimeout(() => {
+                            successMessage.style.opacity = '0';
+                            setTimeout(() => {
+                                contactForm.removeChild(successMessage);
+                            }, 500);
+                        }, 5000);
+                    }, 1500);
+                });
+            }
+        });
+    </script> -->
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <div class="logo-top">
+                        <div class="logo-container">
+                            <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                            <div class="logo-content">
+                                <div class="logo-text">ImmigraAssist</div>
+                            </div>
+                        </div>
+                        <div class="logo-tagline">Empowering Immigration with Intelligence</div>
+                    </div>
+                    <div class="vg-logo-container">
+                        <img src="{{ url_for('static', filename='images/vg_logo.png') }}" alt="VG Group Logo" class="vg-logo-img">
+                        <div class="vg-text">A V GROUP INITIATIVE</div>
+                    </div>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('services') }}">Services</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('contact') }}" class="active">Contact</a>
+            </div>
+            <div class="auth-buttons">
+                <span id="user-name" class="user-name"></span>
+                <a href="/logout" class="btn-login" id="logout-btn">Logout</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="contact-hero">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+            <div class="hero-content">
+                <h1>Get in Touch</h1>
+                <p>Have questions or need assistance? Our team is here to help you with your immigration journey</p>
+            </div>
+        </section>
+        
+        <div class="contact-container">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <div class="card-header">
+                            <h2>Contact Information</h2>
+                            <p>Our team is ready to assist you with any questions or concerns</p>
+                        </div>
+                        <div class="info-items">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h3>Our Office</h3>
+                                    <p>379 Princeton-Hightstown Road,<br>Building 3, Suite 2A, East Windsor,<br>New Jersey - 08520</p>
+                                    <p>(609) 371-5400</p>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h3>Phone</h3>
+                                    <p>+1 (609) 371-5400</p>
+                                    <p>Monday - Friday, 9AM - 6PM EST</p>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="info-content">
+                                    <h3>Email</h3>
+                                    
+                                    <p>hrcontracts@vgroupinc.com</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="social-links">
+                            <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3042.7122628138396!2d-74.54364492346847!3d40.2727975713508!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c3dd01a9b7d447%3A0x3e3c4ffa2d0f1c44!2s379%20Princeton%20Hightstown%20Rd%20Building%203%2C%20East%20Windsor%2C%20NJ%2008520!5e0!3m2!1sen!2sus!4v1716816306793!5m2!1sen!2sus"
+                            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+                
+                <div class="contact-form-container">
+                    <div class="form-header">
+                        <h2>Send Us a Message</h2>
+                        <p>Fill out the form below and we'll get back to you as soon as possible</p>
+                    </div>
+                    
+                    <form id="contact-form" class="contact-form">
+                        <div class="form-group">
+                            <div class="form-field">
+                                <label for="first-name">First Name*</label>
+                                <input type="text" id="first-name" name="firstName" required>
+                            </div>
+                            <div class="form-field">
+                                <label for="last-name">Last Name*</label>
+                                <input type="text" id="last-name" name="lastName" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-field">
+                                <label for="email">Email Address*</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-field">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone">
+                            </div>
+                        </div>
+                        
+                        <div class="form-field full-width">
+                            <label for="subject">Subject*</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        
+                        <div class="form-field full-width">
+                            <label for="inquiry-type">Type of Inquiry*</label>
+                            <select id="inquiry-type" name="inquiryType" required>
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="employment-visa">Employment Visa</option>
+                                <option value="family-visa">Family Immigration</option>
+                                <option value="green-card">Green Card</option>
+                                <option value="citizenship">Citizenship</option>
+                                <option value="business">Business Immigration</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-field full-width">
+                            <label for="message">Message*</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        
+                        <div class="form-field checkbox-field">
+                            <input type="checkbox" id="privacy-policy" name="privacyPolicy" required>
+                            <label for="privacy-policy">I agree to the <a href="#">Privacy Policy</a> and consent to the processing of my personal data.</label>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">
+                            <span>Send Message</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- FAQ Section -->
+            <section class="faq-section">
+                <div class="section-header">
+                    <h2>Frequently Asked Questions</h2>
+                    <p>Find answers to common questions about our services and immigration process</p>
+                </div>
+                
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>How does the AI-powered document analysis work?</h3>
+                            <span class="toggle-icon"><i class="fas fa-plus"></i></span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Our AI system uses advanced machine learning algorithms to analyze your documents for completeness, accuracy, and consistency. It identifies potential issues or missing information based on the specific requirements of your visa or immigration application type, saving you time and reducing the risk of errors.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>What types of immigration services do you offer?</h3>
+                            <span class="toggle-icon"><i class="fas fa-plus"></i></span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>We offer a comprehensive range of immigration services including employment visas (H1B, L1, O1, etc.), family immigration, green card applications, citizenship applications, business immigration, and specialized AI-powered solutions to streamline your immigration journey.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>How long does the immigration process typically take?</h3>
+                            <span class="toggle-icon"><i class="fas fa-plus"></i></span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Processing times vary greatly depending on the type of application, your country of origin, and current USCIS workload. Our dashboard provides real-time estimates based on your specific case and current processing trends. We also provide regular updates about any changes in policies or procedures that might affect your timeline.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <h3>Do you offer consultation services before I begin my application?</h3>
+                            <span class="toggle-icon"><i class="fas fa-plus"></i></span>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Yes, we offer both AI-assisted preliminary assessments and personalized consultations with our immigration experts. These consultations help determine your eligibility, identify the best path forward, and prepare you for the application process. You can schedule a consultation through our dashboard or by contacting our support team.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- CTA Section -->
+            <section class="cta-section">
+                <div class="cta-content">
+                    <h2>Need Immediate Assistance?</h2>
+                    <p>Our team is available for urgent immigration matters and time-sensitive applications</p>
+                    <div class="cta-buttons">
+                        <a href="tel:+16093715400" class="btn-primary">Call Us Now</a>
+                        <a href="dashboard.html" class="btn-secondary">Go to Dashboard</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                <div class="logo-text">ImmigraAssist</div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h3>Services</h3>
+                    <a href="{{ url_for('services') }}">Employment Visas</a>
+                    <a href="{{ url_for('services') }}">Family Immigration</a>
+                    <a href="{{ url_for('services') }}">Green Cards</a>
+                    <a href="{{ url_for('services') }}">Citizenship</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <a href="#">Immigration News</a>
+                    <a href="#">Visa Guides</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Blog</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <a href="{{ url_for('about') }}">About Us</a>
+                    <a href="{{ url_for('contact') }}">Contact</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Connect</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                    <p>Subscribe to our newsletter</p>
+                    <div class="newsletter-form">
+                        <input type="email" placeholder="Your email">
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ImmigraAssist. All rights reserved. A V Group Initiative.</p>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const answer = item.querySelector('.faq-answer');
+                const icon = item.querySelector('.toggle-icon i');
+                
+                question.addEventListener('click', () => {
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item && otherItem.classList.contains('active')) {
+                            otherItem.classList.remove('active');
+                            otherItem.querySelector('.faq-answer').style.maxHeight = null;
+                            otherItem.querySelector('.toggle-icon i').className = 'fas fa-plus';
+                        }
+                    });
+                    
+                    item.classList.toggle('active');
+                    
+                    if (item.classList.contains('active')) {
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                        icon.className = 'fas fa-minus';
+                    } else {
+                        answer.style.maxHeight = null;
+                        icon.className = 'fas fa-plus';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

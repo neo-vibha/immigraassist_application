@@ -1,0 +1,40 @@
+/* Admin header button styles */
+.admin-header-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-btn {
+    padding: 8px 16px;
+    background: linear-gradient(145deg, var(--primary-color), #1a365d);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    background: linear-gradient(145deg, #4e74ff, #2a4570);
+}
+
+.admin-btn i {
+    margin-right: 8px;
+}
+
+.admin-btn.logout {
+    background: linear-gradient(145deg, #ff6584, #e74c3c);
+}
+
+.admin-btn.logout:hover {
+    background: linear-gradient(145deg, #ff7594, #f75e4c);
+}

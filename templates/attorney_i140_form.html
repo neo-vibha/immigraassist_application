@@ -1,0 +1,539 @@
+{% extends "attorney_base.html" %}
+
+{% block title %}I-140 Form - Admin Corner{% endblock %}
+
+{% block attorney_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Form I-140: Immigrant Petition for Alien Worker</h2>
+        <div>
+            <span class="badge {% if state == 'Approved' %}badge-success{% elif state == 'Under Review' %}badge-warning{% elif state == 'Pending' %}badge-info{% else %}badge-danger{% endif %}">
+                {{ state }}
+            </span>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <form id="i140-form" method="post" action="{{ url_for('update_i140_petition', petition_id=petition.id) }}">
+            <div class="form-sections">
+                <!-- Form instructions -->
+                <div class="form-section-info alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <p>This form is used by an employer to petition for an alien worker to become a permanent resident in the United States.</p>
+                    <p>Fields marked with * are required.</p>
+                </div>
+
+                <!-- Part 1: Petitioner Information -->
+                <div class="form-section">
+                    <h3>Part 1. Petitioner Information</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="company_name" class="required-field">Legal Name of Petitioning Company or Organization *</label>
+                                <input type="text" id="company_name" name="company_name" class="form-control" 
+                                    value="{{ petition.company_name or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="trade_name">Trade Name or "Doing Business As" Name (if any)</label>
+                                <input type="text" id="trade_name" name="trade_name" class="form-control" 
+                                    value="{{ petition.trade_name or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="street_address" class="required-field">Street Address *</label>
+                                <input type="text" id="street_address" name="street_address" class="form-control" 
+                                    value="{{ petition.street_address or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="apt_ste_flr">Apt/Suite/Floor Number</label>
+                                <input type="text" id="apt_ste_flr" name="apt_ste_flr" class="form-control" 
+                                    value="{{ petition.apt_ste_flr or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="city" class="required-field">City or Town *</label>
+                                <input type="text" id="city" name="city" class="form-control" 
+                                    value="{{ petition.city or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="state" class="required-field">State *</label>
+                                <input type="text" id="state" name="state" class="form-control" 
+                                    value="{{ petition.state or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="zip_code" class="required-field">ZIP Code *</label>
+                                <input type="text" id="zip_code" name="zip_code" class="form-control" 
+                                    value="{{ petition.zip_code or '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="country">Country</label>
+                                <input type="text" id="country" name="country" class="form-control" 
+                                    value="{{ petition.country or 'United States' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="fein" class="required-field">Federal Employer Identification Number (FEIN) *</label>
+                                <input type="text" id="fein" name="fein" class="form-control" 
+                                    value="{{ petition.fein or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="uscis_account">USCIS Online Account Number</label>
+                                <input type="text" class="form-control" id="uscis_account" name="uscis_account"
+                                    value="{{ petition.uscis_account or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="contact_name" class="required-field">Contact Person Name *</label>
+                                <input type="text" id="contact_name" name="contact_name" class="form-control" 
+                                    value="{{ petition.contact_name or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="contact_title" class="required-field">Contact Person's Title *</label>
+                                <input type="text" id="contact_title" name="contact_title" class="form-control" 
+                                    value="{{ petition.contact_title or '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="email" class="required-field">Contact Email *</label>
+                                <input type="email" id="email" name="email" class="form-control" 
+                                    value="{{ petition.email or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="phone" class="required-field">Contact Phone *</label>
+                                <input type="tel" id="phone" name="phone" class="form-control" 
+                                    value="{{ petition.phone or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="mobile_phone">Mobile Phone</label>
+                                <input type="tel" id="mobile_phone" name="mobile_phone" class="form-control" 
+                                    value="{{ petition.mobile_phone or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Part 2: Beneficiary Information -->
+                <div class="form-section">
+                    <h3>Part 2. Beneficiary Information</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="alien_number">Alien Registration Number (A-Number) *</label>
+                                <input type="text" class="form-control" id="alien_number" name="alien_number" 
+                                    value="{{ petition.alien_number or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="ssn">Social Security Number</label>
+                                <input type="text" class="form-control" id="ssn" name="ssn"
+                                    value="{{ petition.ssn or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="visa_classification">Current Visa Classification</label>
+                                <input type="text" id="visa_classification" name="visa_classification" class="form-control" 
+                                    value="{{ petition.visa_classification or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="beneficiary_family_name">Family Name (Last Name) *</label>
+                                <input type="text" class="form-control" id="beneficiary_family_name" name="beneficiary_family_name"
+                                    value="{{ petition.beneficiary_family_name or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="beneficiary_given_name">Given Name (First Name) *</label>
+                                <input type="text" class="form-control" id="beneficiary_given_name" name="beneficiary_given_name"
+                                    value="{{ petition.beneficiary_given_name or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="beneficiary_middle_name">Middle Name</label>
+                                <input type="text" class="form-control" id="beneficiary_middle_name" name="beneficiary_middle_name"
+                                    value="{{ petition.beneficiary_middle_name or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Have you ever used other names? *</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="other_names_used" id="other_names_yes" value="yes" {% if petition.other_names_used == 'yes' %}checked{% endif %}>
+                                    <label class="form-check-label" for="other_names_yes">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="other_names_used" id="other_names_no" value="no" {% if petition.other_names_used == 'no' or not petition.other_names_used %}checked{% endif %}>
+                                    <label class="form-check-label" for="other_names_no">No</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="other_names_section" style="display: none;">
+                            <div class="form-group">
+                                <label for="other_family_name">Other Family Name</label>
+                                <input type="text" class="form-control" id="other_family_name" name="other_family_name"
+                                    value="{{ petition.other_family_name or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="other_given_name">Other Given Name</label>
+                                <input type="text" class="form-control" id="other_given_name" name="other_given_name"
+                                    value="{{ petition.other_given_name or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="birth_date">Date of Birth (mm/dd/yyyy) *</label>
+                                <input type="date" class="form-control" id="birth_date" name="birth_date"
+                                    value="{{ petition.birth_date or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="gender">Gender *</label>
+                                <select class="form-control" id="gender" name="gender" required>
+                                    <option value="" {% if not petition.gender %}selected{% endif %}>Select Gender</option>
+                                    <option value="Male" {% if petition.gender == 'Male' %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if petition.gender == 'Female' %}selected{% endif %}>Female</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="city_of_birth">City/Town/Village of Birth *</label>
+                                <input type="text" class="form-control" id="city_of_birth" name="city_of_birth"
+                                    value="{{ petition.city_of_birth or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="country_of_birth">Country of Birth *</label>
+                                <input type="text" class="form-control" id="country_of_birth" name="country_of_birth"
+                                    value="{{ petition.country_of_birth or '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="country_of_citizenship">Country of Citizenship/Nationality *</label>
+                                <input type="text" class="form-control" id="country_of_citizenship" name="country_of_citizenship"
+                                    value="{{ petition.country_of_citizenship or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="passport_number">Passport Number</label>
+                                <input type="text" class="form-control" id="passport_number" name="passport_number"
+                                    value="{{ petition.passport_number or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="arrival_date">Date of Last Arrival (mm/dd/yyyy)</label>
+                                <input type="date" class="form-control" id="arrival_date" name="arrival_date"
+                                    value="{{ petition.arrival_date or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="i94_number">I-94 Arrival-Departure Record Number</label>
+                                <input type="text" class="form-control" id="i94_number" name="i94_number"
+                                    value="{{ petition.i94_number or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Part 3: Employment Information -->
+                <div class="form-section">
+                    <h3>Part 3. Employment Information</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="job_title" class="required-field">Job Title *</label>
+                                <input type="text" class="form-control" id="job_title" name="job_title"
+                                    value="{{ petition.job_title or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="soc_code">SOC Code</label>
+                                <input type="text" class="form-control" id="soc_code" name="soc_code"
+                                    value="{{ petition.soc_code or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="education_level" class="required-field">Minimum Education Level Required *</label>
+                                <select class="form-control" id="education_level" name="education_level" required>
+                                    <option value="" {% if not petition.education_level %}selected{% endif %}>Select Education Level</option>
+                                    <option value="Bachelor's" {% if petition.education_level == "Bachelor's" %}selected{% endif %}>Bachelor's Degree</option>
+                                    <option value="Master's" {% if petition.education_level == "Master's" %}selected{% endif %}>Master's Degree</option>
+                                    <option value="Doctorate" {% if petition.education_level == "Doctorate" %}selected{% endif %}>Doctorate</option>
+                                    <option value="Other" {% if petition.education_level == "Other" %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="years_experience" class="required-field">Years of Experience Required *</label>
+                                <input type="number" class="form-control" id="years_experience" name="years_experience"
+                                    value="{{ petition.years_experience or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="annual_salary" class="required-field">Annual Salary Offered (USD) *</label>
+                                <input type="text" class="form-control" id="annual_salary" name="annual_salary"
+                                    value="{{ petition.annual_salary or '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="job_duties">Job Duties</label>
+                                <textarea class="form-control" id="job_duties" name="job_duties" rows="4">{{ petition.job_duties or '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Is this a full-time position? *</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="full_time" id="full_time_yes" value="yes" {% if petition.full_time == 'yes' %}checked{% endif %}>
+                                    <label class="form-check-label" for="full_time_yes">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="full_time" id="full_time_no" value="no" {% if petition.full_time == 'no' %}checked{% endif %}>
+                                    <label class="form-check-label" for="full_time_no">No</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="hours_per_week_div" {% if petition.full_time != 'no' %}style="display: none;"{% endif %}>
+                            <div class="form-group">
+                                <label for="hours_per_week">Hours Per Week</label>
+                                <input type="number" class="form-control" id="hours_per_week" name="hours_per_week"
+                                    value="{{ petition.hours_per_week or '' }}" min="1" max="40">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Is the work location the same as the petitioner address?</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="same_address" name="same_address" value="yes">
+                                    <label class="form-check-label" for="same_address">Yes, the work location is the same as the petitioner address</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="work_address_section">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="work_street_1">Work Location Street Address</label>
+                                    <input type="text" class="form-control" id="work_street_1" name="work_street_1"
+                                        value="{{ petition.work_street_1 or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="work_apt_1">Apt/Suite/Floor Number</label>
+                                    <input type="text" class="form-control" id="work_apt_1" name="work_apt_1"
+                                        value="{{ petition.work_apt_1 or '' }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="work_city_1">City or Town</label>
+                                    <input type="text" class="form-control" id="work_city_1" name="work_city_1"
+                                        value="{{ petition.work_city_1 or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="work_state_1">State</label>
+                                    <input type="text" class="form-control" id="work_state_1" name="work_state_1"
+                                        value="{{ petition.work_state_1 or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="work_zip_1">ZIP Code</label>
+                                    <input type="text" class="form-control" id="work_zip_1" name="work_zip_1"
+                                        value="{{ petition.work_zip_1 or '' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form submission button -->
+                <div class="form-submit mt-4 d-flex justify-content-between">
+                    <a href="{{ url_for('attorney_view_petition', petition_id=petition.id) }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Petition
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save I-140 Form
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        const form = document.getElementById('i140-form');
+        
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                event.preventDefault();
+                alert('Please fill in all required fields');
+                
+                // Scroll to the first invalid field
+                const firstInvalid = document.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+        
+        // Toggle Other Names section
+        const otherNamesRadios = document.querySelectorAll('input[name="other_names_used"]');
+        const otherNamesSection = document.getElementById('other_names_section');
+        
+        otherNamesRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'yes' && this.checked) {
+                    otherNamesSection.style.display = 'block';
+                } else {
+                    otherNamesSection.style.display = 'none';
+                }
+            });
+        });
+        
+        // Initialize Other Names section display
+        const otherNamesYes = document.getElementById('other_names_yes');
+        if (otherNamesYes && otherNamesYes.checked) {
+            otherNamesSection.style.display = 'block';
+        }
+        
+        // Toggle hours per week visibility based on full-time selection
+        const fullTimeYes = document.getElementById('full_time_yes');
+        const fullTimeNo = document.getElementById('full_time_no');
+        const hoursPerWeekDiv = document.getElementById('hours_per_week_div');
+        
+        if (fullTimeYes && fullTimeNo && hoursPerWeekDiv) {
+            fullTimeYes.addEventListener('change', function() {
+                hoursPerWeekDiv.style.display = 'none';
+            });
+            
+            fullTimeNo.addEventListener('change', function() {
+                hoursPerWeekDiv.style.display = 'block';
+            });
+        }
+        
+        // Auto-populate work address if same as petitioner address
+        const sameAddressCheckbox = document.getElementById('same_address');
+        if (sameAddressCheckbox) {
+            sameAddressCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    document.getElementById('work_street_1').value = document.getElementById('street_address').value;
+                    document.getElementById('work_apt_1').value = document.getElementById('apt_ste_flr').value;
+                    document.getElementById('work_city_1').value = document.getElementById('city').value;
+                    document.getElementById('work_state_1').value = document.getElementById('state').value;
+                    document.getElementById('work_zip_1').value = document.getElementById('zip_code').value;
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

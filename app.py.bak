@@ -1,0 +1,1515 @@
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+from datetime import datetime
+from models import User, Petition, db
+import re
+from markupsafe import Markup
+
+app = Flask(__name__)
+app.secret_key = 'your-very-secure-secret-key'  # use a long, random key in production
+
+# Define the nl2br filter
+@app.template_filter('nl2br')
+def nl2br(value):
+    if value:
+        value = str(value)
+        return Markup(value.replace('\n', '<br>\n'))
+    return ''
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Venus%402002@localhost/immigraassist'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['WTF_CSRF_ENABLED'] = False  # Temporarily disable CSRF for testing
+
+# Initialize extensions
+db.init_app(app)
+csrf = CSRFProtect(app)
+
+# class User(db.Model):
+#     __tablename__ = 'users'  # Must match your MySQL table name
+#     id = db.Column(db.Integer, primary_key=True)
+#     firstname = db.Column(db.String(80), nullable=False)
+#     lastname = db.Column(db.String(80), nullable=False)
+#     email = db.Column(db.String(120), unique=True, nullable=False)
+#     phone = db.Column(db.String(20), nullable=False)
+#     password = db.Column(db.String(255), nullable=False)
+#     role = db.Column(db.String(20), default='user')
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            flash('Please log in first.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def Admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in') or not session.get('is_Admin'):
+            flash('Access denied. Admin privileges required.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in') or not (session.get('is_Admin') or session.get('is_admin')):
+            flash('Access denied. Admin privileges required.', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def get_document_icon(doc_type):
+    # Return appropriate FontAwesome icon class based on document type
+    icon_map = {
+        'Passport': 'fa-passport',
+        'Birth Certificate': 'fa-file-alt',
+        'Marriage Certificate': 'fa-file-contract',
+        'Employment Letter': 'fa-file-signature',
+        'Academic Transcript': 'fa-file-alt',
+        'Tax Return': 'fa-file-invoice-dollar',
+        'I-94 Record': 'fa-file-alt',
+        'Previous Visa': 'fa-id-card'
+    }
+    
+    # Return the mapped icon or a default icon if not found
+    return icon_map.get(doc_type, 'fa-file')
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        # Query user by email
+        user = User.query.filter_by(email=email).first()
+
+        print(user.firstname)
+
+        if user and check_password_hash(user.password, password):
+            # Check for orphaned petitions associated with this email but not with this user
+            # This ensures data persistence across login sessions with the same email
+            orphaned_petitions = Petition.query.filter(
+                Petition.email == email,
+                Petition.user_id != user.id
+            ).all()
+            
+            # If there are orphaned petitions, associate them with the current user
+            if orphaned_petitions:
+                print(f"Found {len(orphaned_petitions)} orphaned petitions for email {email}. Associating with user {user.id}")
+                for petition in orphaned_petitions:
+                    petition.user_id = user.id
+                db.session.commit()
+            
+            session.clear()
+            session['logged_in'] = True
+            session['user_id'] = user.id
+            session['email'] = email  # Store the user's email in the session for petition lookups
+            session['is_Admin'] = user.role == 'Admin'
+            session['is_admin'] = user.role == 'admin' or user.role == 'Admin'  # Admin has admin access
+            session['admin_name'] = f"{user.firstname} {user.lastname}" if user.role == 'admin' or user.role == 'Admin' else ''
+            flash('Logged in successfully!', 'success')
+            if user.role == 'Admin' or user.role == 'admin':
+                return redirect(url_for('admin'))
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid email or password', 'error')
+            return redirect(url_for('login'))
+
+    return render_template('login.html')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        firstname = request.form.get('firstName')
+        lastname = request.form.get('lastName')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirmPassword')
+
+        if password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return redirect(url_for('signup'))
+
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered', 'error')
+            return redirect(url_for('signup'))
+
+        hashed_password = generate_password_hash(password)
+
+        new_user = User(
+            firstname=firstname,
+            lastname=lastname,
+            email=email,
+            phone=phone,
+            password=hashed_password
+        )
+
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Signup successful!', 'success')
+        return redirect(url_for('login'))
+
+    return render_template('signup.html')
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You have been logged out', 'success')
+    return redirect(url_for('index'))
+
+@app.route('/dashboard', methods=['GET', 'POST'])
+@login_required
+def dashboard():
+    # Get the current user's ID from session
+    user_id = session.get('user_id')
+    
+    # Check if the user has any existing petitions
+    existing_petition = None
+    if user_id:
+        existing_petition = Petition.query.filter_by(user_id=user_id).order_by(Petition.created_at.desc()).first()
+    
+    if request.method == 'POST':
+        try:
+            # Debug: Print form data
+            print("\n" + "="*50)
+            print("FORM SUBMISSION RECEIVED")
+            print("="*50)
+            print("Form submitted with data:")
+            for key, value in request.form.items():
+                print(f"{key}: {value}")
+            print("="*50 + "\n")
+            
+            # Get the current user's ID from session
+            user_id = session.get('user_id')
+            
+            # TEMPORARY SOLUTION FOR TESTING: Use Admin user if no user is in session
+            if not user_id:
+                # Find Admin user or create one if it doesn't exist
+                Admin_user = User.query.filter_by(email='Admin@example.com').first()
+                if not Admin_user:
+                    print("Creating Admin user for testing")
+                    Admin_user = User(
+                        firstname='Admin',
+                        lastname='User',
+                        email='Admin@example.com',
+                        phone='1234567890',
+                        password=generate_password_hash('Admin123'),
+                        role='Admin'
+                    )
+                    db.session.add(Admin_user)
+                    db.session.commit()
+                
+                user_id = Admin_user.id
+                print(f"Using Admin user (id: {user_id}) for testing")
+            else:
+                # Verify the user exists in the database
+                user = User.query.get(user_id)
+                if not user:
+                    # Find or create Admin user as fallback
+                    Admin_user = User.query.filter_by(email='Admin@example.com').first()
+                    if not Admin_user:
+                        Admin_user = User(
+                            firstname='Admin',
+                            lastname='User',
+                            email='Admin@example.com',
+                            phone='1234567890',
+                            password=generate_password_hash('Admin123'),
+                            role='Admin'
+                        )
+                        db.session.add(Admin_user)
+                        db.session.commit()
+                    
+                    user_id = Admin_user.id
+                    print(f"User not found, using Admin user (id: {user_id}) for testing")
+                else:
+                    print(f"Processing form for user_id: {user_id}, user: {user.email}")
+            
+            # Process birth date
+            birth_date = None
+            if request.form.get('birthDate'):
+                try:
+                    birth_date = datetime.strptime(request.form['birthDate'], '%Y-%m-%d')
+                    print(f"Parsed birth date: {birth_date}")
+                except ValueError as e:
+                    print(f"Error parsing birth date: {e}")
+                    flash('Invalid date format for birth date', 'error')
+                    return redirect(url_for('dashboard'))
+            
+            # Create a new petition with form data
+            petition = Petition(
+                user_id=user_id,
+                
+                # Part 1: Petitioner Information
+                petitioner_family_name=request.form['petitionerFamilyName'],
+                petitioner_given_name=request.form['petitionerGivenName'],
+                petitioner_middle_name=request.form.get('petitionerMiddleName', ''),
+                company_name=request.form['companyName'],
+                in_care_of=request.form.get('inCareOf', ''),
+                street_address=request.form.get('streetAddress', ''),
+                apt_ste_flr=request.form.get('aptSteFlr', ''),
+                city=request.form.get('city', ''),
+                state=request.form.get('state', ''),
+                zip_code=request.form.get('zipCode', ''),
+                province=request.form.get('province', ''),
+                postal_code=request.form.get('postalCode', ''),
+                country=request.form.get('country', ''),
+                daytime_phone=request.form['daytimePhone'],
+                mobile_phone=request.form.get('mobilePhone', ''),
+                email=request.form['email'],
+                fein=request.form['fein'],
+                
+                # Part 2: Basis for Classification
+                basis_for_classification=request.form['basisForClassification'],
+                
+                # Part 3: Beneficiary Information
+                beneficiary_family_name=request.form['beneficiaryFamilyName'],
+                beneficiary_given_name=request.form['beneficiaryGivenName'],
+                beneficiary_middle_name=request.form.get('beneficiaryMiddleName', ''),
+                other_family_name=request.form.get('otherFamilyName', ''),
+                other_given_name=request.form.get('otherGivenName', ''),
+                other_middle_name=request.form.get('otherMiddleName', ''),
+                birth_date=birth_date,
+                gender=request.form.get('gender', ''),
+                ssn=request.form.get('ssn', ''),
+                alien_number=request.form.get('alienNumber', ''),
+                country_of_birth=request.form['countryOfBirth'],
+                country_of_citizenship=request.form['countryOfCitizenship'],
+                passport_number=request.form['passportNumber'],
+                passport_expiry_date=datetime.strptime(request.form['passportExpiryDate'], '%Y-%m-%d'),
+                education_qualification=request.form['educationQualification'],
+                
+                # Part 4: Processing Information
+                foreign_street=request.form.get('foreignStreet', ''),
+                foreign_apt=request.form.get('foreignApt', ''),
+                foreign_city=request.form.get('foreignCity', ''),
+                foreign_state=request.form.get('foreignState', ''),
+                foreign_postal=request.form.get('foreignPostal', ''),
+                foreign_country=request.form.get('foreignCountry', ''),
+                valid_passport=request.form.get('validPassport', ''),
+                passport_explanation=request.form.get('passportExplanation', ''),
+                
+                # Part 5: Basic Information About Proposed Employment
+                job_title=request.form['jobTitle'],
+                lca_number=request.form['lcaNumber'],
+                work_street_1=request.form.get('workStreet1', ''),
+                work_apt_1=request.form.get('workApt1', ''),
+                work_city_1=request.form.get('workCity1', ''),
+                work_state_1=request.form.get('workState1', ''),
+                work_zip_1=request.form.get('workZip1', ''),
+                third_party_1=request.form.get('thirdParty1', 'no'),
+                third_party_org_1=request.form.get('thirdPartyOrg1', ''),
+                itinerary=request.form.get('itinerary', 'no'),
+                work_offsite=request.form.get('workOffsite', 'no'),
+                full_time=request.form.get('fullTime', 'yes'),
+                hours_per_week=int(request.form.get('hoursPerWeek', 0)) if request.form.get('hoursPerWeek') else None,
+                wage_amount=float(request.form.get('wageAmount', 0)) if request.form.get('wageAmount') else 0,
+                wage_period=request.form.get('wagePeriod', '')
+            )
+            
+            print("Petition object created successfully")
+            
+            # Add to database and commit
+            db.session.add(petition)
+            print("Petition added to session")
+            db.session.commit()
+            print("Database commit successful")
+            
+            # Show success message
+            flash('Petition submitted successfully!', 'success')
+            
+            # Return a response that will trigger the document requirements page
+            return render_template('dashboard.html', 
+                                  show_documents=True, 
+                                  petition_submitted=True)
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error submitting petition: {str(e)}', 'error')
+            print(f"Exception details: {str(e)}")
+            # Print the full traceback for debugging
+            import traceback
+            traceback.print_exc()
+
+    return render_template('dashboard.html', existing_petition=existing_petition)
+    
+@app.route('/services')
+@login_required
+def services():
+    return render_template('services.html')
+
+@app.route('/about')
+@login_required
+def about():
+    return render_template('about.html')
+
+@app.route('/contact', methods=['GET', 'POST'])
+@login_required
+def contact():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        message = request.form.get('message')
+        flash('Message sent successfully!', 'success')
+        return redirect(url_for('contact'))
+    return render_template('contact.html')
+
+@app.route('/Admin')
+@login_required
+@Admin_required
+def Admin():
+    users = User.query.all()
+    return render_template('Admin.html', users=users)
+
+@app.route('/delete_user/<int:user_id>', methods=['DELETE'])
+@login_required
+@Admin_required
+def delete_user(user_id):
+    if user_id == session.get('user_id'):
+        return jsonify({'success': False, 'message': 'Cannot delete yourself'})
+    
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'success': True})
+
+@app.route('/admin')
+@login_required
+@admin_required
+def admin():
+    # Redirect to the admin dashboard
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/dashboard')
+@login_required
+@admin_required
+def admin_dashboard():
+    # Get petitioners/applicants for this admin to review
+    # In a real app, this would filter by the logged-in admin
+    petitioners = []
+    
+    # Add simulated data for demonstration
+    import random
+    from datetime import datetime, timedelta
+    
+    # Generate random dates within the last 30 days
+    def random_date(days=30):
+        return (datetime.now() - timedelta(days=random.randint(0, days))).strftime('%Y-%m-%d')
+    
+    # Form types
+    form_types = ['I-129', 'I-130', 'I-485', 'I-765', 'N-400']
+    
+    # Generate sample petitioners
+    for i in range(1, 11):  # 10 sample petitioners
+        status = random.choice(['Pending', 'In Progress', 'Completed', 'Rejected'])
+        form_type = random.choice(form_types)
+        
+        if status == 'Completed':
+            completion_percentage = 100
+        elif status == 'Rejected':
+            completion_percentage = random.randint(10, 90)
+        else:
+            completion_percentage = random.randint(10, 90)
+        
+        petitioners.append({
+            'id': i,
+            'first_name': f'First{i}',
+            'last_name': f'Last{i}',
+            'email': f'petitioner{i}@example.com',
+            'phone': f'555-{i:03d}-{i*1111:04d}',
+            'status': status,
+            'form_type': form_type,
+            'submission_date': random_date(),
+            'completion_percentage': completion_percentage
+        })
+    
+    return render_template('admin_dashboard.html', petitioners=petitioners)
+
+@app.route('/admin/cases')
+@login_required
+@admin_required
+def admin_cases():
+    # Simulate active cases
+    active_cases = []
+    for i in range(1, 8):
+        case_types = ['H-1B', 'Green Card', 'PERM', 'L-1', 'O-1', 'I-130', 'I-485']
+        statuses = ['Initial Review', 'Request for Evidence', 'Preparing Documents', 'Ready for Filing', 'Filed']
+        
+        active_cases.append({
+            'id': i,
+            'client_name': f'Client {i}',
+            'visa_type': case_types[i-1],
+            'status': statuses[i % len(statuses)],
+            'priority_date': f'2023-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}',
+            'last_updated': f'{i} days ago'
+        })
+    
+    # Simulate archived cases
+    archived_cases = []
+    for i in range(8, 12):
+        case_types = ['H-1B', 'Green Card', 'PERM', 'L-1']
+        outcomes = ['Approved', 'Denied', 'Withdrawn', 'Approved']
+        
+        archived_cases.append({
+            'id': i,
+            'client_name': f'Client {i}',
+            'visa_type': case_types[i % len(case_types)],
+            'outcome': outcomes[i % len(outcomes)],
+            'close_date': f'2023-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}',
+            'notes': 'Case completed successfully' if 'Approved' in outcomes[i % len(outcomes)] else 'Case unsuccessful'
+        })
+    
+    return render_template('admin_cases.html', 
+                          active_cases=active_cases,
+                          archived_cases=archived_cases)
+
+@app.route('/admin/clients')
+@login_required
+@admin_required
+def admin_clients():
+    # Get page parameter from query string, default to 1
+    page = request.args.get('page', 1, type=int)
+    
+    # Simulate client list
+    all_clients = []
+    for i in range(1, 20):  # Create more clients to demonstrate pagination
+        status = 'Active' if i % 3 != 0 else 'Inactive'
+        all_clients.append({
+            'id': i,
+            'firstname': f'First{i}',
+            'lastname': f'Last{i}',
+            'email': f'client{i}@example.com',
+            'phone': f'555-000-{1000+i}',
+            'status': status,
+            'cases': [{'id': j, 'type': 'Case Type'} for j in range(1, i % 3 + 2)],
+            'join_date': f'2023-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}',
+            'notes': f'Client notes for client {i}\nMultiple lines of notes\nShowing nl2br filter'
+        })
+    
+    # Pagination logic
+    items_per_page = 10
+    total_clients = len(all_clients)
+    
+    # Calculate start and end indices for the current page
+    start_idx = (page - 1) * items_per_page
+    end_idx = min(start_idx + items_per_page, total_clients)
+    
+    # Get clients for the current page
+    clients = all_clients[start_idx:end_idx]
+    
+    # Determine if there are more pages
+    has_next = end_idx < total_clients
+    
+    return render_template('admin_clients.html', 
+                           clients=clients, 
+                           page=page,
+                           total_clients=total_clients,
+                           has_next=has_next)
+
+@app.route('/admin/forms')
+@login_required
+@admin_required
+def admin_forms():
+    # Simulate immigration forms
+    form_categories = {
+        'Employment-Based': [
+            {'id': 'I-129', 'name': 'Petition for Nonimmigrant Worker', 'description': 'For H-1B, L, O, and other employment-based temporary visas', 'last_updated': '2023-03-15'},
+            {'id': 'I-140', 'name': 'Immigrant Petition for Alien Worker', 'description': 'For employment-based green cards', 'last_updated': '2023-01-20'},
+            {'id': 'I-765', 'name': 'Application for Employment Authorization', 'description': 'For work permits', 'last_updated': '2023-02-10'}
+        ],
+        'Family-Based': [
+            {'id': 'I-130', 'name': 'Petition for Alien Relative', 'description': 'For sponsoring family members', 'last_updated': '2023-04-05'},
+            {'id': 'I-485', 'name': 'Application to Register Permanent Residence', 'description': 'For green card applications', 'last_updated': '2023-03-22'},
+            {'id': 'I-751', 'name': 'Petition to Remove Conditions on Residence', 'description': 'For conditional green card holders', 'last_updated': '2022-11-30'}
+        ],
+        'Humanitarian': [
+            {'id': 'I-589', 'name': 'Application for Asylum and Withholding of Removal', 'description': 'For asylum seekers', 'last_updated': '2023-04-22'},
+            {'id': 'I-918', 'name': 'Petition for U Nonimmigrant Status', 'description': 'For victims of crimes', 'last_updated': '2022-12-15'}
+        ]
+    }
+    
+    return render_template('admin_forms.html', form_categories=form_categories)
+
+@app.route('/admin/review-form/<int:petition_id>')
+@login_required
+@admin_required
+def admin_review_form(petition_id):
+    # In a real app, this would fetch the petition from the database
+    # For demo purposes, we'll create a simulated petition
+    import random
+    from datetime import datetime, timedelta
+    
+    # Generate a random date within the last 30 days
+    def random_date(days=30):
+        return (datetime.now() - timedelta(days=random.randint(0, days))).strftime('%Y-%m-%d')
+    
+    # Form types
+    form_types = ['I-129', 'I-130', 'I-485', 'I-765', 'N-400']
+    form_type = random.choice(form_types)
+    
+    # Statuses
+    statuses = ['Pending', 'In Progress', 'Completed', 'Rejected']
+    status = random.choice(statuses)
+    
+    # Completion percentage
+    if status == 'Completed':
+        completion_percentage = 100
+    elif status == 'Rejected':
+        completion_percentage = random.randint(10, 90)
+    else:
+        completion_percentage = random.randint(10, 90)
+    
+    # Create a petition object
+    petition = {
+        'id': petition_id,
+        'first_name': f'First{petition_id}',
+        'last_name': f'Last{petition_id}',
+        'email': f'petitioner{petition_id}@example.com',
+        'phone': f'555-{petition_id:03d}-{petition_id*1111:04d}',
+        'status': status,
+        'form_type': form_type,
+        'submission_date': random_date(),
+        'completion_percentage': completion_percentage,
+        'is_eligible': random.choice([True, False]),
+        'has_mismatches': random.choice([True, False]),
+        'admin_notes': 'Previous notes about this petition...' if random.random() > 0.5 else ''
+    }
+    
+    # Generate field matches
+    field_matches = []
+    fields = ['First Name', 'Last Name', 'Date of Birth', 'Country of Birth', 'Current Address', 'Passport Number']
+    for field in fields:
+        matches = random.random() > 0.3  # 70% chance of matching
+        field_match = {
+            'field_name': field,
+            'matches': matches
+        }
+        
+        if not matches:
+            field_match['form_value'] = f'Form value for {field}'
+            field_match['doc_value'] = f'Document value for {field}'
+        
+        field_matches.append(field_match)
+    
+    petition['field_matches'] = field_matches
+    
+    # Generate form sections
+    form_sections = [
+        {
+            'title': 'Personal Information',
+            'fields': [
+                {'id': 'first_name', 'label': 'First Name', 'value': petition['first_name']},
+                {'id': 'last_name', 'label': 'Last Name', 'value': petition['last_name']},
+                {'id': 'dob', 'label': 'Date of Birth', 'value': '1985-05-15'},
+                {'id': 'pob', 'label': 'Country of Birth', 'value': 'Mexico'}
+            ]
+        },
+        {
+            'title': 'Contact Information',
+            'fields': [
+                {'id': 'email', 'label': 'Email', 'value': petition['email']},
+                {'id': 'phone', 'label': 'Phone', 'value': petition['phone']},
+                {'id': 'address', 'label': 'Current Address', 'value': '123 Main St, Anytown, CA 12345'}
+            ]
+        },
+        {
+            'title': 'Immigration Information',
+            'fields': [
+                {'id': 'visa_type', 'label': 'Current Visa Type', 'value': 'B-2'},
+                {'id': 'passport', 'label': 'Passport Number', 'value': 'AB123456'},
+                {'id': 'entry_date', 'label': 'Last Entry Date', 'value': '2022-08-10'}
+            ]
+        }
+    ]
+    
+    petition['form_sections'] = form_sections
+    
+    # Generate mismatch fields
+    mismatch_fields = []
+    if petition['has_mismatches']:
+        # Randomly select some fields to be mismatches
+        all_field_ids = [field['id'] for section in form_sections for field in section['fields']]
+        num_mismatches = random.randint(1, 3)
+        mismatch_fields = random.sample(all_field_ids, num_mismatches)
+    
+    petition['mismatch_fields'] = mismatch_fields
+    
+    # Generate documents
+    document_types = ['Passport', 'Birth Certificate', 'Marriage Certificate', 'Visa', 'I-94 Record', 'Employment Letter']
+    document_icons = ['fa-passport', 'fa-file-alt', 'fa-file-contract', 'fa-id-card', 'fa-plane-arrival', 'fa-briefcase']
+    
+    documents = []
+    for i in range(random.randint(3, 6)):
+        doc_type = random.choice(document_types)
+        documents.append({
+            'id': i + 1,
+            'name': f'{doc_type} - {petition["first_name"]} {petition["last_name"]}',
+            'type': doc_type,
+            'icon': random.choice(document_icons),
+            'upload_date': random_date()
+        })
+    
+    petition['documents'] = documents
+    
+    # Generate feedback history
+    feedback_history = []
+    if random.random() > 0.5:  # 50% chance of having feedback history
+        num_feedback = random.randint(1, 3)
+        admin_names = ['John Smith', 'Maria Rodriguez', 'David Lee']
+        
+        for i in range(num_feedback):
+            feedback_history.append({
+                'date': random_date(),
+                'admin': random.choice(admin_names),
+                'content': f'Feedback entry #{i+1}. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+            })
+    
+    petition['feedback_history'] = feedback_history
+    
+    return render_template('admin_review_form.html', petition=petition)
+
+@app.route('/admin/documents')
+@login_required
+@admin_required
+def admin_documents():
+    # Simulate clients for document filtering
+    clients = []
+    for i in range(1, 10):
+        clients.append({
+            'id': i,
+            'name': f'Client {i}'
+        })
+    
+    # Simulate documents
+    documents = []
+    doc_types = ['Passport', 'Birth Certificate', 'Marriage Certificate', 'Employment Letter', 
+                'Academic Transcript', 'Tax Return', 'I-94 Record', 'Previous Visa']
+    
+    for i in range(1, 20):
+        doc_type = doc_types[i % len(doc_types)]
+        client_id = (i % 9) + 1
+        
+        documents.append({
+            'id': i,
+            'name': f'{doc_type} - Client {client_id}',
+            'type': doc_type,
+            'client_id': client_id,
+            'client_name': f'Client {client_id}',
+            'upload_date': f'2023-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}',
+            'size': (i % 10) + 1,
+            'size_formatted': f'{(i % 10) + 1} MB',
+            'icon': get_document_icon(doc_type),
+            'case_id': i if i % 4 == 0 else None,
+            'shared': (i % 3 == 0)
+        })
+    
+    return render_template('admin_documents.html', documents=documents, clients=clients)
+
+
+@app.route('/admin/upload-document', methods=['POST'])
+@login_required
+@admin_required
+def upload_admin_document():
+    # In a real application, handle file upload with request.files
+    # For this simulation, we'll just return a success response
+    
+    if request.method == 'POST':
+        # Get form data
+        name = request.form.get('name', '')
+        document_type = request.form.get('type', 'other')
+        client_id = request.form.get('client_id', '')
+        case_id = request.form.get('case_id', '')
+        
+        # Simulate file upload processing
+        # In a real app, you would save the file and store metadata in the database
+        
+        # Return success response
+        return jsonify({
+            'success': True,
+            'message': f'Document "{name}" uploaded successfully',
+            'document': {
+                'id': 999,  # Simulated new document ID
+                'name': name,
+                'type': document_type,
+                'client_id': int(client_id) if client_id.isdigit() else None,
+                'client_name': f'Client {client_id}' if client_id.isdigit() else 'No Client',
+                'case_id': int(case_id) if case_id.isdigit() else None,
+                'upload_date': datetime.now().strftime('%Y-%m-%d'),
+                'size_formatted': '2.5 MB',  # Simulated file size
+@login_required
+@admin_required
+def petition_details(petition_id):
+    # Simulate petition data
+    petition = {
+        'id': petition_id,
+        'type': 'H-1B Visa',
+        'status': 'Under Review',
+        'priority_date': '2023-05-15',
+        'completion_percentage': 65,
+        'petitioner': {
+            'name': 'ABC Tech Corporation',
+            'contact': 'John Smith',
+            'email': 'jsmith@abctech.com',
+            'phone': '555-123-4567',
+            'address': '123 Corporate Way, San Francisco, CA 94107'
+        },
+        'beneficiary': {
+            'name': 'Jane Doe',
+            'email': 'jane.doe@example.com',
+            'phone': '555-987-6543',
+            'nationality': 'India',
+            'current_status': 'F-1 Student',
+            'address': '456 University Ave, Palo Alto, CA 94301'
+        },
+        'position': {
+            'title': 'Senior Software Engineer',
+            'duties': 'Design and develop software applications, lead technical projects, mentor junior developers.',
+            'requirements': 'Master\'s degree in Computer Science or related field, 5+ years experience in software development.',
+            'salary': '$150,000 per year',
+            'location': 'San Francisco, CA'
+        },
+        'timeline': [
+            {'date': '2023-05-15', 'event': 'Petition filed', 'status': 'complete'},
+            {'date': '2023-05-20', 'event': 'Initial review', 'status': 'complete'},
+            {'date': '2023-06-10', 'event': 'RFE received', 'status': 'complete'},
+            {'date': '2023-06-25', 'event': 'RFE response submitted', 'status': 'complete'},
+            {'date': '2023-07-15', 'event': 'Final review', 'status': 'in-progress'},
+            {'date': 'Pending', 'event': 'Decision', 'status': 'pending'}
+        ],
+        'documents': [
+            {'name': 'Form I-129', 'status': 'submitted', 'date': '2023-05-15'},
+            {'name': 'Labor Condition Application', 'status': 'submitted', 'date': '2023-05-15'},
+            {'name': 'Employer Support Letter', 'status': 'submitted', 'date': '2023-05-15'},
+            {'name': 'Beneficiary Resume', 'status': 'submitted', 'date': '2023-05-15'},
+            {'name': 'Educational Credentials', 'status': 'submitted', 'date': '2023-05-15'},
+            {'name': 'RFE Response', 'status': 'submitted', 'date': '2023-06-25'}
+        ],
+        'notes': 'Client has requested expedited processing. Beneficiary\'s current status expires in 3 months.\nRFE requested additional evidence of specialized knowledge.'
+    }
+    
+    return render_template('petition_details.html', petition=petition)
+
+@app.route('/admin/calendar')
+@login_required
+@admin_required
+def admin_calendar():
+    import datetime
+    
+    # Current date for generating events
+    now = datetime.datetime.now()
+    
+    # Simulate clients
+    clients = []
+    for i in range(1, 10):
+        clients.append({
+            'id': i,
+            'firstname': f'First{i}',
+            'lastname': f'Last{i}'
+        })
+    
+    # Simulate calendar events
+    calendar_events = []
+    event_types = ['appointment', 'deadline', 'court', 'consultation', 'reminder']
+    event_colors = {
+        'appointment': '#4299e1',
+        'deadline': '#f56565',
+        'court': '#805ad5',
+        'consultation': '#38a169',
+        'reminder': '#ecc94b',
+        'other': '#a0aec0'
+    }
+    
+    # Generate events for the next 30 days
+    for i in range(1, 20):
+        event_type = event_types[i % len(event_types)]
+        event_date = now + datetime.timedelta(days=i % 30)
+        client_id = (i % 9) + 1 if i % 3 == 0 else None
+        
+        event = {
+            'id': i,
+            'title': f'{event_type.capitalize()} {i}',
+            'start': event_date.strftime('%Y-%m-%dT%H:%M:%S'),
+            'end': (event_date + datetime.timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M:%S'),
+            'color': event_colors[event_type],
+            'eventType': event_type,
+            'description': f'Description for {event_type} {i}'
+        }
+        
+        if client_id:
+            event['clientName'] = f'Client {client_id}'
+            event['clientId'] = client_id
+            
+            # Sometimes add a case ID
+            if i % 5 == 0:
+                event['caseId'] = i + 100
+        
+        if i % 4 == 0:
+            event['location'] = 'Office' if i % 2 == 0 else 'Video Conference'
+            
+        calendar_events.append(event)
+    
+    # Upcoming events (next 5 events)
+    upcoming_events = []
+    for i in range(1, 6):
+        event_date = now + datetime.timedelta(days=i, hours=i)
+        event_type = event_types[i % len(event_types)]
+        client_id = (i % 9) + 1 if i % 2 == 0 else None
+        
+        event = {
+            'id': i + 100,
+            'title': f'{event_type.capitalize()} with Client {client_id}' if client_id else f'{event_type.capitalize()} {i}',
+            'start_time': event_date,
+            'end_time': event_date + datetime.timedelta(hours=1),
+            'color': event_colors[event_type]
+        }
+        
+        if client_id:
+            event['client_name'] = f'Client {client_id}'
+            
+        upcoming_events.append(event)
+    
+    return render_template('admin_calendar.html', 
+                          calendar_events=calendar_events,
+                          upcoming_events=upcoming_events,
+                          clients=clients)
+
+@app.route('/admin/settings')
+@login_required
+@admin_required
+def admin_settings():
+    # Get current user
+    user_id = session.get('user_id')
+    admin = User.query.get(user_id)
+    
+    # Simulate admin preferences
+    if not hasattr(admin, 'preferences'):
+        admin.preferences = {
+            'theme': 'light',
+            'dashboard_layout': 'detailed',
+            'default_calendar_view': 'month'
+        }
+    
+    # Simulate notification settings
+    if not hasattr(admin, 'notifications'):
+        admin.notifications = {
+            'email_new_cases': True,
+            'email_case_updates': True,
+            'email_deadlines': True,
+            'email_appointments': True,
+            'system_messages': True,
+            'system_client_messages': True
+        }
+    
+    # Simulate two-factor authentication status
+    if not hasattr(admin, 'two_factor_enabled'):
+        admin.two_factor_enabled = False
+    
+    # For demonstration purposes
+    admin.bar_number = 'ABC12345'
+    admin.jurisdiction = 'New York State'
+    admin.practice_areas = ['family', 'employment']
+    admin.bio = 'Experienced immigration admin with 10+ years of practice.'
+    
+    return render_template('admin_settings.html', admin=admin)
+
+# API routes for admin functions
+
+@app.route('/admin/get-client-cases/<int:client_id>')
+@login_required
+@admin_required
+def get_client_cases(client_id):
+    # Simulate cases for the client
+    cases = []
+    case_types = ['H-1B', 'Green Card', 'PERM', 'L-1', 'O-1']
+    
+    for i in range(1, 4):
+        cases.append({
+            'id': client_id * 10 + i,
+            'visa_type': case_types[i % len(case_types)],
+            'status': 'Active'
+        })
+    
+    return jsonify({'success': True, 'cases': cases})
+
+@app.route('/admin/add-client', methods=['POST'])
+@login_required
+@admin_required
+def add_client():
+    # In a real application, validate and save to database
+    return jsonify({'success': True, 'message': 'Client added successfully'})
+
+@app.route('/admin/edit-client/<int:client_id>', methods=['POST'])
+@login_required
+@admin_required
+def edit_client(client_id):
+    # In a real application, validate and update database
+    return jsonify({'success': True, 'message': 'Client updated successfully'})
+
+@app.route('/admin/toggle-client-status/<int:client_id>', methods=['POST'])
+@login_required
+@admin_required
+def toggle_client_status(client_id):
+    # In a real application, update status in database
+    return jsonify({'success': True, 'message': 'Client status updated'})
+
+@app.route('/admin/upload-document', methods=['POST'])
+@login_required
+@admin_required
+def upload_document():
+    # In a real application, validate and save file to storage
+    return jsonify({'success': True, 'message': 'Document uploaded successfully'})
+
+@app.route('/admin/share-document/<int:document_id>', methods=['POST'])
+@login_required
+@admin_required
+def share_document(document_id):
+    # In a real application, update sharing settings in database
+    return jsonify({'success': True, 'message': 'Document shared successfully'})
+
+@app.route('/admin/delete-document/<int:document_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_document(document_id):
+    # In a real application, delete from storage and database
+    return jsonify({'success': True, 'message': 'Document deleted successfully'})
+
+@app.route('/admin/add-calendar-event', methods=['POST'])
+@login_required
+@admin_required
+def add_calendar_event():
+    # In a real application, validate and save to database
+    return jsonify({'success': True, 'message': 'Event added successfully'})
+
+@app.route('/admin/edit-event/<int:event_id>', methods=['POST'])
+@login_required
+@admin_required
+def edit_calendar_event(event_id):
+    # In a real application, validate and update database
+    return jsonify({'success': True, 'message': 'Event updated successfully'})
+
+@app.route('/admin/delete-event/<int:event_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_calendar_event(event_id):
+    # In a real application, delete from database
+    return jsonify({'success': True, 'message': 'Event deleted successfully'})
+
+@app.route('/admin/update-admin-profile', methods=['POST'])
+@login_required
+@admin_required
+def update_admin_profile():
+    # In a real application, validate and update database
+    return jsonify({'success': True, 'message': 'Profile updated successfully'})
+
+@app.route('/admin/update-admin-password', methods=['POST'])
+@login_required
+@admin_required
+def update_admin_password():
+    # In a real application, validate and update database
+    return jsonify({'success': True, 'message': 'Password updated successfully'})
+
+@app.route('/admin/update-admin-notifications', methods=['POST'])
+@login_required
+@admin_required
+def update_admin_notifications():
+    # In a real application, validate and update database
+    return jsonify({'success': True, 'message': 'Notification preferences updated'})
+
+@app.route('/admin/update-admin-preferences', methods=['POST'])
+@login_required
+@admin_required
+def update_admin_preferences():
+    # In a real application, validate and update database
+    return jsonify({'success': True, 'message': 'Preferences updated successfully'})
+
+@app.route('/admin/enable-two-factor', methods=['POST'])
+@login_required
+@admin_required
+def enable_two_factor():
+    # In a real application, validate code and enable 2FA
+    return jsonify({'success': True, 'message': 'Two-factor authentication enabled'})
+
+@app.route('/admin/disable-two-factor', methods=['POST'])
+@login_required
+@admin_required
+def disable_two_factor():
+    # In a real application, validate password and disable 2FA
+    return jsonify({'success': True, 'message': 'Two-factor authentication disabled'})
+
+
+@app.route('/admin/petition/<int:petition_id>')
+@login_required
+@admin_required
+def petition_details(petition_id):
+    petition = Petition.query.get_or_404(petition_id)
+    
+    # Simulated data for petition progress
+    import random
+    progress_steps = [
+        {'name': 'Initial Review', 'status': 'completed', 'date': '2025-05-15'},
+        {'name': 'Document Collection', 'status': 'completed', 'date': '2025-05-20'},
+        {'name': 'Form Preparation', 'status': 'in-progress', 'date': '2025-05-25'},
+        {'name': 'Admin Review', 'status': 'pending', 'date': ''},
+        {'name': 'USCIS Submission', 'status': 'pending', 'date': ''},
+        {'name': 'USCIS Processing', 'status': 'pending', 'date': ''},
+        {'name': 'Decision', 'status': 'pending', 'date': ''}
+    ]
+    
+    # Simulated document status
+    documents = [
+        {'name': 'Passport', 'status': 'submitted', 'date': '2025-05-16'},
+        {'name': 'Resume/CV', 'status': 'submitted', 'date': '2025-05-17'},
+        {'name': 'Educational Credentials', 'status': 'submitted', 'date': '2025-05-18'},
+        {'name': 'Employment Verification Letter', 'status': 'missing', 'date': ''},
+        {'name': 'Previous Visa Documentation', 'status': 'submitted', 'date': '2025-05-19'},
+        {'name': 'I-129 Form', 'status': 'in-progress', 'date': '2025-05-25'}
+    ]
+    
+    return render_template('petition_details.html', 
+                          petition=petition,
+                          progress_steps=progress_steps,
+                          documents=documents)
+
+@app.route('/admin/submit-admin-form', methods=['POST'])
+@login_required
+@admin_required
+def submit_admin_form():
+    # Process the admin-filled form submission
+    if request.method == 'POST':
+        # Handle form data processing here
+        petition_id = request.form.get('petition_id')
+        form_type = request.form.get('form_type')
+        
+        # Save form data logic would go here
+        
+        flash('Form submitted successfully!', 'success')
+@app.route("/api/user_petition", methods=["GET"])
+def get_user_petition():
+    user_id = request.args.get("user_id")
+    if not user_id:
+        return jsonify(success=False, error="No user_id provided")
+
+    petition = Petition.query.filter_by(user_id=user_id).first()
+    if petition:
+        return jsonify(success=True, petition=petition.to_dict())
+    else:
+        return jsonify(success=False, petition=None)
+
+    # Handle POST request for saving partial form data
+    if request.method == 'POST':
+        try:
+            # Get JSON data from request
+            form_data = request.json
+            if not form_data:
+                form_data = request.form.to_dict()
+                
+            print(f"Received form data: {form_data}")
+            
+            print("\n" + "="*50)
+            print("PARTIAL FORM SUBMISSION RECEIVED")
+            print("="*50)
+            print("Form data received:")
+            for key, value in form_data.items():
+                print(f"{key}: {value}")
+            print("="*50 + "\n")
+            
+            # Get the user's email from either the form data or session
+            user_email = form_data.get('email') or session.get('email')
+            if not user_email and 'email' in session:
+                user_email = session['email']
+        except Exception as e:
+            print(f"Error parsing form data: {str(e)}")
+            return jsonify({'success': False, 'message': f'Error parsing form data: {str(e)}'}), 400
+            
+        try:
+            # Use both user_id and email to locate existing petitions
+            existing_petition = None
+            if user_id:
+                # First try by user ID
+                existing_petition = Petition.query.filter_by(user_id=user_id).order_by(Petition.created_at.desc()).first()
+                print(f"Looking for petition by user_id={user_id}: {'Found' if existing_petition else 'Not found'}")
+                
+                # If not found by user ID and we have the email, try by email
+                if not existing_petition and user_email:
+                    existing_petition = Petition.query.filter_by(email=user_email).order_by(Petition.created_at.desc()).first()
+                    print(f"Looking for petition by email={user_email}: {'Found' if existing_petition else 'Not found'}")
+                    # Update the user_id if found by email
+                    if existing_petition:
+                        print(f"Found petition by email {user_email}, updating its user_id to {user_id}")
+                        existing_petition.user_id = user_id
+            
+            # Process dates if they exist
+            birth_date = None
+            if form_data.get('birthDate'):
+                try:
+                    birth_date = datetime.strptime(form_data['birthDate'], '%Y-%m-%d')
+                except ValueError as e:
+                    print(f"Error parsing birth date: {e}")
+            
+            passport_expiry_date = None
+            if form_data.get('passportExpiryDate'):
+                try:
+                    passport_expiry_date = datetime.strptime(form_data['passportExpiryDate'], '%Y-%m-%d')
+                except ValueError as e:
+                    print(f"Error parsing passport expiry date: {e}")
+            
+            # If petition exists, update it
+            if existing_petition:
+                # Update petition with new data, only if the field exists in the form data
+                # Part 1: Petitioner Information
+                if 'petitionerFamilyName' in form_data:
+                    existing_petition.petitioner_family_name = form_data['petitionerFamilyName']
+                if 'petitionerGivenName' in form_data:
+                    existing_petition.petitioner_given_name = form_data['petitionerGivenName']
+                if 'petitionerMiddleName' in form_data:
+                    existing_petition.petitioner_middle_name = form_data.get('petitionerMiddleName', '')
+                if 'companyName' in form_data:
+                    existing_petition.company_name = form_data['companyName']
+                if 'inCareOf' in form_data:
+                    existing_petition.in_care_of = form_data.get('inCareOf', '')
+                if 'streetAddress' in form_data:
+                    existing_petition.street_address = form_data.get('streetAddress', '')
+                if 'aptSteFlr' in form_data:
+                    existing_petition.apt_ste_flr = form_data.get('aptSteFlr', '')
+                if 'city' in form_data:
+                    existing_petition.city = form_data.get('city', '')
+                if 'state' in form_data:
+                    existing_petition.state = form_data.get('state', '')
+                if 'zipCode' in form_data:
+                    existing_petition.zip_code = form_data.get('zipCode', '')
+                if 'province' in form_data:
+                    existing_petition.province = form_data.get('province', '')
+                if 'postalCode' in form_data:
+                    existing_petition.postal_code = form_data.get('postalCode', '')
+                if 'country' in form_data:
+                    existing_petition.country = form_data.get('country', '')
+                if 'daytimePhone' in form_data:
+                    existing_petition.daytime_phone = form_data['daytimePhone']
+                if 'mobilePhone' in form_data:
+                    existing_petition.mobile_phone = form_data.get('mobilePhone', '')
+                if 'email' in form_data:
+                    existing_petition.email = form_data['email']
+                if 'fein' in form_data:
+                    existing_petition.fein = form_data['fein']
+                
+                # Part 2: Basis for Classification
+                if 'basisForClassification' in form_data:
+                    existing_petition.basis_for_classification = form_data['basisForClassification']
+                
+                # Part 3: Beneficiary Information
+                if 'beneficiaryFamilyName' in form_data:
+                    existing_petition.beneficiary_family_name = form_data['beneficiaryFamilyName']
+                if 'beneficiaryGivenName' in form_data:
+                    existing_petition.beneficiary_given_name = form_data['beneficiaryGivenName']
+                if 'beneficiaryMiddleName' in form_data:
+                    existing_petition.beneficiary_middle_name = form_data.get('beneficiaryMiddleName', '')
+                if 'otherFamilyName' in form_data:
+                    existing_petition.other_family_name = form_data.get('otherFamilyName', '')
+                if 'otherGivenName' in form_data:
+                    existing_petition.other_given_name = form_data.get('otherGivenName', '')
+                if 'otherMiddleName' in form_data:
+                    existing_petition.other_middle_name = form_data.get('otherMiddleName', '')
+                if birth_date:
+                    existing_petition.birth_date = birth_date
+                if 'gender' in form_data:
+                    existing_petition.gender = form_data.get('gender', '')
+                if 'ssn' in form_data:
+                    existing_petition.ssn = form_data.get('ssn', '')
+                if 'alienNumber' in form_data:
+                    existing_petition.alien_number = form_data.get('alienNumber', '')
+                if 'countryOfBirth' in form_data:
+                    existing_petition.country_of_birth = form_data['countryOfBirth']
+                if 'countryOfCitizenship' in form_data:
+                    existing_petition.country_of_citizenship = form_data['countryOfCitizenship']
+                if 'passportNumber' in form_data:
+                    existing_petition.passport_number = form_data['passportNumber']
+                if passport_expiry_date:
+                    existing_petition.passport_expiry_date = passport_expiry_date
+                if 'educationQualification' in form_data:
+                    existing_petition.education_qualification = form_data['educationQualification']
+                
+                # Part 4: Processing Information
+                if 'foreignStreet' in form_data:
+                    existing_petition.foreign_street = form_data.get('foreignStreet', '')
+                if 'foreignApt' in form_data:
+                    existing_petition.foreign_apt = form_data.get('foreignApt', '')
+                if 'foreignCity' in form_data:
+                    existing_petition.foreign_city = form_data.get('foreignCity', '')
+                if 'foreignState' in form_data:
+                    existing_petition.foreign_state = form_data.get('foreignState', '')
+                if 'foreignPostal' in form_data:
+                    existing_petition.foreign_postal = form_data.get('foreignPostal', '')
+                if 'foreignCountry' in form_data:
+                    existing_petition.foreign_country = form_data.get('foreignCountry', '')
+                if 'validPassport' in form_data:
+                    existing_petition.valid_passport = form_data.get('validPassport', '')
+                if 'passportExplanation' in form_data:
+                    existing_petition.passport_explanation = form_data.get('passportExplanation', '')
+                
+                # Part 5: Basic Information About Proposed Employment
+                if 'jobTitle' in form_data:
+                    existing_petition.job_title = form_data['jobTitle']
+                if 'lcaNumber' in form_data:
+                    existing_petition.lca_number = form_data['lcaNumber']
+                if 'workStreet1' in form_data:
+                    existing_petition.work_street_1 = form_data.get('workStreet1', '')
+                if 'workApt1' in form_data:
+                    existing_petition.work_apt_1 = form_data.get('workApt1', '')
+                if 'workCity1' in form_data:
+                    existing_petition.work_city_1 = form_data.get('workCity1', '')
+                if 'workState1' in form_data:
+                    existing_petition.work_state_1 = form_data.get('workState1', '')
+                if 'workZip1' in form_data:
+                    existing_petition.work_zip_1 = form_data.get('workZip1', '')
+                if 'thirdParty1' in form_data:
+                    existing_petition.third_party_1 = form_data.get('thirdParty1', 'no')
+                if 'thirdPartyOrg1' in form_data:
+                    existing_petition.third_party_org_1 = form_data.get('thirdPartyOrg1', '')
+                if 'itinerary' in form_data:
+                    existing_petition.itinerary = form_data.get('itinerary', 'no')
+                if 'workOffsite' in form_data:
+                    existing_petition.work_offsite = form_data.get('workOffsite', 'no')
+                if 'fullTime' in form_data:
+                    existing_petition.full_time = form_data.get('fullTime', 'yes')
+                if 'hoursPerWeek' in form_data and form_data.get('hoursPerWeek'):
+                    existing_petition.hours_per_week = int(form_data.get('hoursPerWeek'))
+                if 'wageAmount' in form_data and form_data.get('wageAmount'):
+                    existing_petition.wage_amount = float(form_data.get('wageAmount'))
+                if 'wagePeriod' in form_data:
+                    existing_petition.wage_period = form_data.get('wagePeriod', '')
+                
+                # Save changes to the existing petition
+                db.session.commit()
+                print(f"Updated existing petition {existing_petition.id} successfully")
+                
+                return jsonify({'success': True, 'message': 'Petition updated successfully', 'id': existing_petition.id})
+            else:
+                # Create a new petition with the form data
+                print("Creating new petition")
+                new_petition = Petition(
+                    user_id=user_id,
+                    email=user_email,
+                    created_at=datetime.now()
+                )
+                
+                # Add all the fields from form_data to the new petition
+                # Copy fields from form_data to the new petition (just like we did for existing_petition)
+                if 'petitionerFamilyName' in form_data:
+                    new_petition.petitioner_family_name = form_data['petitionerFamilyName']
+                if 'petitionerGivenName' in form_data:
+                    new_petition.petitioner_given_name = form_data['petitionerGivenName']
+                if 'petitionerMiddleName' in form_data:
+                    new_petition.petitioner_middle_name = form_data.get('petitionerMiddleName', '')
+                if 'companyName' in form_data:
+                    new_petition.company_name = form_data['companyName']
+                # Copy email field specifically to ensure it's saved
+                if 'email' in form_data:
+                    new_petition.email = form_data['email']
+                
+                # Add the new petition to the database
+                db.session.add(new_petition)
+                db.session.commit()
+                print("Created new petition successfully")
+                
+                return jsonify({'success': True, 'message': 'Petition created successfully', 'id': new_petition.id})
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error saving petition data: {str(e)}")
+            return jsonify({'success': False, 'message': f'Error saving petition data: {str(e)}'}), 500
+    
+    # Handle GET request to retrieve existing petition data
+    elif request.method == 'GET':
+        print("Processing GET request to retrieve petition data")
+        
+        # Try to find petition any way possible
+        existing_petition = None
+        search_methods = []
+        
+        # 1. Try by user_id
+        if user_id:
+            search_methods.append(f"user_id={user_id}")
+            existing_petition = Petition.query.filter_by(user_id=user_id).order_by(Petition.created_at.desc()).first()
+            if existing_petition:
+                print(f"Found petition by user_id: {existing_petition.id}")
+        
+        # 2. Try by email in session
+        if not existing_petition and user_email:
+            search_methods.append(f"email={user_email}")
+            existing_petition = Petition.query.filter_by(email=user_email).order_by(Petition.created_at.desc()).first()
+            if existing_petition:
+                print(f"Found petition by email in session: {existing_petition.id}")
+                
+                # Link this petition to the user if they're logged in
+                if user_id and existing_petition.user_id != user_id:
+                    print(f"Linking petition {existing_petition.id} to user_id {user_id}")
+                    existing_petition.user_id = user_id
+                    db.session.commit()
+        
+        # 3. Last resort - get all petitions and look for a match
+        if not existing_petition and (user_id or user_email):
+            print("Trying to find ANY petition in the database for this user...")
+            all_petitions = Petition.query.all()
+            print(f"Found {len(all_petitions)} total petitions in database")
+            
+            if user_id:
+                print(f"Looking for any petition with user_id={user_id}")
+                for p in all_petitions:
+                    if p.user_id == user_id:
+                        existing_petition = p
+                        print(f"Found petition by user_id search: {existing_petition.id}")
+                        break
+            
+            if not existing_petition and user_email:
+                print(f"Looking for any petition with email={user_email}")
+                for p in all_petitions:
+                    if p.email == user_email:
+                        existing_petition = p
+                        print(f"Found petition by email search: {existing_petition.id}")
+                        # Link to user_id if needed
+                        if user_id and existing_petition.user_id != user_id:
+                            existing_petition.user_id = user_id
+                            db.session.commit()
+                            print(f"Linked petition {existing_petition.id} to user_id {user_id}")
+                        break
+        
+        if existing_petition:
+            print(f"Returning petition data for ID: {existing_petition.id}")
+            # Convert dates to string format for JSON serialization
+            petition_data = {}
+            for column in existing_petition.__table__.columns:
+                value = getattr(existing_petition, column.name)
+                
+                # Handle date objects
+                if isinstance(value, (datetime, date)):
+                    petition_data[column.name] = value.isoformat()
+                else:
+                    petition_data[column.name] = value
+            
+            return jsonify({'success': True, 'petition': petition_data})
+        else:
+            search_methods_str = ', '.join(search_methods)
+            print(f"NO PETITION FOUND despite searching by: {search_methods_str}")
+            return jsonify({'success': False, 'message': f'No petition found for user after trying: {search_methods_str}'}), 404
+
+    # Handle GET request to retrieve existing petition data
+    elif request.method == 'GET':
+        print("Processing GET request to fetch petition data")
+        
+        # Try different strategies to find the user's petition
+        search_methods = []
+        existing_petition = None
+        
+        # 1. Try by user_id
+        if user_id:
+            search_methods.append(f"user_id={user_id}")
+            existing_petition = Petition.query.filter_by(user_id=user_id).order_by(Petition.created_at.desc()).first()
+            if existing_petition:
+                print(f"Found petition by user_id: {existing_petition.id}")
+        
+        # 2. Try by email in session
+        if not existing_petition and user_email:
+            search_methods.append(f"email={user_email}")
+            existing_petition = Petition.query.filter_by(email=user_email).order_by(Petition.created_at.desc()).first()
+            if existing_petition:
+                print(f"Found petition by email in session: {existing_petition.id}")
+                
+                # Link this petition to the user if they're logged in
+                if user_id and existing_petition.user_id != user_id:
+                    print(f"Linking petition {existing_petition.id} to user_id {user_id}")
+                    existing_petition.user_id = user_id
+                    db.session.commit()
+        
+        # 3. Last resort - get all petitions and look for a match
+        if not existing_petition and (user_id or user_email):
+            print("Trying to find ANY petition in the database for this user...")
+            all_petitions = Petition.query.all()
+            print(f"Found {len(all_petitions)} total petitions in database")
+            
+            if user_id:
+                print(f"Looking for any petition with user_id={user_id}")
+                for p in all_petitions:
+                    if p.user_id == user_id:
+                        existing_petition = p
+                        print(f"Found petition by user_id search: {existing_petition.id}")
+                        break
+            
+            if not existing_petition and user_email:
+                print(f"Looking for any petition with email={user_email}")
+                for p in all_petitions:
+                    if p.email == user_email:
+                        existing_petition = p
+                        print(f"Found petition by email search: {existing_petition.id}")
+                        # Link to user_id if needed
+                        if user_id and existing_petition.user_id != user_id:
+                            existing_petition.user_id = user_id
+                            db.session.commit()
+                            print(f"Linked petition {existing_petition.id} to user_id {user_id}")
+                        break
+        
+        if existing_petition:
+            print(f"Returning petition data for ID: {existing_petition.id}")
+            # Convert dates to string format for JSON serialization
+            petition_data = {}
+            for column in existing_petition.__table__.columns:
+                value = getattr(existing_petition, column.name)
+                
+                # Handle date objects
+                if isinstance(value, (datetime, date)):
+                    petition_data[column.name] = value.isoformat()
+                else:
+                    petition_data[column.name] = value
+            
+            return jsonify({'success': True, 'petition': petition_data})
+        else:
+            search_methods_str = ', '.join(search_methods)
+            print(f"NO PETITION FOUND despite searching by: {search_methods_str}")
+            return jsonify({'success': False, 'message': f'No petition found for user after trying: {search_methods_str}'}), 404
+    
+    # If request is neither POST nor GET
+    return jsonify({'success': False, 'message': 'Invalid request method'}), 405
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+        # Create Admin user if it doesn't exist
+        Admin_user = User.query.filter_by(email='Admin@example.com').first()
+        if not Admin_user:
+            Admin = User(
+                firstname='Admin',
+                lastname='User',
+                email='Admin@example.com',
+                phone='1234567890',
+                password=generate_password_hash('Admin123'),
+                role='Admin'
+            )
+            db.session.add(Admin)
+            db.session.commit()
+            
+        # Create admin user if it doesn't exist
+        admin_user = User.query.filter_by(email='admin@example.com').first()
+        if not admin_user:
+            admin = User(
+                firstname='Jane',
+                lastname='Admin',
+                email='admin@example.com',
+                phone='9876543210',
+                password=generate_password_hash('admin123'),
+                role='admin'
+            )
+            db.session.add(admin)
+            db.session.commit()
+            
+    app.run(debug=True)

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Attorney Corner - ImmigraAssist{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/custom.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/attorney.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin-header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/attorney-fixes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/attorney-review.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/attorney.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/attorney-review.js') }}"></script>
+    <style>
+        :root {
+            --primary-color: #3e64ff;
+            --secondary-color: #5edfff;
+            --accent-color: #ff6584;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --text-color: #333;
+            --text-muted: #6c757d;
+            --bg-color: #ffffff;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f9fafb;
+        }
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+    </style>
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <div class="logo-top">
+                        <div class="logo-container">
+                            <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                            <div class="logo-content">
+                                <div class="logo-text">ImmigraAssist</div>
+                            </div>
+                        </div>
+                        <div class="logo-tagline">Empowering Immigration with Intelligence</div>
+                    </div>
+                    <div class="vg-logo-container">
+                        <img src="{{ url_for('static', filename='images/vg_logo.png') }}" alt="VG Group Logo" class="vg-logo-img">
+                        <div class="vg-text">A V GROUP INITIATIVE</div>
+                    </div>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('attorney') }}" class="active">Attorney Corner</a>
+                <a href="{{ url_for('services') }}">Services</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+            </div>
+            <div class="admin-header-buttons">
+                {% if session.logged_in %}
+                    {% if session.is_admin %}
+                        <a href="{{ url_for('admin') }}" class="admin-btn">
+                            <i class="fas fa-cog"></i>Admin Panel
+                        </a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="admin-btn logout">
+                        <i class="fas fa-sign-out-alt"></i>Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="admin-btn">Login</a>
+                    <a href="{{ url_for('signup') }}" class="admin-btn">Sign Up</a>
+                {% endif %}
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <div class="attorney-dashboard" style="display: flex; width: 100%; margin: 0; padding: 0;">
+        <div class="sidebar" style="flex-shrink: 0;">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-gavel"></i> Attorney Portal</h3>
+                <p class="sidebar-subtitle">Streamlined legal workflows</p>
+            </div>
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-info">
+                    <h4>{{ session.attorney_name }}</h4>
+                    <span class="user-role">Immigration Attorney</span>
+                </div>
+            </div>
+            <div class="sidebar-divider"></div>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{{ url_for('attorney') }}" {% if request.path == url_for('attorney') %}class="active"{% endif %}>
+                        <div class="menu-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        <span class="menu-text">Dashboard</span>
+                        <span class="menu-badge"></span>
+                    </a>
+                </li>
+                <!-- <li>
+                    <a href="{{ url_for('attorney_cases') }}" {% if request.path == url_for('attorney_cases') %}class="active"{% endif %}>
+                        <div class="menu-icon"><i class="fas fa-folder-open"></i></div>
+                        <span class="menu-text">Cases</span>
+                        <span class="menu-badge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('attorney_clients') }}" {% if request.path == url_for('attorney_clients') %}class="active"{% endif %}>
+                        <div class="menu-icon"><i class="fas fa-users"></i></div>
+                        <span class="menu-text">Clients</span>
+                        <span class="menu-badge new">New</span>
+                    </a>
+                </li> -->
+                <li>
+                    <a href="{{ url_for('attorney_forms') }}" {% if request.path == url_for('attorney_forms') %}class="active"{% endif %}>
+                        <div class="menu-icon"><i class="fas fa-file-alt"></i></div>
+                        <span class="menu-text">Immigration Forms</span>
+                        <span class="menu-badge update">Updated</span>
+                    </a>
+                </li>
+                <!-- <li>
+                    <a href="{{ url_for('attorney_documents') }}" {% if request.path == url_for('attorney_documents') %}class="active"{% endif %}>
+                        <div class="menu-icon"><i class="fas fa-file-pdf"></i></div>
+                        <span class="menu-text">Documents</span>
+                        <span class="menu-badge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('attorney_calendar') }}" {% if request.path == url_for('attorney_calendar') %}class="active"{% endif %}>
+                        <div class="menu-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <span class="menu-text">Calendar</span>
+                        <span class="menu-badge"></span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('attorney_settings') }}" {% if request.path == url_for('attorney_settings') %}class="active"{% endif %}>
+                        <div class="menu-icon"><i class="fas fa-cog"></i></div>
+                        <span class="menu-text">Settings</span>
+                        <span class="menu-badge"></span>
+                    </a>
+                </li> -->
+            </ul>
+            <div class="sidebar-footer">
+                <div class="sidebar-stats">
+                    <div class="stat">
+                        <span class="stat-number">12</span>
+                        <span class="stat-label">Petitions</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content" style="flex: 1; padding: 20px; margin: 0;">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button class="alert-close">&times;</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block attorney_content %}{% endblock %}
+        </div>
+    </div>
+
+    <script>
+        // Handle alert dismissal
+        document.querySelectorAll('.alert-close').forEach(button => {
+            button.addEventListener('click', function() {
+                this.parentElement.style.display = 'none';
+            });
+        });
+
+        // Handle dropdown menu
+        const dropdownToggle = document.querySelector('.dropdown-toggle');
+        if (dropdownToggle) {
+            dropdownToggle.addEventListener('click', function() {
+                this.nextElementSibling.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.matches('.dropdown-toggle') && !event.target.closest('.dropdown-toggle')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

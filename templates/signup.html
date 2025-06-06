@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - ImmigraAssist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/custom.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 4rem auto;
+            padding: 2.5rem;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            /* Removed animation to prevent flickering */
+        }
+        
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color), var(--accent-color));
+        }
+        
+        .auth-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-header h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .auth-header p {
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+        }
+
+        .password-requirements {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .terms-checkbox input {
+            margin-top: 0.3rem;
+        }
+
+        .terms-checkbox label {
+            font-size: 0.9rem;
+        }
+
+        .terms-checkbox a {
+            color: var(--secondary-color);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1.5rem;
+        }
+
+        .auth-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .alternate-auth {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .social-auth {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .social-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #f7fafc;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .social-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-button i {
+            font-size: 1.3rem;
+        }
+
+        .google i {
+            color: #DB4437;
+        }
+
+        .facebook i {
+            color: #4267B2;
+        }
+
+        .linkedin i {
+            color: #0077B5;
+        }
+
+        .login-link {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .login-link a {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        @media (max-width: 576px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <div class="logo-container">
+                        <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                        <div class="logo-text">ImmigraAssist</div>
+                    </div>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('dashboard') }}" id="nav-dashboard">Dashboard</a>
+                <a href="{{ url_for('services') }}">Services</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+            </div>
+            <div class="auth-buttons">
+                <a href="{{ url_for('login') }}" class="btn-login">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn-signup active">Sign Up</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>Create Your Account</h1>
+                <p>Join ImmigraAssist and simplify your immigration journey</p>
+            </div>
+
+            <form id="signup-form" action="/signup" method="POST" onsubmit="handleSignup(event)" novalidate>
+                <div id="signup-error" class="error-message" style="display: none; color: #e74c3c; margin-bottom: 15px; text-align: center;"></div>
+                <div class="form-row">
+                    <div class="form-group has-icon">
+                        <label for="firstName">First Name</label>
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required>
+                    </div>
+                    <div class="form-group has-icon">
+                        <label for="lastName">Last Name</label>
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" required>
+                    </div>
+                </div>
+
+                <div class="form-group has-icon">
+                    <label for="email">Email Address</label>
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                </div>
+
+                <div class="form-group has-icon">
+                    <label for="phone">Phone Number</label>
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                </div>
+
+                <div class="form-group has-icon">
+                    <label for="password">Password</label>
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Create a secure password" required>
+                    <p class="password-hint">Password must be at least 8 characters long and include a mix of letters, numbers, and special characters.</p>
+                </div>
+
+                <div class="form-group has-icon">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a></label>
+                </div>
+
+                <button type="submit" class="auth-button">Create Account</button>
+            </form>
+
+            <div class="social-login">
+                <p>Or sign up with</p>
+                <div class="social-buttons">
+                    <a href="#" class="social-button google-btn">
+                        <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google" width="60">
+                    </a>
+                    <a href="#" class="social-button ms-btn">
+                        <img src="https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31" alt="Microsoft" width="80">
+                    </a>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <p>Already have an account? <a href="login.html">Log in</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="index.html">
+                    <div class="logo-container">
+                        <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                        <div class="logo-text">ImmigraAssist</div>
+                    </div>
+                </a>
+                <p>Empowering Immigration with Intelligence</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-group">
+                    <h3>Company</h3>
+                    <a href="about.html">About Us</a>
+                    <a href="team.html">Our Team</a>
+                    <a href="careers.html">Careers</a>
+                    <a href="contact.html">Contact Us</a>
+                </div>
+                <div class="link-group">
+                    <h3>Resources</h3>
+                    <a href="blog.html">Blog</a>
+                    <a href="guides.html">Immigration Guides</a>
+                    <a href="faq.html">FAQ</a>
+                    <a href="support.html">Support</a>
+                </div>
+                <div class="link-group">
+                    <h3>Legal</h3>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="disclaimer.html">Disclaimer</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ImmigraAssist. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initially hide dashboard link in navbar
+            const navDashboard = document.getElementById('nav-dashboard');
+            if (navDashboard) {
+                navDashboard.style.display = 'none';
+            }
+            
+            // Redirect to dashboard if already logged in
+            if (window.immigraAPI && window.immigraAPI.auth && window.immigraAPI.auth.isLoggedIn()) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+    </script>
+    <script>
+        // Handle signup form submission
+        async function handleSignup(event) {
+            event.preventDefault();
+            
+            // Get form data
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const termsAccepted = document.getElementById('terms').checked;
+            const errorDiv = document.getElementById('signup-error');
+            
+            // Hide any previous errors
+            errorDiv.style.display = 'none';
+            
+            // Validate form data
+            if (!firstName || !lastName || !email || !password) {
+                errorDiv.textContent = 'Please fill in all required fields';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (!termsAccepted) {
+                errorDiv.textContent = 'You must accept the Terms of Service and Privacy Policy';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                // Show loading state
+                document.querySelector('.auth-button').textContent = 'Creating Account...';
+                document.querySelector('.auth-button').disabled = true;
+                
+                // Attempt registration
+                const result = await window.immigraAPI.auth.register({
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    password,
+                    confirmPassword
+                });
+                
+                // Save token and user data
+                localStorage.setItem('token', result.token);
+                localStorage.setItem('user', JSON.stringify(result.user));
+                
+                // Redirect to dashboard or home page
+                // window.location.href = 'index.html';
+            } catch (error) {
+                // Show error message
+                errorDiv.textContent = error.message || 'Registration failed. Please try again.';
+                errorDiv.style.display = 'block';
+                
+                // Reset button
+                document.querySelector('.auth-button').textContent = 'Create Account';
+                document.querySelector('.auth-button').disabled = false;
+            }
+        }
+        
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.immigraAPI && window.immigraAPI.auth && window.immigraAPI.auth.isLoggedIn()) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script> -->
+</body>
+</html>

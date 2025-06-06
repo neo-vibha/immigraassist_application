@@ -1,0 +1,526 @@
+{% extends "attorney_base.html" %}
+
+{% block title %}Attorney Dashboard - ImmigraAssist{% endblock %}
+
+{% block attorney_content %}
+<div class="dashboard-container">
+    <div class="welcome-card card card-primary mb-4">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-user-tie"></i> Welcome Back, {{ session.attorney_name or 'Attorney' }}</h3>
+            <span class="text-muted">{{ now.strftime('%A, %B %d, %Y') }}</span>
+        </div>
+    </div>
+    
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-briefcase"></i> Case Overview</h3>
+            <!-- <div class="filter-controls">
+                <select id="status-filter" class="form-control">
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-review">In Review</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="needs-info">Needs Information</option>
+                </select>
+                <select id="case-type-filter" class="form-control">
+                    <option value="all">All Case Types</option>
+                    <option value="h1b">H-1B</option>
+                    <option value="l1">L-1</option>
+                    <option value="i140">I-140</option>
+                    <option value="i485">I-485</option>
+                </select>
+            </div> -->
+        </div>
+        <div class="card-body">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="case-search" placeholder="Search cases by name, ID, or company..." class="form-control">
+            </div>
+            
+            <!-- Petitioners Table with Pagination -->
+            <div class="petitioner-table-container mt-4">
+                <table class="petitioner-table">
+                    <thead>
+                        <tr>
+                            <th>Beneficiary Name</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Completion</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if petitions %}
+                            <!-- Petitions are sorted by newest first from the backend -->
+                            {% for petition in petitions %}
+                                <!-- All petitioners are loaded into DOM, pagination will handle visibility -->
+                                <tr class="petitioner-row">
+                                    <td class="petitioner-name">
+                                        {{ petition.beneficiary_given_name }} {{ petition.beneficiary_family_name }}
+                                    </td>
+                                    <td>{{ petition.company_name }}</td>
+                                    <td>
+                                        <span class="status-badge status-{{ petition.state|lower }}">
+                                            <i class="fas {% if petition.state == 'Pending' %}fa-clock{% elif petition.state == 'Approved' %}fa-check-circle{% elif petition.state == 'Rejected' %}fa-times-circle{% elif petition.state == 'Under Review' or petition.state == 'In Review' %}fa-search{% else %}fa-exclamation-circle{% endif %}"></i>
+                                            {{ petition.state }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="table-progress">
+                                            <div class="progress">
+                                                <div class="progress-fill" style="width: {% if petition.completion_percentage %}{{ petition.completion_percentage }}{% else %}0{% endif %}%"></div>
+                                            </div>
+                                            <span>{{ petition.completion_percentage }}%</span>
+                                        </div>
+                                    </td>
+                                    <td class="action-column">
+                                        <a href="{{ url_for('attorney_review_petition', petition_id=petition.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        <a href="{{ url_for('attorney_i140_form', petition_id=petition.id) }}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Example data if no petitions -->
+                            <tr class="petitioner-row">
+                                <td class="petitioner-name">John Smith</td>
+                                <td>Tech Solutions Inc.</td>
+                                <td>
+                                    <span class="status-badge status-pending">
+                                        <i class="fas fa-clock"></i> Pending
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-progress">
+                                        <div class="progress">
+                                            <div class="progress-fill" style="width: 75%"></div>
+                                        </div>
+                                        <span>75%</span>
+                                    </div>
+                                </td>
+                                <td class="action-column">
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="petitioner-row">
+                                <td class="petitioner-name">Maria Garcia</td>
+                                <td>Global Innovations</td>
+                                <td>
+                                    <span class="status-badge status-review">
+                                        <i class="fas fa-search"></i> In Review
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-progress">
+                                        <div class="progress">
+                                            <div class="progress-fill" style="width: 90%"></div>
+                                        </div>
+                                        <span>90%</span>
+                                    </div>
+                                </td>
+                                <td class="action-column">
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="petitioner-row">
+                                <td class="petitioner-name">Wei Chen</td>
+                                <td>Nexus Systems</td>
+                                <td>
+                                    <span class="status-badge status-submitted">
+                                        <i class="fas fa-exclamation-circle"></i> Needs Info
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-progress">
+                                        <div class="progress">
+                                            <div class="progress-fill" style="width: 60%"></div>
+                                        </div>
+                                        <span>60%</span>
+                                    </div>
+                                </td>
+                                <td class="action-column">
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="petitioner-row">
+                                <td class="petitioner-name">Priya Patel</td>
+                                <td>Horizon Healthcare</td>
+                                <td>
+                                    <span class="status-badge status-approved">
+                                        <i class="fas fa-check-circle"></i> Approved
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-progress">
+                                        <div class="progress">
+                                            <div class="progress-fill" style="width: 100%"></div>
+                                        </div>
+                                        <span>100%</span>
+                                    </div>
+                                </td>
+                                <td class="action-column">
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr class="petitioner-row">
+                                <td class="petitioner-name">Ahmed Hassan</td>
+                                <td>Quantum Research</td>
+                                <td>
+                                    <span class="status-badge status-rejected">
+                                        <i class="fas fa-times-circle"></i> Rejected
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="table-progress">
+                                        <div class="progress">
+                                            <div class="progress-fill" style="width: 100%"></div>
+                                        </div>
+                                        <span>100%</span>
+                                    </div>
+                                </td>
+                                <td class="action-column">
+                                    <a href="#" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+                
+                <!-- Pagination Controls -->
+                <div class="pagination-controls">
+                    <div class="pagination-info">
+                        Showing <span id="showing-start">1</span>-<span id="showing-end">5</span> of <span id="showing-total">{{ petitions|length if petitions else '5' }}</span> petitioners
+                    </div>
+                    <div class="pagination-buttons">
+                        <button id="prev-page" class="btn btn-sm btn-outline-primary" disabled>
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </button>
+                        <div class="page-numbers">
+                            <span class="current-page">1</span> / <span id="total-pages">{{ ((petitions|length if petitions else 5) / 5)|round(0, 'ceil')|int }}</span>
+                        </div>
+                        <button id="next-page" class="btn btn-sm btn-outline-primary" {% if (petitions|length if petitions else 5) <= 5 %}disabled{% endif %}>
+                            Next <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        padding: 20px;
+    }
+    
+    .welcome-card {
+        margin-bottom: 30px;
+    }
+    
+    .card {
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #eee;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .card-header h2, .card-header h3, .card-header h4 {
+        margin: 0;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .filter-controls {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .filter-controls select {
+        min-width: 150px;
+    }
+    
+    .search-box {
+        position: relative;
+        margin-bottom: 20px;
+    }
+    
+    .search-box i {
+        position: absolute;
+        left: 15px;
+        top: 12px;
+        color: #aaa;
+    }
+    
+    .search-box input {
+        padding-left: 40px;
+        height: 45px;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: white;
+    }
+    
+    .status-pending {
+        background-color: #ffc107;
+    }
+    
+    .status-in-review {
+        background-color: #17a2b8;
+    }
+    
+    .status-approved {
+        background-color: #28a745;
+    }
+    
+    .status-rejected {
+        background-color: #dc3545;
+    }
+    
+    .status-needs-info {
+        background-color: #6c757d;
+    }
+    
+    .progress {
+        height: 10px;
+        border-radius: 5px;
+        background-color: #e9ecef;
+        margin-bottom: 5px;
+    }
+    
+    .progress-bar {
+        background-color: #007bff;
+        border-radius: 5px;
+    }
+    
+    .eligibility-status .status-value.eligible {
+        color: #28a745;
+        font-weight: 500;
+    }
+    
+    .eligibility-status .status-value.not-eligible {
+        color: #dc3545;
+        font-weight: 500;
+    }
+    
+    .match-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .match-indicator {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .match-indicator.match i {
+        color: #28a745;
+    }
+    
+    .match-indicator.mismatch i {
+        color: #dc3545;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pagination variables
+        const pageSize = ({{ page_size|int }});
+        let currentPage = 1;
+        
+        // Get all petitioner rows
+        const allRows = Array.from(document.querySelectorAll('.petitioner-table tbody tr'));
+        // Initially all rows are unfiltered
+        let filteredRows = [...allRows];
+        
+        // Total pages calculation (initially)
+        const totalPages = Math.ceil(filteredRows.length / pageSize);
+        
+        // DOM elements
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const currentPageSpan = document.querySelector('.current-page');
+        const totalPagesSpan = document.getElementById('total-pages');
+        const showingStart = document.getElementById('showing-start');
+        const showingEnd = document.getElementById('showing-end');
+        const showingTotal = document.getElementById('showing-total');
+        
+        // Update pagination info
+        function updatePaginationInfo() {
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, filteredRows.length);
+            
+            if (showingStart) showingStart.textContent = filteredRows.length > 0 ? start : 0;
+            if (showingEnd) showingEnd.textContent = end;
+            if (showingTotal) showingTotal.textContent = filteredRows.length;
+            if (currentPageSpan) currentPageSpan.textContent = currentPage;
+            if (totalPagesSpan) totalPagesSpan.textContent = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+            
+            // Update button states
+            if (prevPageBtn) prevPageBtn.disabled = currentPage <= 1;
+            if (nextPageBtn) nextPageBtn.disabled = currentPage >= Math.ceil(filteredRows.length / pageSize) || filteredRows.length === 0;
+        }
+        
+        // Show specific page of data
+        function showPage(page) {
+            // Hide all rows first
+            allRows.forEach(row => {
+                row.style.display = 'none';
+            });
+            
+            // Calculate range for current page
+            const start = (page - 1) * pageSize;
+            const end = Math.min(start + pageSize, filteredRows.length);
+            
+            // Show only rows for current page
+            for (let i = start; i < end; i++) {
+                if (filteredRows[i]) {
+                    filteredRows[i].style.display = '';
+                }
+            }
+            
+            currentPage = page;
+            updatePaginationInfo();
+        }
+        
+        // Apply filters (status, case type, search)
+        function applyFilters() {
+            const statusValue = document.getElementById('status-filter').value.toLowerCase();
+            const caseTypeValue = document.getElementById('case-type-filter').value.toLowerCase();
+            const searchValue = document.getElementById('case-search').value.toLowerCase();
+            
+            // Filter rows based on criteria
+            filteredRows = allRows.filter(row => {
+                // Get cell values
+                const name = row.querySelector('.petitioner-name')?.textContent.toLowerCase() || '';
+                const company = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() || '';
+                const statusText = row.querySelector('span.status-badge')?.textContent.toLowerCase() || '';
+                
+                // Apply filters
+                const statusMatch = statusValue === 'all' || statusText.includes(statusValue);
+                const caseTypeMatch = caseTypeValue === 'all'; // We don't have case type data yet
+                const searchMatch = searchValue === '' || 
+                                   name.includes(searchValue) || 
+                                   company.includes(searchValue);
+                
+                return statusMatch && caseTypeMatch && searchMatch;
+            });
+            
+            // Note: We don't need to sort here as the backend already sorts by newest first
+            // and the DOM order reflects this sorting
+            
+            // Reset to first page when filtering
+            currentPage = 1;
+            showPage(currentPage);
+        }
+        
+        // Previous button click handler
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default action
+                console.log('Previous button clicked');
+                if (currentPage > 1) {
+                    console.log('Moving to page ' + (currentPage - 1));
+                    showPage(currentPage - 1);
+                } else {
+                    console.log('Already at first page');
+                }
+            });
+        }
+        
+        // Next button click handler
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default action
+                console.log('Next button clicked');
+                if (currentPage < Math.ceil(filteredRows.length / pageSize)) {
+                    console.log('Moving to page ' + (currentPage + 1));
+                    showPage(currentPage + 1);
+                } else {
+                    console.log('Already at last page');
+                }
+            });
+        }
+        
+        // Set up filter event listeners
+        const statusFilter = document.getElementById('status-filter');
+        const caseTypeFilter = document.getElementById('case-type-filter');
+        const searchInput = document.getElementById('case-search');
+        
+        if (statusFilter) statusFilter.addEventListener('change', applyFilters);
+        if (caseTypeFilter) caseTypeFilter.addEventListener('change', applyFilters);
+        if (searchInput) searchInput.addEventListener('input', applyFilters);
+        
+        // Initialize the first page
+        console.log('Initializing pagination');
+        console.log('Total rows:', allRows.length);
+        console.log('Page size:', pageSize);
+        console.log('Total pages:', Math.ceil(allRows.length / pageSize));
+        
+        // Force re-calculation of filteredRows
+        filteredRows = [...allRows];
+        
+        // Hide all rows initially except those on the first page
+        allRows.forEach((row, index) => {
+            if (index < pageSize) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Initialize pagination display
+        updatePaginationInfo();
+        
+        // Make sure the next button is properly enabled if there are more than one page
+        if (nextPageBtn && allRows.length > pageSize) {
+            nextPageBtn.disabled = false;
+            console.log('Next button enabled: ' + allRows.length + ' rows, ' + pageSize + ' per page');
+        }
+    });
+</script>
+{% endblock %}

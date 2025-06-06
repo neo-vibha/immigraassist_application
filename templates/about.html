@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - ImmigraAssist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/custom.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/about.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <!-- <script>
+        // JavaScript for authentication
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in when page loads
+            const checkAuth = function() {
+                if (window.immigraAPI) {
+                    // Check if user is logged in
+                    if (!window.immigraAPI.auth.isLoggedIn()) {
+                        // Redirect to login page if not logged in
+                        window.location.href = "{{ url_for('login') }}";
+                    } else {
+                        // User is logged in, update the user name in the header
+                        const userInfo = window.immigraAPI.auth.getCurrentUser();
+                        if (userInfo && userInfo.firstName) {
+                            document.getElementById('user-name').textContent = userInfo.firstName;
+                        }
+                    }
+                } else {
+                    // If immigraAPI is not loaded yet, wait a bit and try again
+                    setTimeout(checkAuth, 100);
+                }
+            };
+            
+            // Start the auth check process
+            checkAuth();
+            
+            // Setup logout button
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.immigraAPI && window.immigraAPI.auth) {
+                    window.immigraAPI.auth.logout();
+                    window.location.href = "{{ url_for('index') }}";
+                }
+            });
+        });
+    </script> -->
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <div class="logo-top">
+                        <div class="logo-container">
+                            <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                            <div class="logo-content">
+                                <div class="logo-text">ImmigraAssist</div>
+                            </div>
+                        </div>
+                        <div class="logo-tagline">Empowering Immigration with Intelligence</div>
+                    </div>
+                    <div class="vg-logo-container">
+                        <img src="{{ url_for('static', filename='images/vg_logo.png') }}" alt="VG Group Logo" class="vg-logo-img">
+                        <div class="vg-text">A V GROUP INITIATIVE</div>
+                    </div>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('services') }}">Services</a>
+                <a href="{{ url_for('about') }}" class="active">About</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+            </div>
+            <div class="auth-buttons">
+                <span id="user-name" class="user-name"></span>
+                <a href="/logout" class="btn-login" id="logout-btn">Logout</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="about-hero">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+            <div class="hero-content">
+                <h1>Our Story</h1>
+                <p>Combining human expertise with artificial intelligence to transform the immigration experience</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('dashboard') }}" class="btn-primary">Start Your Journey</a>
+                    <a href="#mission-section" class="btn-secondary">Learn More</a>
+                </div>
+            </div>
+        </section>
+        
+        <div class="about-container">
+            <!-- Mission Section -->
+            <section class="mission-section">
+                <div class="section-header">
+                    <h2>Our Mission</h2>
+                    <p>At ImmigraAssist, we believe in making immigration accessible, transparent, and stress-free</p>
+                </div>
+                
+                <div class="mission-content">
+                    <div class="mission-text">
+                        <p>Founded in 2022, ImmigraAssist was born from a simple observation: the immigration process is unnecessarily complex, stressful, and inefficient. We set out to change that by combining legal expertise with cutting-edge AI technology.</p>
+                        <p>Our mission is to empower individuals and organizations to navigate the immigration journey with confidence and clarity. We believe that everyone deserves access to efficient, transparent, and affordable immigration solutions.</p>
+                        <p>As a V Group initiative, we're backed by decades of experience in legal services and technological innovation, allowing us to create a platform that truly understands and addresses the challenges of modern immigration.</p>
+                    </div>
+                    <div class="mission-stats">
+                        <div class="stat-card">
+                            <div class="stat-number">10,000+</div>
+                            <div class="stat-label">Successful Applications</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">98%</div>
+                            <div class="stat-label">Approval Rate</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">AI-Powered Support</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">50+</div>
+                            <div class="stat-label">Immigration Experts</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Values Section -->
+            <section class="values-section">
+                <div class="section-header">
+                    <h2>Our Values</h2>
+                    <p>The principles that guide everything we do</p>
+                </div>
+                
+                <div class="values-grid">
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <h3>Integrity</h3>
+                        <p>We operate with unwavering ethical standards and transparency in all our interactions and recommendations.</p>
+                    </div>
+                    
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3>Innovation</h3>
+                        <p>We continuously evolve our technology and approach to stay ahead of changes in immigration policies and procedures.</p>
+                    </div>
+                    
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <i class="fas fa-hands-helping"></i>
+                        </div>
+                        <h3>Empathy</h3>
+                        <p>We understand the emotional journey of immigration and provide compassionate support throughout the process.</p>
+                    </div>
+                    
+                    <div class="value-card">
+                        <div class="value-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>Inclusivity</h3>
+                        <p>We celebrate diversity and ensure our services are accessible to people from all backgrounds and circumstances.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Team Section -->
+            <!-- <section class="team-section">
+                <div class="section-header">
+                    <h2>Our Leadership Team</h2>
+                    <p>Meet the experts guiding ImmigraAssist's vision and operations</p>
+                </div>
+                
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="David Sharma">
+                        </div>
+                        <h3>David Sharma</h3>
+                        <p class="member-title">Chief Executive Officer</p>
+                        <p class="member-bio">With over 20 years of experience in immigration law, David leads our strategic vision and operations.</p>
+                        <div class="member-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Elena Rodriguez">
+                        </div>
+                        <h3>Elena Rodriguez</h3>
+                        <p class="member-title">Chief Legal Officer</p>
+                        <p class="member-bio">A former USCIS officer, Elena ensures our legal strategies and advice maintain the highest standards.</p>
+                        <div class="member-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Michael Chen">
+                        </div>
+                        <h3>Michael Chen</h3>
+                        <p class="member-title">Chief Technology Officer</p>
+                        <p class="member-bio">Michael leads our AI development team, focusing on creating intelligent solutions for immigration challenges.</p>
+                        <div class="member-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-github"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Priya Patel">
+                        </div>
+                        <h3>Priya Patel</h3>
+                        <p class="member-title">Head of Client Success</p>
+                        <p class="member-bio">Priya ensures every client receives personalized attention and achieves their immigration goals.</p>
+                        <div class="member-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </section> -->
+
+            <!-- Technology Section -->
+            <section class="technology-section">
+                <div class="section-header">
+                    <h2>Our Technology</h2>
+                    <p>How we're revolutionizing immigration services with artificial intelligence</p>
+                </div>
+                
+                <div class="tech-showcase">
+                    <div class="tech-image">
+                        <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="ImmigraAssist Technology">
+                    </div>
+                    <div class="tech-features">
+                        <div class="tech-feature">
+                            <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                            <div class="feature-content">
+                                <h3>AI-Powered Document Analysis</h3>
+                                <p>Our intelligent system automatically reviews documents for completeness and accuracy, identifying potential issues before submission.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-feature">
+                            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                            <div class="feature-content">
+                                <h3>Predictive Case Analytics</h3>
+                                <p>Using historical data and current trends, we provide accurate predictions for case timelines and outcomes.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-feature">
+                            <div class="feature-icon"><i class="fas fa-bell"></i></div>
+                            <div class="feature-content">
+                                <h3>Real-time USCIS Updates</h3>
+                                <p>Our system continuously monitors for policy changes and application status updates, keeping you informed every step of the way.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-feature">
+                            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                            <div class="feature-content">
+                                <h3>Enhanced Security</h3>
+                                <p>We use advanced encryption and security protocols to protect your sensitive information and documents.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Partners Section -->
+            <!-- <section class="partners-section">
+                <div class="section-header">
+                    <h2>Our Partners</h2>
+                    <p>Collaborating with industry leaders to provide comprehensive immigration solutions</p>
+                </div>
+                
+                <div class="partners-logos">
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner+1" alt="Partner Logo">
+                    </div>
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner+2" alt="Partner Logo">
+                    </div>
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner+3" alt="Partner Logo">
+                    </div>
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner+4" alt="Partner Logo">
+                    </div>
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner+5" alt="Partner Logo">
+                    </div>
+                </div>
+            </section> -->
+            
+            <!-- CTA Section -->
+            <section class="cta-section">
+                <div class="cta-content">
+                    <h2>Ready to Transform Your Immigration Experience?</h2>
+                    <p>Join thousands of satisfied clients who have successfully navigated their immigration journey with ImmigraAssist</p>
+                    <div class="cta-buttons">
+                        <a href="{{ url_for('dashboard') }}" class="btn-primary">Go to Dashboard</a>
+                        <a href="{{ url_for('contact') }}" class="btn-secondary">Contact Us</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                <div class="logo-text">ImmigraAssist</div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h3>Services</h3>
+                    <a href="{{ url_for('services') }}">Employment Visas</a>
+                    <a href="{{ url_for('services') }}">Family Immigration</a>
+                    <a href="{{ url_for('services') }}">Green Cards</a>
+                    <a href="{{ url_for('services') }}">Citizenship</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <a href="#">Immigration News</a>
+                    <a href="#">Visa Guides</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Blog</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <a href="{{ url_for('about') }}">About Us</a>
+                    <a href="{{ url_for('contact') }}">Contact</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Connect</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                    <p>Subscribe to our newsletter</p>
+                    <div class="newsletter-form">
+                        <input type="email" placeholder="Your email">
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ImmigraAssist. All rights reserved. A V Group Initiative.</p>
+        </div>
+    </footer>
+</body>
+</html>

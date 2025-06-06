@@ -1,0 +1,442 @@
+{% extends "attorney_base.html" %}
+
+{% block title %}I-485 Form - Admin Corner{% endblock %}
+
+{% block attorney_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Form I-485: Application to Register Permanent Residence or Adjust Status</h2>
+        <div>
+            <span class="badge {% if state == 'Approved' %}badge-success{% elif state == 'Under Review' %}badge-warning{% elif state == 'Pending' %}badge-info{% else %}badge-danger{% endif %}">
+                {{ state }}
+            </span>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <form id="i485-form" method="post" action="{{ url_for('update_i485_petition', petition_id=petition.id) }}">
+            <div class="form-sections">
+                <!-- Form instructions -->
+                <div class="form-section-info alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <p>This form is used by a person who is in the United States to apply for lawful permanent resident status.</p>
+                    <p>Fields marked with * are required.</p>
+                </div>
+
+                <!-- Part 1: Information About You (Person applying for lawful permanent residence) -->
+                <div class="form-section">
+                    <h3>Part 1: Information About You</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="alien_number">Alien Registration Number (A-Number) *</label>
+                                <input type="text" class="form-control" id="alien_number" name="alien_number" 
+                                    value="{{ petition.alien_number or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="uscis_account">USCIS Online Account Number</label>
+                                <input type="text" class="form-control" id="uscis_account" name="uscis_account"
+                                    value="{{ petition.uscis_account or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="ssn">Social Security Number</label>
+                                <input type="text" class="form-control" id="ssn" name="ssn"
+                                    value="{{ petition.ssn or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="beneficiary_family_name">Family Name (Last Name) *</label>
+                                <input type="text" class="form-control" id="beneficiary_family_name" name="beneficiary_family_name"
+                                    value="{{ petition.beneficiary_family_name or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="beneficiary_given_name">Given Name (First Name) *</label>
+                                <input type="text" class="form-control" id="beneficiary_given_name" name="beneficiary_given_name"
+                                    value="{{ petition.beneficiary_given_name or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="beneficiary_middle_name">Middle Name</label>
+                                <input type="text" class="form-control" id="beneficiary_middle_name" name="beneficiary_middle_name"
+                                    value="{{ petition.beneficiary_middle_name or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Have you ever used other names? *</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="other_names_used" value="yes" id="other_names_yes">
+                                    <label class="form-check-label" for="other_names_yes">Yes</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="other_names_used" value="no" id="other_names_no" checked>
+                                    <label class="form-check-label" for="other_names_no">No</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="other_names_section" style="display: none;">
+                            <div class="form-group">
+                                <label for="other_family_name">Other Family Name</label>
+                                <input type="text" class="form-control" id="other_family_name" name="other_family_name"
+                                    value="{{ petition.other_family_name or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="other_given_name">Other Given Name</label>
+                                <input type="text" class="form-control" id="other_given_name" name="other_given_name"
+                                    value="{{ petition.other_given_name or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="birth_date">Date of Birth (mm/dd/yyyy) *</label>
+                                <input type="date" class="form-control" id="birth_date" name="birth_date"
+                                    value="{{ petition.birth_date or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="gender">Gender *</label>
+                                <select class="form-control" id="gender" name="gender" required>
+                                    <option value="" {% if not petition.gender %}selected{% endif %}>Select one</option>
+                                    <option value="Male" {% if petition.gender == 'Male' %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if petition.gender == 'Female' %}selected{% endif %}>Female</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="city_of_birth">City/Town/Village of Birth *</label>
+                                <input type="text" class="form-control" id="city_of_birth" name="city_of_birth"
+                                    value="{{ petition.city_of_birth or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="country_of_birth">Country of Birth *</label>
+                                <input type="text" class="form-control" id="country_of_birth" name="country_of_birth"
+                                    value="{{ petition.country_of_birth or '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="country_of_citizenship">Country of Citizenship/Nationality *</label>
+                                <input type="text" class="form-control" id="country_of_citizenship" name="country_of_citizenship"
+                                    value="{{ petition.country_of_citizenship or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="marital_status">Current Marital Status *</label>
+                                <select class="form-control" id="marital_status" name="marital_status" required>
+                                    <option value="" {% if not petition.marital_status %}selected{% endif %}>Select one</option>
+                                    <option value="Single" {% if petition.marital_status == 'Single' %}selected{% endif %}>Single, Never Married</option>
+                                    <option value="Married" {% if petition.marital_status == 'Married' %}selected{% endif %}>Married</option>
+                                    <option value="Divorced" {% if petition.marital_status == 'Divorced' %}selected{% endif %}>Divorced</option>
+                                    <option value="Widowed" {% if petition.marital_status == 'Widowed' %}selected{% endif %}>Widowed</option>
+                                    <option value="Separated" {% if petition.marital_status == 'Separated' %}selected{% endif %}>Separated</option>
+                                    <option value="Annulled" {% if petition.marital_status == 'Annulled' %}selected{% endif %}>Marriage Annulled</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Part 2: Application Type -->
+                <div class="form-section">
+                    <h3>Part 2: Application Type or Filing Category</h3>
+                    
+                    <div class="form-group">
+                        <label>I am filing this application for myself: *</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="application_type" id="family_based" value="Family-based" 
+                                {% if petition.adjustment_category == 'Family-based' %}checked{% endif %} required>
+                            <label class="form-check-label" for="family_based">
+                                1.a. As an immediate relative (spouse, child under 21, or parent of a U.S. citizen)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="application_type" id="employment_based" value="Employment-based" 
+                                {% if petition.adjustment_category == 'Employment-based' %}checked{% endif %}>
+                            <label class="form-check-label" for="employment_based">
+                                1.b. Based on an employment-based petition (Form I-140)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="application_type" id="diversity_visa" value="Diversity Visa" 
+                                {% if petition.adjustment_category == 'Diversity Visa' %}checked{% endif %}>
+                            <label class="form-check-label" for="diversity_visa">
+                                1.c. As a Diversity Visa lottery winner
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="application_type" id="refugee_asylee" value="Refugee/Asylee" 
+                                {% if petition.adjustment_category == 'Refugee/Asylee' %}checked{% endif %}>
+                            <label class="form-check-label" for="refugee_asylee">
+                                1.d. Based on asylum or refugee status
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="receipt_section">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="receipt_number">Receipt Number of Underlying Petition (if any)</label>
+                                <input type="text" class="form-control" id="receipt_number" name="receipt_number"
+                                    value="{{ petition.receipt_number or '' }}">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="priority_date">Priority Date (if applicable)</label>
+                                <input type="date" class="form-control" id="priority_date" name="priority_date"
+                                    value="{{ petition.priority_date or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Part 3: Additional Information About You -->
+                <div class="form-section">
+                    <h3>Part 3: Additional Information About You</h3>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="last_arrival_date">Date of Last Arrival (mm/dd/yyyy) *</label>
+                                <input type="date" class="form-control" id="last_arrival_date" name="last_arrival_date"
+                                    value="{{ petition.last_arrival_date or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="i94_number">I-94 Arrival/Departure Record Number</label>
+                                <input type="text" class="form-control" id="i94_number" name="i94_number"
+                                    value="{{ petition.i94_number or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="current_status">Current Immigration Status *</label>
+                                <input type="text" class="form-control" id="current_status" name="current_status"
+                                    value="{{ petition.current_status or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="status_expires">Status Expiration Date (mm/dd/yyyy)</label>
+                                <input type="date" class="form-control" id="status_expires" name="status_expires"
+                                    value="{{ petition.status_expires or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="passport_number">Passport Number *</label>
+                                <input type="text" class="form-control" id="passport_number" name="passport_number"
+                                    value="{{ petition.passport_number or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="passport_expiry_date">Passport Expiration Date (mm/dd/yyyy) *</label>
+                                <input type="date" class="form-control" id="passport_expiry_date" name="passport_expiry_date"
+                                    value="{{ petition.passport_expiry_date or '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="current_address">Current U.S. Physical Address (Street Number and Name) *</label>
+                                <input type="text" class="form-control" id="current_address" name="current_address"
+                                    value="{{ petition.current_address or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="current_apt">Apt/Suite/Floor Number</label>
+                                <input type="text" class="form-control" id="current_apt" name="current_apt"
+                                    value="{{ petition.current_apt or '' }}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="current_city">City or Town *</label>
+                                <input type="text" class="form-control" id="current_city" name="current_city"
+                                    value="{{ petition.current_city or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="current_state">State *</label>
+                                <input type="text" class="form-control" id="current_state" name="current_state"
+                                    value="{{ petition.current_state or '' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="current_zip">ZIP Code *</label>
+                                <input type="text" class="form-control" id="current_zip" name="current_zip"
+                                    value="{{ petition.current_zip or '' }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="same_address" name="same_address">
+                        <label class="form-check-label" for="same_address">
+                            Mailing address is the same as current physical address
+                        </label>
+                    </div>
+                    
+                    <div id="mailing_address_section">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="mailing_address">Mailing Address (if different from physical address)</label>
+                                    <input type="text" class="form-control" id="mailing_address" name="mailing_address"
+                                        value="{{ petition.mailing_address or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="mailing_apt">Apt/Suite/Floor Number</label>
+                                    <input type="text" class="form-control" id="mailing_apt" name="mailing_apt"
+                                        value="{{ petition.mailing_apt or '' }}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mailing_city">City or Town</label>
+                                    <input type="text" class="form-control" id="mailing_city" name="mailing_city"
+                                        value="{{ petition.mailing_city or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mailing_state">State</label>
+                                    <input type="text" class="form-control" id="mailing_state" name="mailing_state"
+                                        value="{{ petition.mailing_state or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="mailing_zip">ZIP Code</label>
+                                    <input type="text" class="form-control" id="mailing_zip" name="mailing_zip"
+                                        value="{{ petition.mailing_zip or '' }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form submission button -->
+                <div class="form-submit">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save I-485 Form
+                    </button>
+                    <a href="{{ url_for('attorney_view_petition', petition_id=petition.id) }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Petition
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        const form = document.getElementById('i485-form');
+        
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                event.preventDefault();
+                alert('Please fill in all required fields');
+                
+                // Scroll to the first invalid field
+                const firstInvalid = document.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        });
+        
+        // Toggle Other Names section
+        const otherNamesRadios = document.querySelectorAll('input[name="other_names_used"]');
+        const otherNamesSection = document.getElementById('other_names_section');
+        
+        otherNamesRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'yes' && this.checked) {
+                    otherNamesSection.style.display = 'block';
+                } else {
+                    otherNamesSection.style.display = 'none';
+                }
+            });
+        });
+        
+        // Auto-populate current address checkbox
+        const sameAddressCheckbox = document.getElementById('same_address');
+        if (sameAddressCheckbox) {
+            sameAddressCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    document.getElementById('mailing_address').value = document.getElementById('current_address').value;
+                    document.getElementById('mailing_apt').value = document.getElementById('current_apt').value;
+                    document.getElementById('mailing_city').value = document.getElementById('current_city').value;
+                    document.getElementById('mailing_state').value = document.getElementById('current_state').value;
+                    document.getElementById('mailing_zip').value = document.getElementById('current_zip').value;
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

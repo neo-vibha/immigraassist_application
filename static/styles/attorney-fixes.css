@@ -1,0 +1,45 @@
+/* CSS fixes for attorney dashboard layout */
+.dashboard-container {
+    padding: 0;
+    margin: 0;
+}
+
+.main-content {
+    padding: 20px;
+    margin-left: 0;
+    width: 100%;
+    background-color: #f9fafb;
+}
+
+/* Remove any extra space in the attorney dashboard */
+.welcome-card {
+    margin-top: 0;
+}
+
+/* Ensure content fills available space */
+.attorney-dashboard {
+    display: flex;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Fix sidebar and main content alignment */
+.attorney-dashboard .main-content {
+    flex: 1;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-left: 0;
+}
+
+/* Fix content width */
+.attorney-dashboard .sidebar {
+    flex-shrink: 0;
+}
+
+/* Remove any margin or padding from the body */
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}

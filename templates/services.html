@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - ImmigraAssist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/custom.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/services.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <!-- <script>
+        // JavaScript for authentication
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in when page loads
+            const checkAuth = function() {
+                if (window.immigraAPI) {
+                    // Check if user is logged in
+                    if (!window.immigraAPI.auth.isLoggedIn()) {
+                        // Redirect to login page if not logged in
+                        window.location.href = "{{ url_for('login') }}";
+                    } else {
+                        // User is logged in, update the user name in the header
+                        const userInfo = window.immigraAPI.auth.getCurrentUser();
+                        if (userInfo && userInfo.firstName) {
+                            document.getElementById('user-name').textContent = userInfo.firstName;
+                        }
+                    }
+                } else {
+                    // If immigraAPI is not loaded yet, wait a bit and try again
+                    setTimeout(checkAuth, 100);
+                }
+            };
+            
+            // Start the auth check process
+            checkAuth();
+            
+            // Setup logout button
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.immigraAPI && window.immigraAPI.auth) {
+                    window.immigraAPI.auth.logout();
+                    window.location.href = "{{ url_for('index') }}";
+                }
+            });
+        });
+    </script> -->
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <div class="logo-top">
+                        <div class="logo-container">
+                            <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                            <div class="logo-content">
+                                <div class="logo-text">ImmigraAssist</div>
+                            </div>
+                        </div>
+                        <div class="logo-tagline">Empowering Immigration with Intelligence</div>
+                    </div>
+                    <div class="vg-logo-container">
+                        <img src="{{ url_for('static', filename='images/vg_logo.png') }}" alt="VG Group Logo" class="vg-logo-img">
+                        <div class="vg-text">A V GROUP INITIATIVE</div>
+                    </div>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('services') }}" class="active">Services</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+            </div>
+            <div class="auth-buttons">
+                <span id="user-name" class="user-name"></span>
+                <a href="/logout" class="btn-login" id="logout-btn">Logout</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="services-hero">
+            <div class="hero-content">
+                <h1>Empowering Immigration with Intelligence</h1>
+                <p>ImmigraAssist provides comprehensive immigration solutions powered by AI to streamline your journey to a new life</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('dashboard') }}" class="btn-primary">Go to Dashboard</a>
+                    <a href="#featured-services" class="btn-secondary">Explore Services</a>
+                </div>
+            </div>
+        </section>
+        
+        <div class="services-container">
+
+        <section class="services-overview">
+            <div class="section-header">
+                <h2>Comprehensive Immigration Services</h2>
+                <p>ImmigraAssist offers a wide range of immigration services to help you navigate the complex immigration process with confidence.</p>
+            </div>
+
+            <div class="services-grid">
+                <!-- Employment Visas -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <h3>Employment Visas</h3>
+                    <p>Expert assistance with H-1B, L-1, O-1, and other employment-based visas for professionals and specialized workers.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> H-1B Specialty Occupation</li>
+                        <li><i class="fas fa-check-circle"></i> L-1 Intracompany Transfer</li>
+                        <li><i class="fas fa-check-circle"></i> O-1 Extraordinary Ability</li>
+                        <li><i class="fas fa-check-circle"></i> TN NAFTA Professional</li>
+                    </ul>
+                    <a href="{{ url_for('dashboard') }}" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Family Visas -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Family Immigration</h3>
+                    <p>Reunite with your loved ones through family-based immigration petitions and visas.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Immediate Relative Petitions</li>
+                        <li><i class="fas fa-check-circle"></i> Marriage-Based Green Cards</li>
+                        <li><i class="fas fa-check-circle"></i> K-1 Fiancé(e) Visas</li>
+                        <li><i class="fas fa-check-circle"></i> Family Preference Categories</li>
+                    </ul>
+                    <a href="{{ url_for('dashboard') }}" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Green Cards -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <h3>Green Cards</h3>
+                    <p>Comprehensive assistance with permanent residency applications through various pathways.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Employment-Based Green Cards</li>
+                        <li><i class="fas fa-check-circle"></i> Family-Based Green Cards</li>
+                        <li><i class="fas fa-check-circle"></i> Diversity Visa Program</li>
+                        <li><i class="fas fa-check-circle"></i> Adjustment of Status</li>
+                    </ul>
+                    <a href="{{ url_for('dashboard') }}" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Citizenship -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <h3>Citizenship & Naturalization</h3>
+                    <p>Guidance through the U.S. citizenship process, from application to oath ceremony.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Naturalization Applications</li>
+                        <li><i class="fas fa-check-circle"></i> Citizenship Test Preparation</li>
+                        <li><i class="fas fa-check-circle"></i> Certificate of Citizenship</li>
+                        <li><i class="fas fa-check-circle"></i> Dual Citizenship Guidance</li>
+                    </ul>
+                    <a href="{{ url_for('dashboard') }}" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- Business Immigration -->
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>Business Immigration</h3>
+                    <p>Strategic immigration solutions for businesses looking to hire international talent.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Corporate Immigration Strategy</li>
+                        <li><i class="fas fa-check-circle"></i> Labor Certification (PERM)</li>
+                        <li><i class="fas fa-check-circle"></i> I-9 Compliance</li>
+                        <li><i class="fas fa-check-circle"></i> E-2 Investor Visas</li>
+                    </ul>
+                    <a href="{{ url_for('dashboard') }}" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <!-- AI-Powered Solutions -->
+                <div class="service-card featured">
+                    <div class="service-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>AI-Powered Solutions</h3>
+                    <p>Innovative AI tools to streamline your immigration process and increase approval chances.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Document Analysis & Preparation</li>
+                        <li><i class="fas fa-check-circle"></i> Eligibility Assessment</li>
+                        <li><i class="fas fa-check-circle"></i> Case Outcome Prediction</li>
+                        <li><i class="fas fa-check-circle"></i> Automated Application Review</li>
+                    </ul>
+                    <a href="{{ url_for('dashboard') }}" class="service-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <section class="featured-services">
+            <div class="section-header">
+                <h2>Featured Immigration Solutions</h2>
+                <p>Our most popular and comprehensive services for your immigration needs</p>
+            </div>
+
+            <div class="featured-services-container">
+                <!-- H1B Visa Service -->
+                <div class="featured-service">
+                    <div class="featured-service-content">
+                        <h3>H1B Visa Petitions</h3>
+                        <p class="service-description">
+                            Comprehensive H1B visa petition preparation and filing services for employers and foreign workers.
+                            Our AI-powered system analyzes your case to maximize approval chances and streamline the process.
+                        </p>
+                        <ul class="service-benefits">
+                            <li><i class="fas fa-star"></i> Complete document preparation and review</li>
+                            <li><i class="fas fa-star"></i> LCA filing assistance</li>
+                            <li><i class="fas fa-star"></i> RFE response support</li>
+                            <li><i class="fas fa-star"></i> Cap-exempt strategy consultation</li>
+                        </ul>
+                        <div class="service-cta">
+                            <a href="{{ url_for('dashboard') }}" class="btn-primary">Start Your H1B Process</a>
+                        </div>
+                    </div>
+                    <div class="featured-service-image">
+                        <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" alt="H1B Visa Service">
+                        <div class="image-overlay">
+                            <div class="badge">Popular</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- L1 Visa Service -->
+                <div class="featured-service reverse">
+                    <div class="featured-service-content">
+                        <h3>L1 Intracompany Transfers</h3>
+                        <p class="service-description">
+                            Expert guidance for multinational companies transferring executives, managers, or specialized knowledge employees to the U.S.
+                            Our comprehensive approach ensures a smooth transfer process.
+                        </p>
+                        <ul class="service-benefits">
+                            <li><i class="fas fa-star"></i> Qualifying relationship documentation</li>
+                            <li><i class="fas fa-star"></i> Blanket L petition assistance</li>
+                            <li><i class="fas fa-star"></i> Executive/manager qualification assessment</li>
+                            <li><i class="fas fa-star"></i> Specialized knowledge evidence preparation</li>
+                        </ul>
+                        <div class="service-cta">
+                            <a href="{{ url_for('dashboard') }}" class="btn-primary">Explore L1 Visa Options</a>
+                        </div>
+                    </div>
+                    <div class="featured-service-image">
+                        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" alt="L1 Visa Service">
+                        <div class="image-overlay">
+                            <div class="badge featured-badge">Fast Track</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="service-process">
+            <div class="section-header">
+                <h2>Our Service Process</h2>
+                <p>A streamlined approach to your immigration journey</p>
+            </div>
+
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-icon"><i class="fas fa-comments"></i></div>
+                    <h3>Initial Consultation</h3>
+                    <p>Schedule a consultation to discuss your immigration goals and eligibility for various visa options.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-icon"><i class="fas fa-file-alt"></i></div>
+                    <h3>Case Assessment</h3>
+                    <p>Our AI-powered system evaluates your case, identifies optimal strategies, and generates a personalized action plan.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-icon"><i class="fas fa-tasks"></i></div>
+                    <h3>Document Preparation</h3>
+                    <p>We help you gather and prepare all necessary documentation and forms required for your petition.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <div class="step-icon"><i class="fas fa-file-signature"></i></div>
+                    <h3>Petition Filing</h3>
+                    <p>We file your petition with the appropriate government agencies and track its progress.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">5</div>
+                    <div class="step-icon"><i class="fas fa-user-check"></i></div>
+                    <h3>Case Management</h3>
+                    <p>Continuous support throughout the process, including responding to RFEs and case status updates.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- <section class="testimonials">
+            <div class="section-header">
+                <h2>Client Success Stories</h2>
+                <p>See what our clients say about our immigration services</p>
+            </div>
+            
+            <div class="testimonial-slider">
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <div class="quote"><i class="fas fa-quote-left"></i></div>
+                        <p>ImmigraAssist's AI-powered approach to my H1B application was revolutionary. The system identified potential issues before filing and helped strengthen my case. I received my approval in record time!</p>
+                        <div class="testimonial-author">
+                            <div class="author-name">Raj Patel</div>
+                            <div class="author-title">Software Engineer, H1B Visa Holder</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <div class="quote"><i class="fas fa-quote-left"></i></div>
+                        <p>As a multinational company, we needed a reliable partner for our L1 transfers. ImmigraAssist provided exceptional service, handling multiple complex cases simultaneously with precision and care.</p>
+                        <div class="testimonial-author">
+                            <div class="author-name">Maria Rodriguez</div>
+                            <div class="author-title">HR Director, Global Tech Solutions</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <div class="quote"><i class="fas fa-quote-left"></i></div>
+                        <p>The document checklist and automated review saved me countless hours of stress. The real-time USCIS updates kept me informed throughout the process. Highly recommend their services!</p>
+                        <div class="testimonial-author">
+                            <div class="author-name">Wei Chen</div>
+                            <div class="author-title">Research Scientist, Green Card Recipient</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section> -->
+
+        <section class="cta-section">
+            <div class="cta-content">
+                <h2>Ready to Start Your Immigration Journey?</h2>
+                <p>Let our AI-powered solutions and expert team guide you through every step of the process</p>
+                <div class="cta-buttons">
+                    <a href="{{ url_for('dashboard') }}" class="btn-primary">Go to Dashboard</a>
+                    <a href="{{ url_for('contact') }}" class="btn-secondary">Contact Us</a>
+                </div>
+            </div>
+        </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                <div class="logo-text">ImmigraAssist</div>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h3>Services</h3>
+                    <a href="{{ url_for('services') }}">Employment Visas</a>
+                    <a href="{{ url_for('services') }}">Family Immigration</a>
+                    <a href="{{ url_for('services') }}">Green Cards</a>
+                    <a href="{{ url_for('services') }}">Citizenship</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <a href="#">Immigration News</a>
+                    <a href="#">Visa Guides</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Blog</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <a href="{{ url_for('about') }}">About Us</a>
+                    <a href="{{ url_for('contact') }}">Contact</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+                <div class="footer-column">
+                    <h3>Connect</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                    <p>Subscribe to our newsletter</p>
+                    <div class="newsletter-form">
+                        <input type="email" placeholder="Your email">
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ImmigraAssist. All rights reserved. A V Group Initiative.</p>
+        </div>
+    </footer>
+</body>
+</html>

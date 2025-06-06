@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImmigraAssist - Admin Corner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/custom.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <div class="logo-top">
+                        <div class="logo-container">
+                            <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                            <div class="logo-content">
+                                <div class="logo-text">ImmigraAssist</div>
+                            </div>
+                        </div>
+                        <div class="logo-tagline">Empowering Immigration with Intelligence</div>
+                    </div>
+                    <div class="vg-logo-container">
+                        <img src="{{ url_for('static', filename='images/vg_logo.png') }}" alt="VG Group Logo" class="vg-logo-img">
+                        <div class="vg-text">A V GROUP INITIATIVE</div>
+                    </div>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('services') }}">Services</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+            </div>
+            <div class="auth-buttons">
+                {% if session.get('logged_in') %}
+                <span id="user-name" class="user-name">{{ session.get('admin_name', '') }}</span>
+                <a href="{{ url_for('logout') }}" class="btn-login">Logout</a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn-login">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn-signup">Sign Up</a>
+                {% endif %}
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <div class="admin-dashboard">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>Admin Corner</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="{{ url_for('admin') }}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <!-- <li><a href="{{ url_for('admin_cases') }}"><i class="fas fa-briefcase"></i> Cases</a></li> -->
+                <!-- <li><a href="{{ url_for('admin_clients') }}"><i class="fas fa-users"></i> Clients</a></li> -->
+                <li><a href="{{ url_for('admin_forms') }}"><i class="fas fa-file-alt"></i> Immigration Forms</a></li>
+                <!-- <li><a href="{{ url_for('admin_documents') }}"><i class="fas fa-folder-open"></i> Documents</a></li> -->
+                <!-- <li><a href="{{ url_for('admin_calendar') }}"><i class="fas fa-calendar-alt"></i> Calendar</a></li> -->
+                <!-- <li><a href="{{ url_for('admin_settings') }}"><i class="fas fa-cog"></i> Settings</a></li> -->
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Welcome to Admin Corner</h2>
+                </div>
+                <!-- <div class="card-body"> -->
+                    <!-- <p>This is your central hub for managing immigration cases, forms, and client information.</p> -->
+                <!-- </div> -->
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Case Overview</h3>
+                    <div class="filter-controls">
+                        <select id="status-filter">
+                            <option value="all">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="review">Under Review</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                        <select id="case-type-filter">
+                            <option value="all">All Case Types</option>
+                            <option value="h1b">H-1B</option>
+                            <option value="l1">L-1</option>
+                            <option value="perm">PERM</option>
+                            <option value="i140">I-140</option>
+                            <option value="i485">I-485</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="case-search" placeholder="Search cases by name, ID, or company...">
+                    </div>
+                    
+                    <div class="petition-grid">
+                        {% for petition in petitions %}
+                        <div class="petition-card">
+                            <div class="petition-header">
+                                <h4>{{ petition.beneficiary_given_name }} {{ petition.beneficiary_family_name }}</h4>
+                                <div class="petition-meta">
+                                    <div class="petition-meta-item">
+                                        <i class="fas fa-building"></i> {{ petition.company_name }}
+                                    </div>
+                                    <div class="petition-meta-item">
+                                        <i class="fas fa-file-alt"></i> {{ petition.visa_type }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="petition-body">
+                                <div class="status-badge status-{{ petition.status|lower }}">{{ petition.status }}</div>
+                                <div class="progress-container">
+                                    <div class="progress-text">
+                                        <span>Completion: {{ petition.completion_percentage }}%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" data-percentage="{{ petition.completion_percentage }}"></div>
+                                    </div>
+                                </div>
+                                <p class="petition-meta-item">
+                                    <i class="far fa-calendar-alt"></i> Submitted: {{ petition.created_at.strftime('%Y-%m-%d') }}
+                                </p>
+                            </div>
+                            <div class="petition-footer">
+                                <a href="{{ url_for('admin_petition_details', petition_id=petition.id) }}" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <!-- Example petition cards for display purposes -->
+                        {% if not petitions %}
+                        <div class="petition-card">
+                            <div class="petition-header">
+                                <h4>John Smith</h4>
+                                <div class="petition-meta">
+                                    <div class="petition-meta-item">
+                                        <i class="fas fa-building"></i> Tech Solutions Inc.
+                                    </div>
+                                    <div class="petition-meta-item">
+                                        <i class="fas fa-file-alt"></i> H-1B
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="petition-body">
+                                <div class="status-badge status-review">Under Review</div>
+                                <div class="progress-container">
+                                    <div class="progress-text">
+                                        <span>Completion: 65%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 65%;"></div>
+                                    </div>
+                                </div>
+                                <p class="petition-meta-item">
+                                    <i class="far fa-calendar-alt"></i> Submitted: 2025-05-15
+                                </p>
+                            </div>
+                            <div class="petition-footer">
+                                <a href="#" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                        
+                        <div class="petition-card">
+                            <div class="petition-header">
+                                <h4>Maria Garcia</h4>
+                                <div class="petition-meta">
+                                    <div class="petition-meta-item">
+                                        <i class="fas fa-building"></i> Healthcare Group
+                                    </div>
+                                    <div class="petition-meta-item">
+                                        <i class="fas fa-file-alt"></i> L-1A
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="petition-body">
+                                <div class="status-badge status-pending">Pending</div>
+                                <div class="progress-container">
+                                    <div class="progress-text">
+                                        <span>Completion: 30%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 30%;"></div>
+                                    </div>
+                                </div>
+                                <p class="petition-meta-item">
+                                    <i class="far fa-calendar-alt"></i> Submitted: 2025-05-20
+                                </p>
+                            </div>
+                            <div class="petition-footer">
+                                <a href="#" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                        
+                        <div class="petition-card">
+                            <div class="petition-header">
+                                <h4>David Lee</h4>
+                                <div class="petition-meta">
+                                    <div class="petition-meta-item">
+                                        <i class="fas fa-building"></i> Finance Corp
+                                    </div>
+                                    <div class="petition-meta-item">
+                                        <i class="fas fa-file-alt"></i> H-1B
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="petition-body">
+                                <div class="status-badge status-approved">Approved</div>
+                                <div class="progress-container">
+                                    <div class="progress-text">
+                                        <span>Completion: 100%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 100%;"></div>
+                                    </div>
+                                </div>
+                                <p class="petition-meta-item">
+                                    <i class="far fa-calendar-alt"></i> Submitted: 2025-04-10
+                                </p>
+                            </div>
+                            <div class="petition-footer">
+                                <a href="#" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Activities</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="activity-list">
+                        {% for activity in recent_activities %}
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="{{ activity.icon }}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">{{ activity.description }}</div>
+                                <div class="activity-time">{{ activity.timestamp }}</div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                        
+                        <!-- Example activities for display purposes -->
+                        {% if not recent_activities %}
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">New document uploaded for John Smith's H-1B petition</div>
+                                <div class="activity-time">Today, 2:30 PM</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">Updated client information for Maria Garcia</div>
+                                <div class="activity-time">Today, 11:15 AM</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">David Lee's H-1B petition approved</div>
+                                <div class="activity-time">Yesterday, 4:45 PM</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">Scheduled interview preparation for Sarah Johnson</div>
+                                <div class="activity-time">Yesterday, 2:00 PM</div>
+                            </div>
+                        </li>
+                        <li class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">New client registration: Robert Chen</div>
+                                <div class="activity-time">2025-05-30, 10:30 AM</div>
+                            </div>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>ImmigraAssist</h2>
+                <p>Your Intelligent Legal Assistant</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-group">
+                    <h3>Navigation</h3>
+                    <a href="{{ url_for('index') }}">Home</a>
+                    <a href="{{ url_for('services') }}">Services</a>
+                    <a href="{{ url_for('about') }}">About</a>
+                    <a href="{{ url_for('contact') }}">Contact</a>
+                </div>
+                <div class="link-group">
+                    <h3>Legal</h3>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Disclaimer</a>
+                </div>
+                <div class="link-group">
+                    <h3>Contact</h3>
+                    <p>Email: info@immigraassist.com</p>
+                    <p>Phone: (555) 123-4567</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ImmigraAssist. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter functionality
+            const statusFilter = document.getElementById('status-filter');
+            const caseTypeFilter = document.getElementById('case-type-filter');
+            const caseSearch = document.getElementById('case-search');
+            const petitionCards = document.querySelectorAll('.petition-card');
+            
+            function applyFilters() {
+                const statusValue = statusFilter.value;
+                const caseTypeValue = caseTypeFilter.value;
+                const searchValue = caseSearch.value.toLowerCase();
+                
+                petitionCards.forEach(card => {
+                    const statusBadge = card.querySelector('.status-badge');
+                    const caseType = card.querySelector('.petition-meta-item:nth-child(2)').textContent.trim();
+                    const name = card.querySelector('h4').textContent.toLowerCase();
+                    const company = card.querySelector('.petition-meta-item:nth-child(1)').textContent.toLowerCase();
+                    
+                    const statusMatch = statusValue === 'all' || statusBadge.classList.contains(`status-${statusValue}`);
+                    const caseTypeMatch = caseTypeValue === 'all' || caseType.toLowerCase().includes(caseTypeValue);
+                    const searchMatch = searchValue === '' || 
+                                        name.includes(searchValue) || 
+                                        company.includes(searchValue);
+                    
+                    if (statusMatch && caseTypeMatch && searchMatch) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+            
+            statusFilter.addEventListener('change', applyFilters);
+            caseTypeFilter.addEventListener('change', applyFilters);
+            caseSearch.addEventListener('input', applyFilters);
+            
+            // Mobile menu toggle
+            const hamburger = document.querySelector('.hamburger');
+            const navLinks = document.querySelector('.nav-links');
+            
+            hamburger.addEventListener('click', function() {
+                navLinks.classList.toggle('show');
+                hamburger.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>

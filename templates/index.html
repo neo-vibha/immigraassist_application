@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImmigraAssist - Empowering Immigration with Intelligence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/custom.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href=" {{ url_for('index') }}">
+                    <div class="logo-top">
+                        <div class="logo-container">
+                            <div class="logo-icon"><i class="fas fa-globe-americas"></i></div>
+                            <div class="logo-content">
+                                <div class="logo-text">ImmigraAssist</div>
+                            </div>
+                        </div>
+                        <div class="logo-tagline">Empowering Immigration with Intelligence</div>
+                    </div>
+                    <div class="vg-logo-container">
+                        <img src="{{ url_for('static', filename='images/vg_logo.png') }}" alt="VG Group Logo" class="vg-logo-img">
+                        <div class="vg-text">A V GROUP INITIATIVE</div>
+                    </div>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="active">Home</a>
+                <a href="{{ url_for('dashboard') }}" >Dashboard</a>
+                <a href="{{ url_for('user_petitions') }}" >My Petitions</a>
+
+                <a href="{{ url_for('services') }}">Services</a>
+                <a href="{{ url_for('about') }}">About</a>
+                <a href="{{ url_for('contact') }}">Contact</a>
+            </div>
+            <div class="auth-buttons">
+                {% if session.get('logged_in') %}
+                <span id="user-name" class="user-name"></span>
+                <a href="{{ url_for('logout') }}" class="btn-login">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn-login">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn-signup">Sign Up</a>
+            {% endif %}
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Welcome to ImmigraAssist</h1>
+                <h2>Your Intelligent Legal Assistant</h2>
+                <p>Streamlining legal document processing and eligibility checks with advanced AI technology</p>
+                <div class="cta-buttons">
+                    <a href="{{ url_for('signup') }}" class="btn-primary">Get Started</a>
+                    <a href="#features" class="btn-secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='images/attorney-ai-hero.svg') }}" alt="Admin AI Assistant" />
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <h2>How ImmigraAssist Can Help You</h2>
+            <div class="trust-indicators">
+                <div class="stat-block">
+                    <span class="stat-number">95%</span>
+                    <span class="stat-description">Client satisfaction rate with our AI document processing</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-number">1000+</span>
+                    <span class="stat-description">Legal documents processed daily with our advanced AI system</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-number">50+</span>
+                    <span class="stat-description">Types of legal eligibility checks available for your specific needs</span>
+                </div>
+            </div>
+            <div class="feature-cards">
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <h3>Document Processing</h3>
+                    <p>Upload and analyze legal documents with our AI-powered system for quick and accurate reviews.</p>
+                    <a href="services.html#document-processing" class="learn-more">Learn more <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Eligibility Checks</h3>
+                    <p>Determine your eligibility for various legal services and benefits with our advanced assessment tools.</p>
+                    <a href="services.html#eligibility-checks" class="learn-more">Learn more <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Legal Protection</h3>
+                    <p>Get guidance on protecting your rights and understanding complex legal documents.</p>
+                    <a href="{{ url_for('services') }}#legal-protection" class="learn-more">Learn more <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <section class="how-it-works">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p class="section-subtitle">Unlock the power of AI to streamline your legal processes</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Create an Account</h3>
+                    <p>Sign up for ImmigraAssist AI to access our full range of legal assistant features.</p>
+                    <div class="step-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Upload Your Documents</h3>
+                    <p>Securely upload your legal documents for AI-powered analysis.</p>
+                    <div class="step-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Receive Analysis</h3>
+                    <p>Get detailed eligibility assessments and legal insights based on your documents.</p>
+                    <div class="step-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="cta-container">
+                <a href="#" class="btn-secondary btn-large">See Demo <i class="fas fa-play-circle"></i></a>
+                <a href="{{ url_for('signup') }}" class="btn-primary btn-large">Get Started Today</a>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="section-header">
+                <h2>What Our Clients Say</h2>
+                <p class="section-subtitle">Join thousands of satisfied legal professionals and clients</p>
+            </div>
+            <div class="testimonial-slider">
+                <div class="testimonial">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"ImmigraAssist AI saved me hours of reading through complex legal documents. The eligibility check feature was particularly helpful for my case. Our firm has seen a 30% increase in efficiency since implementing this system."</p>
+                    <div class="client-info">
+                        <div class="client-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="client-details">
+                            <span class="client-name">Sarah Johnson</span>
+                            <span class="client-position">Small Business Owner</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"The document processing capability of ImmigraAssist AI is remarkable. It highlighted key issues I would have missed otherwise. I wish we had started using this sooner - it's revolutionized how we handle client documents."</p>
+                    <div class="client-info">
+                        <div class="client-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="client-details">
+                            <span class="client-name">Michael Chen</span>
+                            <span class="client-position">Real Estate Investor</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p>"The platform is so intuitive that there really wasn't any learning curve. It's those little things that make ImmigraAssist special. It allows us to deliver good quality work quickly and efficiently."</p>
+                    <div class="client-info">
+                        <div class="client-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="client-details">
+                            <span class="client-name">Jennifer Williams</span>
+                            <span class="client-position">Family Law Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-nav">
+                <span class="nav-dot active"></span>
+                <span class="nav-dot"></span>
+                <span class="nav-dot"></span>
+            </div>
+        </section>
+
+        <section class="advantages">
+            <div class="section-header">
+                <h2>The ImmigraAssist Advantage</h2>
+                <p class="section-subtitle">What sets our platform apart</p>
+            </div>
+            <div class="advantage-grid">
+                <div class="advantage-item">
+                    <div class="advantage-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Secure Document Handling</h3>
+                    <p>Keep your legal documents secure and accessible in the cloud with advanced encryption.</p>
+                </div>
+                <div class="advantage-item">
+                    <div class="advantage-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Leverage cutting-edge artificial intelligence to analyze complex legal scenarios.</p>
+                </div>
+                <div class="advantage-item">
+                    <div class="advantage-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Connect with exceptional customer care whenever you need assistance.</p>
+                </div>
+                <div class="advantage-item">
+                    <div class="advantage-icon">
+                        <i class="fas fa-file-import"></i>
+                    </div>
+                    <h3>Easy Data Migration</h3>
+                    <p>Transition smoothly with our seamless data migration tools and professional support.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="resources">
+            <div class="section-header">
+                <h2>Legal Resources</h2>
+                <p class="section-subtitle">Stay informed with our latest guides and reports</p>
+            </div>
+            <div class="resource-cards">
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="resource-content">
+                        <h3>2025 Legal AI Trends Report</h3>
+                        <p>Discover how AI is transforming the legal industry and what it means for your practice.</p>
+                        <a href="#" class="resource-link">Read the report <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="resource-content">
+                        <h3>Guide to Document Automation</h3>
+                        <p>Learn how to streamline your document workflows and save valuable time.</p>
+                        <a href="#" class="resource-link">Download guide <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-image">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <div class="resource-content">
+                        <h3>Legal Tech Implementation</h3>
+                        <p>Step-by-step guidance for implementing new technology in your legal practice.</p>
+                        <a href="#" class="resource-link">Get the guide <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <h2>Ready to Transform Your Legal Practice?</h2>
+            <p>Join thousands of satisfied professionals who trust ImmigraAssist with their legal document needs</p>
+            <div class="cta-buttons-large">
+                <a href="signup.html" class="btn-primary btn-large">Start Free Trial</a>
+                <a href="demo.html" class="btn-secondary btn-large">Request Demo</a>
+            </div>
+            <div class="cta-note">No credit card required. Cancel anytime.</div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>ImmigraAssist</h2>
+                <p>Your Intelligent Legal Assistant</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-group">
+                    <h3>Navigation</h3>
+                    <a href="index.html">Home</a>
+                    <a href="services.html">Services</a>
+                    <a href="about.html">About</a>
+                    <a href="contact.html">Contact</a>
+                </div>
+                <div class="link-group">
+                    <h3>Legal</h3>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="disclaimer.html">Disclaimer</a>
+                </div>
+                <div class="link-group">
+                    <h3>Contact</h3>
+                    <p>Email: info@adminai.com</p>
+                    <p>Phone: (555) 123-4567</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 ImmigraAssist. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup logout button functionality
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.immigraAPI && window.immigraAPI.auth) {
+                    window.immigraAPI.auth.logout();
+                    window.location.reload(); // Reload the page to update UI
+                }
+            });
+            
+            // Dashboard link in navbar - initially hide it
+            const navDashboard = document.getElementById('nav-dashboard');
+            navDashboard.style.display = 'none';
+            
+            // Check if user is logged in
+            if (window.immigraAPI && window.immigraAPI.auth && window.immigraAPI.auth.isLoggedIn()) {
+                // Hide login/signup buttons
+                document.getElementById('login-btn').style.display = 'none';
+                document.getElementById('signup-btn').style.display = 'none';
+                
+                // Show logout button
+                document.getElementById('logout-btn').style.display = 'inline-block';
+                
+                // Show dashboard link in navbar
+                navDashboard.style.display = 'inline-block';
+            }
+        });
+    </script>
+</body>
+</html>

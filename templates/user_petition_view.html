@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}Petition Status{% endblock %}
+
+{% block styles %}
+<style>
+    .petition-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-card {
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .status-card:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .progress {
+        height: 25px;
+        border-radius: 1rem;
+        background-color: #e9ecef;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        color: white;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .admin-notes {
+        border-left: 4px solid var(--primary-color);
+        padding-left: 1rem;
+    }
+    
+    .feedback-history .list-group-item {
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .feedback-history .list-group-item:hover {
+        border-left: 3px solid var(--primary-color);
+        background-color: rgba(62, 100, 255, 0.05);
+    }
+    
+    .feedback-date {
+        font-size: 0.85rem;
+    }
+    
+    .feedback-admin {
+        font-weight: 600;
+    }
+    
+    .petition-info-table th {
+        width: 35%;
+        background-color: rgba(62, 100, 255, 0.05);
+    }
+    
+    .back-button {
+        transition: all 0.3s ease;
+    }
+    
+    .back-button:hover {
+        transform: translateX(-5px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="petition-header py-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-2">Petition Status</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0 bg-transparent p-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}" class="text-white">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('user_petitions') }}" class="text-white">My Petitions</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">Petition Status</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <span class="badge {% if petition.status == 'Approved' %}bg-success{% elif petition.status == 'Rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %} p-2 fs-6">
+                    <i class="fas {% if petition.status == 'Approved' %}fa-check-circle{% elif petition.status == 'Rejected' %}fa-times-circle{% else %}fa-clock{% endif %} me-1"></i>
+                    {{ petition.status }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4 border-0">
+                <div class="card-header bg-white border-bottom-0 py-3">
+                    <h3 class="mb-0 text-primary"><i class="fas fa-file-alt me-2"></i>Petition Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h4 class="text-primary"><i class="fas fa-info-circle me-2"></i>Petition Information</h4>
+                            <table class="table table-bordered petition-info-table">
+                                <tbody>
+                                    <tr>
+                                        <th>Petitioner Name</th>
+                                        <td>{{ petition.first_name }} {{ petition.last_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Email</th>
+                                        <td>{{ petition.email }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Phone</th>
+                                        <td>{{ petition.phone }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Submission Date</th>
+                                        <td>{{ petition.submission_date }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Form Type</th>
+                                        <td>{{ petition.form_type }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-primary"><i class="fas fa-chart-line me-2"></i>Status Information</h4>
+                            <div class="status-card p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0">Current Status</h5>
+                                    {% if petition.status == 'Approved' %}
+                                    <span class="badge bg-success p-2"><i class="fas fa-check-circle me-1"></i>{{ petition.status }}</span>
+                                    {% elif petition.status == 'Rejected' %}
+                                    <span class="badge bg-danger p-2"><i class="fas fa-times-circle me-1"></i>{{ petition.status }}</span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark p-2"><i class="fas fa-clock me-1"></i>{{ petition.status }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="progress mb-3">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: {{ petition.completion_percentage }}%" 
+                                         aria-valuenow="{{ petition.completion_percentage }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ petition.completion_percentage }}%
+                                    </div>
+                                </div>
+                                
+                                {% if petition.admin_notes %}
+                                <div class="admin-notes mb-3">
+                                    <h6 class="text-primary"><i class="fas fa-comment-alt me-2"></i>Attorney Notes</h6>
+                                    <div class="p-3 bg-light border rounded">
+                                        {{ petition.admin_notes }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="feedback-section">
+                                <h4 class="text-primary"><i class="fas fa-comments me-2"></i>Attorney Feedback</h4>
+                                
+                                {% if petition.feedback_history %}
+                                <div class="feedback-history">
+                                    <ul class="list-group">
+                                        {% for feedback in petition.feedback_history %}
+                                        <li class="list-group-item">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="feedback-date text-muted"><i class="far fa-calendar-alt me-1"></i>{{ feedback.date }}</span>
+                                                <span class="feedback-admin text-primary"><i class="fas fa-user-tie me-1"></i>{{ feedback.admin }}</span>
+                                            </div>
+                                            <div class="feedback-content mt-3 mb-1">
+                                                {{ feedback.content }}
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>No feedback available yet. An attorney will review your petition soon.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary back-button">
+                            <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+                        </a>
+                        <a href="{{ url_for('user_petitions') }}" class="btn btn-primary">
+                            <i class="fas fa-list me-2"></i> View All Petitions
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

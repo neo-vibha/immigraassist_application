@@ -1,0 +1,61 @@
+/* My Petitions Page Styles */
+
+.petition-table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.petition-status-badge {
+    font-size: 0.85rem;
+    padding: 0.35em 0.65em;
+}
+
+.petition-actions .btn {
+    white-space: nowrap;
+}
+
+.petition-id {
+    font-weight: 600;
+    color: #495057;
+}
+
+.no-petitions-message {
+    padding: 2rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+.no-petitions-message i {
+    font-size: 2.5rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.petition-card {
+    transition: transform 0.2s ease-in-out;
+    margin-bottom: 1.5rem;
+}
+
+.petition-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header-petitions {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .table-responsive {
+        border: 0;
+    }
+    
+    .petition-actions .btn {
+        display: block;
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
