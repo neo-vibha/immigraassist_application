@@ -2100,7 +2100,7 @@ def validate_passport():
         return jsonify({'verified': False, 'message': 'Invalid input.'}), 400
 
     if not allowed_file(file.filename):
-        return jsonify({'verified': False, 'message': 'Unsupported file type.'}), 400
+        return jsonify({'verified': False, 'message': 'Unsupported file type.','reason':'upload a pdf file'}), 400
 
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
@@ -2110,13 +2110,13 @@ def validate_passport():
         # Step 1: Image similarity check
         indian_passport_similarity = compare_passport_pdf_to_reference(pdf_path=filepath, ref_path=passport_ref_file_path)
         if not indian_passport_similarity>=0.80:
-            return jsonify({'verified': False, 'message': 'Image similarity check failed.'}), 400
+            return jsonify({'verified': False, 'message': 'Image similarity check failed.','reason':'Attached file is not passport.Please attach passport.'}), 400
 
         # Step 2: OCR + Text check
         text = extract_text_from_file(filepath)
         print("text", text)
         if not text or len(text.strip()) < 20:
-            return jsonify({'verified': False, 'message': 'No readable text detected.'}), 400
+            return jsonify({'verified': False, 'message': 'No readable text detected.','reason':'Unable to extract text due to poor quality of image'}), 400
 
         lower = text.lower()
         if "republic of india" not in lower or not ("passport no" in lower or "p<ind" in lower):
@@ -2158,7 +2158,7 @@ def validate_education():
         return jsonify({'verified': False, 'message': 'Invalid input.'}), 400
 
     if not allowed_file(file.filename):
-        return jsonify({'verified': False, 'message': 'Unsupported file type.'}), 400
+        return jsonify({'verified': False, 'message': 'Unsupported file type.','reason':'upload pdf file.'}), 400
 
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
@@ -2168,7 +2168,7 @@ def validate_education():
         text = extract_text_from_certificate(filepath)        
 
         if not text or len(text.strip()) < 20:
-            return jsonify({'verified': False, 'message': 'No readable text detected.'}), 400
+            return jsonify({'verified': False, 'message': 'No readable text detected.','reason':'Uploaded file is of poor quality'}), 400
 
         text_lower = text.lower()
 
@@ -2178,9 +2178,9 @@ def validate_education():
         is_keyword_found = any(re.search(r'\b' + re.escape(keyword) + r'\b', text_lower) for keyword in keywords)
 
         if is_keyword_found and len(text)>400:
-            return jsonify({'verified': False, 'message': 'Resume might be uploadedm, Certificate is not uploaded'}), 400
+            return jsonify({'verified': False, 'message': 'Resume might be uploadedm, Certificate is not uploaded','reason':'Resume might be uploadedm, Certificate is not uploaded'}), 400
         elif not is_keyword_found:
-            return jsonify({'verified': False, 'message': 'Certificate is not uploaded'}), 400
+            return jsonify({'verified': False, 'message': 'Certificate is not uploaded','reason':'Certificate is not uploaded'}), 400
 
         prompt =  f"""You are a question answering bot. Based on the context and questions provided, generate appropriate answers in JSON format.\n\n
         
@@ -2216,6 +2216,7 @@ def validate_education():
         traceback.print_exc()
         return jsonify({'verified': False, 'message': 'Internal server error.', 'error': str(e)}), 500
 
+
 @app.route('/attorney/documents/validate_emp_support_doc', methods=['POST'])
 @login_required
 def validate_emp_doc():
@@ -2226,7 +2227,7 @@ def validate_emp_doc():
         return jsonify({'verified': False, 'message': 'Invalid input.'}), 400
 
     if not allowed_file(file.filename):
-        return jsonify({'verified': False, 'message': 'Unsupported file type.'}), 400
+        return jsonify({'verified': False, 'message': 'Unsupported file type.','reason':'Upload pdf file'}), 400
 
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
@@ -2242,7 +2243,7 @@ def validate_emp_doc():
     print("similarity score of emplye support doc", similarity_score)
 
     if not similarity_score[0][0] > 0.8:
-        return jsonify({'verified': False, 'message': 'Employee Support Document is not uploaded'}), 400
+        return jsonify({'verified': False, 'message': 'Employee Support Document is not uploaded','reason':'Please upload Employee support document'}), 400
 
     data = {
         "employee_name": extract(r"Employee Name:\s*(.+)", text=text),
@@ -2283,7 +2284,7 @@ def validate_cv():
 
     text = extract_text_from_file(filepath)
     if not text or len(text.strip()) < 20:
-            return jsonify({'verified': False, 'message': 'No readable text detected.'}), 400
+            return jsonify({'verified': False, 'message': 'No readable text detected.','reason':'Unable to extract text due to poor quality of image'}), 400
 
     text_lower = text.lower()
 
@@ -2293,7 +2294,7 @@ def validate_cv():
     is_keyword_found = any(re.search(r'\b' + re.escape(keyword) + r'\b', text_lower) for keyword in keywords)
 
     if is_keyword_found and len(text)<100:
-        return jsonify({'verified': False, 'message': 'Resume is not uploaded, Certificate might be uploaded'}), 400
+        return jsonify({'verified': False, 'message': 'Resume is not uploaded, Certificate might be uploaded','reason':'Resume is not uploaded, Certificate might be uploaded'}), 400
     elif not is_keyword_found:
         return jsonify({'verified': False, 'message': 'Resume is not uploaded'}), 400
     
