@@ -10,9 +10,38 @@ import os
 from sklearn.metrics.pairwise import cosine_similarity
 from docx import Document
 from sentence_transformers import SentenceTransformer
+from thefuzz import fuzz
 
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+def preprocess(text):
+    text = text.lower()
+    text = re.sub(r'\s+', ' ', text)  # normalize whitespace
+    text = re.sub(r'[^\w\s]', '', text)  # remove punctuation
+    return text.strip()
+
+
+def compare(field, form_value, db_value):
+    matches = {}
+    mismatches = {}
+    if field == "education":
+        form_value = preprocess(form_value)
+        db_value = preprocess(db_value)
+        print(form_value, db_value)
+        similarity = fuzz.token_set_ratio(form_value, db_value)
+        print(f"Cleaned doc similarity: {similarity}%")
+        if similarity>0.85:
+            matches[field] = form_value
+        else:
+            mismatches[field] = {'extracted_data': form_value, 'form_from_Db': db_value}
+    else:
+        print(form_value, db_value)
+        if str(form_value).strip().lower() == str(db_value).strip().lower():
+            matches[field] = form_value
+        else:
+            mismatches[field] = {'extracted_data': form_value, 'form_from_Db': db_value}
+    return matches, mismatches
 
 # Function to extract text from a Word document (.docx)
 def extract_text_from_word(word_path):

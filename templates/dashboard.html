@@ -1322,18 +1322,20 @@
         .then(data => {
             console.log(data);
             if (data.verified) {
-                statusEl.textContent = `✅ Passport verified`;
+                statusEl.textContent = `Passport verified`;
+                statusEl.style.color = 'green';
                 Object.assign(extractedDocumentData, data.passport_data);
                 uploadStatus.passport = true;
                 checkDocumentsAndEnableButton();
             } else {
-                statusEl.textContent = `❌ Verification failed: ${data.reason || 'Unknown error'}`;
+                statusEl.textContent = `Verification failed: ${data.reason || 'Unknown error'}`;
                 uploadStatus.passport = false;
+                statusEl.style.color = 'red';
             }
         })
         .catch(err => {
             console.error('Error verifying passport:', err);
-            statusEl.textContent = '❌ Error contacting server';
+            statusEl.textContent = 'Error contacting server';
         });
     });
     document.getElementById('education-upload').addEventListener('change', function () {
@@ -1360,18 +1362,20 @@
         .then(data => {
             console.log(data);
             if (data.verified) {
-                statusEl.textContent = `✅ Educational document verified`;
+                statusEl.textContent = `Educational document verified`;
                 Object.assign(extractedDocumentData, data.edu_dict);
                 uploadStatus.education = true;
                 checkDocumentsAndEnableButton();
+                statusEl.style.color = 'green';
             } else {
-                statusEl.textContent = `❌ Verification failed: ${data.reason || 'Unknown error'}`;
+                statusEl.textContent = `Verification failed: ${data.reason || 'Unknown error'}`;
                 uploadStatus.education = false;
+                statusEl.style.color = 'red';
             }
         })
         .catch(err => {
             console.error('Error verifying Educational document:', err);
-            statusEl.textContent = '❌ Error contacting server';
+            statusEl.textContent = 'Error contacting server';
         });
     });
     document.getElementById('support-upload').addEventListener('change', function () {
@@ -1398,18 +1402,20 @@
         .then(data => {
             console.log(data);
             if (data.verified) {
-                statusEl.textContent = `✅ Employee support document verified`;
+                statusEl.textContent = `Employee support document verified`;
                 Object.assign(extractedDocumentData, data.extracted_emp_doc_data);
                 uploadStatus.emp_support = true;
                 checkDocumentsAndEnableButton();
+                statusEl.style.color = 'green';
             } else {
-                statusEl.textContent = `❌ Verification failed: ${data.reason || 'Unknown error'}`;
+                statusEl.textContent = `Verification failed: ${data.reason || 'Unknown error'}`;
                 uploadStatus.emp_support = false;
+                statusEl.style.color = 'red';
             }
         })
         .catch(err => {
             console.error('Error verifying Employee support document:', err);
-            statusEl.textContent = '❌ Error contacting server';
+            statusEl.textContent = 'Error contacting server';
         });
     });
 
@@ -1437,19 +1443,21 @@
         .then(data => {
             console.log(data);
             if (data.verified) {
-                statusEl.textContent = `✅ Employee support document verified`;
+                statusEl.textContent = `Employee support document verified`;
                 // extractedData = data.extracted_resume_data;
                 Object.assign(extractedDocumentData, data.extracted_emp_doc_data);
                 uploadStatus.resume = true;
                 checkDocumentsAndEnableButton();
+                statusEl.style.color = 'green';
             } else {
-                statusEl.textContent = `❌ Verification failed: ${data.reason || 'Unknown error'}`;
+                statusEl.textContent = `Verification failed: ${data.reason || 'Unknown error'}`;
                 uploadStatus.resume = false;
+                statusEl.style.color = 'red';
             }
         })
         .catch(err => {
             console.error('Error verifying Employee support document:', err);
-            statusEl.textContent = '❌ Error contacting server';
+            statusEl.textContent = 'Error contacting server';
         });
     });
     

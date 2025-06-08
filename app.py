@@ -11,7 +11,7 @@ from urllib.parse import quote
 from flask import Flask, request, jsonify,  render_template, session,flash, redirect, url_for
 from werkzeug.utils import secure_filename
 from ocr_processing import ( extract_text_from_file, extract_cv_features,  extract_passport_data,
-                            extract_text_from_certificate, extract, extract_text_from_word)
+                            extract_text_from_certificate, extract, extract_text_from_word, preprocess, compare)
 from backend.verify_docs import compare_passport_pdf_to_reference
 import traceback
 from transformers import T5ForConditionalGeneration, T5Tokenizer
@@ -19,6 +19,9 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from backend.helper_functions import allowed_file, rename_keys_in_place
 import mysql.connector
+from datetime import datetime
+import re
+
 
 # Inside your Flask route or function
 passport_ref_file_path = os.path.join(os.getcwd(), 'static', 'supporting_doc', 'indian.jpg')
@@ -2330,15 +2333,18 @@ def validate_cv():
 @login_required
 def process_documents():
     data = request.get_json()
-    passport = data.get('passportNumber')
-    passport_expiry_date = data.get('passportExpiryDate')
-    full_name_emp = data.get('employee_name')
-    full_name_edu = data.get('name')
-    fein_number = data.get("fein_number")
-    lca_number = data.get("lca_number")
-    education = data.get("education")
-    phone = data.get("phone")
-    email = data.get("email")
+    print("data from docs",data)
+    passport = data.get('passportNumber').strip()
+    passport_expiry_date = data.get('dateOfExpiry').strip()
+    passport_expiry_date = datetime.strptime(passport_expiry_date, '%d/%m/%Y').date()
+    full_name_emp = data.get('employee_name').strip()
+    full_name_edu = data.get('name').strip()
+    
+    fein_number = str(data.get("fein_number"))
+    if fein_number:
+        fein_number = fein_number.strip()
+    lca_number = data.get("lca_number").strip()
+    education = data.get("education").strip()
 
     if not passport or not full_name_emp or not fein_number or not lca_number or not full_name_edu:
         return jsonify({'error': 'Missing required fields'}), 400
@@ -2348,6 +2354,7 @@ def process_documents():
     name_parts_ed = full_name_edu.split()
     if len(name_parts) < 2:
         return jsonify({'error': 'Full name must include at least first and last name'}), 400
+    
     first_name, first_name_ed = name_parts[0], name_parts_ed[0]
     middle_name, middle_name_ed = name_parts[1] if len(name_parts) > 2 else '', name_parts_ed[1] if len(name_parts_ed)>2 else''
     last_name ,last_name_ed = name_parts[-1], name_parts_ed[-1]
@@ -2364,15 +2371,24 @@ def process_documents():
     query = """
     SELECT * FROM petitions
     WHERE passport_number = %s
-    AND beneficiary_given_name = %s
-    AND beneficiary_middle_name = %s
-    AND beneficiary_family_name = %s"""
+        AND beneficiary_given_name = %s
+        AND beneficiary_middle_name = %s
+        AND beneficiary_family_name = %s
+        AND fein =%s
+        AND lca_number = %s
+        AND passport_expiry_date = %s
+    ORDER BY created_at DESC
+    LIMIT 1
+    """
 
     params = (
         passport,
         first_name,
         middle_name,
         last_name,
+        fein_number, 
+        lca_number,
+        passport_expiry_date
     )
     cursor.execute(query, params)
     records = cursor.fetchall()
@@ -2382,27 +2398,15 @@ def process_documents():
     if not records:
         return jsonify({'message': 'Form data and document data are not matching',"verified":False}), 404
 
+    print(records)
+
     # Match and mismatch tracking
     response_records = []
     for record in records:
-        matches = {}
-        mismatches = {}
-
-        def compare(field, form_value, db_value):
-            if str(form_value).strip().lower() == str(db_value).strip().lower():
-                matches[field] = form_value
-            else:
-                mismatches[field] = {'form': form_value, 'db': db_value}
-
-            print(mismatches)
-        
-        compare("first_name", first_name, record.get('beneficiary_given_name'))
-        compare("middle_name", middle_name, record.get('beneficiary_middle_name'))
-        compare("last_name", last_name, record.get('beneficiary_family_name'))
-        compare("fein_number", fein_number, record.get('fein'))
-        compare("education", education, record.get('education_qualification'))
-        compare("lca_number", lca_number, record.get('lca_number'))
-        # compare("passport_expiry_data", passport_expiry_date, record.get('passport_expiry_date'))
+        matches, mismatches = compare("fein_number", fein_number, record.get('fein'))
+        matches, mismatches = compare("education", education, record.get('education_qualification'))
+        matches, mismatches = compare("lca_number", lca_number, record.get('lca_number'))
+        matches, mismatches = compare("passport_expiry_data", passport_expiry_date, record.get('passport_expiry_date'))
 
         response_records.append({
             'record_id': record.get('id'),  # adjust to your PK field
@@ -2411,12 +2415,13 @@ def process_documents():
         })
     if mismatches:
         return jsonify({'message':'Mismatched are found',
-                        "mismatching_fields":mismatches,
+                        "mismatching_fields":response_records,
                         "verified":False})
 
     return jsonify({
         'message': 'All records from form and documents are correct',
-        "verified":True
+        "verified":True,
+        "mismatching_fields":response_records
     })
 
 
