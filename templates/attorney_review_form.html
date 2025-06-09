@@ -87,7 +87,7 @@
                 </div>
             </div>
             
-            <div class="form-content">
+            <!-- <div class="form-content">
                 <h3>Form Content</h3>
                 <div class="form-sections">
                     {% for section in petition.form_sections %}
@@ -104,7 +104,7 @@
                     </div>
                     {% endfor %}
                 </div>
-            </div>
+            </div> -->
             
             <div class="uploaded-documents">
                 <h3>Uploaded Documents</h3>
@@ -141,14 +141,22 @@
                             <textarea id="feedback-notes" name="notes" class="form-control" rows="4" placeholder="Enter your notes and feedback here..."></textarea>
                         </div>
                         <div class="form-group">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Feedback
-                            </button>
+                            <div class="d-flex justify-content-between gap-3">
+                                <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                                    <i class="fas fa-save me-2"></i> Save Feedback
+                                </button>
+                                <button type="button" class="btn btn-success btn-lg decision-btn flex-grow-1" data-status="Approved" id="approve-btn">
+                                    <i class="fas fa-check-circle me-2"></i> Approve Form
+                                </button>
+                                <button type="button" class="btn btn-danger btn-lg decision-btn flex-grow-1" data-status="Rejected" id="reject-btn">
+                                    <i class="fas fa-times-circle me-2"></i> Reject Form
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
                 
-                <div class="feedback-history">
+                <!-- <div class="feedback-history">
                     <h4>Previous Feedback</h4>
                     {% if petition.feedback_history %}
                     <ul class="feedback-list">
@@ -162,15 +170,15 @@
                         </li>
                         {% endfor %}
                     </ul>
-                    {% else %}
-                    <p class="no-feedback">No previous feedback available.</p>
-                    {% endif %}
-                </div>
+                    {% else %} -->
+                    <!-- <p class="no-feedback">No previous feedback available.</p> -->
+                    <!-- {% endif %} -->
+                <!-- </div>  -->
             </div>
         </div>
         
-        <div class="card-footer">
-            <div class="review-decision-section">
+        <!-- <div class="card-footer"> -->
+            <!-- <div class="review-decision-section">
                 <h3><i class="fas fa-gavel"></i> Form Decision</h3>
                 <div class="decision-options">
                     <form action="{{ url_for('attorney_update_petition_status', petition_id=petition.id) }}" method="post" id="petition-decision-form">
@@ -195,14 +203,14 @@
                         </div>
                     </form>
                 </div>
-            </div>
+            </div> -->
             
             <div class="button-container mt-4">
                 <a href="{{ url_for('attorney_i129_form', petition_id=petition.id) }}" class="btn btn-primary">
-                    <i class="fas fa-file-alt"></i> Complete I-129 Form
+                    <i class="fas fa-file-alt"></i> Review I-129 Form
                 </a>
                 <a href="{{ url_for('attorney_i140_form', petition_id=petition.id) }}" class="btn btn-success ms-2">
-                    <i class="fas fa-file-alt"></i> Complete I-140 Form
+                    <i class="fas fa-file-alt"></i> Complete Immigration Form
                 </a>
                 <a href="{{ url_for('attorney') }}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard

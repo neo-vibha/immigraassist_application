@@ -62,7 +62,6 @@ class Petition(db.Model):
     country_of_birth = db.Column(db.String(100), nullable=False)
     country_of_citizenship = db.Column(db.String(100), nullable=False)
     passport_number = db.Column(db.String(50), nullable=False)
-    # passport_number = db.Column(db.String(50), nullable=False, unique=True)
     passport_expiry_date = db.Column(db.Date, nullable=False)
     education_qualification = db.Column(db.String(255), nullable=False)
     

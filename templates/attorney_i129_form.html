@@ -1,5 +1,11 @@
 {% extends "attorney_base.html" %}
 
+{% block styles %}
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+{% endblock %}
+
 {% block title %}I-129 Form for H-1B Visa - ImmigraAssist{% endblock %}
 
 {% block attorney_content %}
@@ -23,76 +29,76 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="company_name" class="required-field">Legal Name of Petitioning Company or Organization</label>
-                                <input type="text" id="company_name" name="company_name" class="form-control" value="{{ petition.company_name }}" required>
+                                <input type="text" id="company_name" name="company_name" class="form-control" value="{{ petition.company_name }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="trade_name">Trade Name or "Doing Business As" Name (if any)</label>
-                                <input type="text" id="trade_name" name="trade_name" class="form-control" value="{{ petition.trade_name if petition.trade_name else '' }}">
+                                <input type="text" id="trade_name" name="trade_name" class="form-control" value="{{ petition.trade_name if petition.trade_name else '' }}" readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="street_address" class="required-field">Street Address</label>
-                                <input type="text" id="street_address" name="street_address" class="form-control" value="{{ petition.street_address }}" required>
+                                <input type="text" id="street_address" name="street_address" class="form-control" value="{{ petition.street_address }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="apt_ste_flr">Apt/Suite/Floor Number</label>
-                                <input type="text" id="apt_ste_flr" name="apt_ste_flr" class="form-control" value="{{ petition.apt_ste_flr if petition.apt_ste_flr else '' }}">
+                                <input type="text" id="apt_ste_flr" name="apt_ste_flr" class="form-control" value="{{ petition.apt_ste_flr if petition.apt_ste_flr else '' }}" readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="city" class="required-field">City or Town</label>
-                                <input type="text" id="city" name="city" class="form-control" value="{{ petition.city }}" required>
+                                <input type="text" id="city" name="city" class="form-control" value="{{ petition.city }}" required readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="state" class="required-field">State</label>
-                                <input type="text" id="state" name="state" class="form-control" value="{{ petition.state }}" required>
+                                <input type="text" id="state" name="state" class="form-control" value="{{ petition.state }}" required readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="zip_code" class="required-field">ZIP Code</label>
-                                <input type="text" id="zip_code" name="zip_code" class="form-control" value="{{ petition.zip_code }}" required>
+                                <input type="text" id="zip_code" name="zip_code" class="form-control" value="{{ petition.zip_code }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="country" class="required-field">Country</label>
-                                <input type="text" id="country" name="country" class="form-control" value="{{ petition.country }}" required>
+                                <input type="text" id="country" name="country" class="form-control" value="{{ petition.country }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="fein" class="required-field">Federal Employer Identification Number (FEIN)</label>
-                                <input type="text" id="fein" name="fein" class="form-control" value="{{ petition.fein }}" required>
+                                <input type="text" id="fein" name="fein" class="form-control" value="{{ petition.fein }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="email" class="required-field">Contact Email</label>
-                                <input type="email" id="email" name="email" class="form-control" value="{{ petition.email }}" required>
+                                <input type="email" id="email" name="email" class="form-control" value="{{ petition.email }}" required readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="daytime_phone" class="required-field">Daytime Phone Number</label>
-                                <input type="tel" id="daytime_phone" name="daytime_phone" class="form-control" value="{{ petition.daytime_phone }}" required>
+                                <input type="tel" id="daytime_phone" name="daytime_phone" class="form-control" value="{{ petition.daytime_phone }}" required readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="mobile_phone">Mobile Phone Number</label>
-                                <input type="tel" id="mobile_phone" name="mobile_phone" class="form-control" value="{{ petition.mobile_phone if petition.mobile_phone else '' }}">
+                                <input type="tel" id="mobile_phone" name="mobile_phone" class="form-control" value="{{ petition.mobile_phone if petition.mobile_phone else '' }}" readonly>
                             </div>
                         </div>
                     </div>
@@ -105,7 +111,7 @@
                             <div class="form-group">
                                 <label class="required-field">Requested Nonimmigrant Classification</label>
                                 <div class="form-check">
-                                    <input type="radio" id="h1b" name="classification" value="H-1B" class="form-check-input" {% if petition.basis_for_classification == 'H-1B' %}checked{% endif %} required>
+                                    <input type="radio" id="h1b" name="classification" value="H-1B" class="form-check-input" {% if petition.basis_for_classification == 'H-1B' %}checked{% endif %} required readonly>
                                     <label for="h1b" class="form-check-label">H-1B - Specialty Occupation Worker</label>
                                 </div>
                             </div>
@@ -183,7 +189,7 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="birth_date" class="required-field">Date of Birth</label>
+                                <label for="birth_date" class="required-field">Date of Birth (mm/dd/yyyy)</label>
                                 <input type="date" id="birth_date" name="birth_date" class="form-control" value="{{ petition.birth_date }}" required>
                             </div>
                             
@@ -399,6 +405,49 @@
 </div>
 
 <style>
+    /* Datepicker styling */
+    .datepicker {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+        font-family: inherit;
+        font-size: inherit;
+    }
+    
+    /* Custom styling for jQuery UI Datepicker */
+    .immigraassist-datepicker {
+        font-family: inherit;
+        font-size: 14px;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .immigraassist-datepicker .ui-datepicker-header {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px 4px 0 0;
+    }
+    
+    .immigraassist-datepicker .ui-datepicker-calendar .ui-state-default {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+    }
+    
+    .immigraassist-datepicker .ui-datepicker-calendar .ui-state-active,
+    .immigraassist-datepicker .ui-datepicker-calendar .ui-state-hover {
+        background: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+    
+    /* Position the parent container relatively */
+    .form-group {
+        position: relative;
+    }
+    
     .form-container {
         padding: 20px;
     }
@@ -464,7 +513,52 @@
 </style>
 
 <script>
+    // Function to format dates as mm/dd/yyyy
+    function convertDateInputsToJQueryDatepicker() {
+        // Find all date inputs and replace them with jQuery datepicker
+        document.querySelectorAll('input[type="date"]').forEach(function(dateInput) {
+            // Create a new text input to replace the date input
+            const textInput = document.createElement('input');
+            textInput.type = 'text';
+            textInput.id = dateInput.id;
+            textInput.name = dateInput.name;
+            textInput.className = dateInput.className + ' datepicker';
+            textInput.placeholder = 'mm/dd/yyyy';
+            textInput.required = dateInput.required;
+            
+            // If the date input has a value, format it as mm/dd/yyyy
+            if (dateInput.value) {
+                const date = new Date(dateInput.value);
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                const year = date.getFullYear();
+                textInput.value = `${month}/${day}/${year}`;
+            }
+            
+            // Replace the date input with the text input
+            dateInput.parentNode.replaceChild(textInput, dateInput);
+            
+            // Initialize jQuery datepicker on the new text input
+            $(textInput).datepicker({
+                dateFormat: 'mm/dd/yy',
+                changeMonth: true,
+                changeYear: true,
+                yearRange: '-100:+20',
+                showButtonPanel: true,
+                beforeShow: function(input) {
+                    setTimeout(function() {
+                        // Add a class to the datepicker to customize it if needed
+                        $('.ui-datepicker').addClass('immigraassist-datepicker');
+                    }, 0);
+                }
+            });
+        });
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
+        // Convert all date inputs to jQuery datepicker with mm/dd/yyyy format
+        convertDateInputsToJQueryDatepicker();
+        
         // Toggle hours per week visibility based on full-time selection
         const fullTimeYes = document.getElementById('full_time_yes');
         const fullTimeNo = document.getElementById('full_time_no');

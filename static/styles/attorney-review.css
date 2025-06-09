@@ -21,9 +21,10 @@
 }
 
 .card-header h2 {
+    color:white;
     margin-bottom: 15px;
     font-weight: 600;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
 }
 
 .petition-meta {
@@ -385,19 +386,23 @@
 }
 
 .decision-btn {
-    padding: 12px 25px;
+    margin-top: 15px;
+    min-width: 180px;
+    padding: 12px 20px;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
     transition: all 0.3s ease;
-    min-width: 200px;
-    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
 }
 
 .decision-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.decision-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Modal styles */

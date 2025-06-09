@@ -33,10 +33,10 @@
             </div> -->
         </div>
         <div class="card-body">
-            <div class="search-box">
+            <!-- <div class="search-box">
                 <i class="fas fa-search"></i>
                 <input type="text" id="case-search" placeholder="Search cases by name, ID, or company..." class="form-control">
-            </div>
+            </div> -->
             
             <!-- Petitioners Table with Pagination -->
             <div class="petitioner-table-container mt-4">
@@ -78,9 +78,9 @@
                                         <a href="{{ url_for('attorney_review_petition', petition_id=petition.id) }}" class="btn btn-sm btn-primary">
                                             <i class="fas fa-eye"></i> View
                                         </a>
-                                        <a href="{{ url_for('attorney_i140_form', petition_id=petition.id) }}" class="btn btn-sm btn-info">
+                                        <!-- <a href="{{ url_for('attorney_i140_form', petition_id=petition.id) }}" class="btn btn-sm btn-info">
                                             <i class="fas fa-edit"></i> Edit
-                                        </a>
+                                        </a> -->
                                     </td>
                                 </tr>
                             {% endfor %}

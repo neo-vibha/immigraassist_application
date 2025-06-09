@@ -2374,29 +2374,32 @@ def process_documents():
         AND beneficiary_given_name = %s
         AND beneficiary_middle_name = %s
         AND beneficiary_family_name = %s
-        AND fein =%s
-        AND lca_number = %s
-        AND passport_expiry_date = %s
     ORDER BY created_at DESC
     LIMIT 1
     """
+    # AND fein =%s
+    # AND lca_number = %s
+    # AND passport_expiry_date = %s
 
     params = (
         passport,
         first_name,
         middle_name,
         last_name,
-        fein_number, 
-        lca_number,
-        passport_expiry_date
+        # fein_number, 
+        # lca_number,
+        # passport_expiry_date
     )
     cursor.execute(query, params)
     records = cursor.fetchall()
     cursor.close()
     conn.close()
 
+    print("records", records)
+    
+
     if not records:
-        return jsonify({'message': 'Form data and document data are not matching',"verified":False}), 404
+        return jsonify({'message': 'Passport and username is not matching',"verified":False}), 404
 
     print(records)
 
@@ -2413,10 +2416,13 @@ def process_documents():
             'matches': matches,
             'mismatches': mismatches
         })
+    print("response records ",response_records)
     if mismatches:
         return jsonify({'message':'Mismatched are found',
                         "mismatching_fields":response_records,
                         "verified":False})
+    
+    
 
     return jsonify({
         'message': 'All records from form and documents are correct',

@@ -4,29 +4,118 @@
 
 {% block styles %}
 <style>
+    :root {
+        --primary-color: #1a5f7a;
+        --secondary-color: #357599;
+        --light-primary: rgba(26, 95, 122, 0.1);
+        --light-secondary: rgba(53, 117, 153, 0.1);
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes gradientAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
     .petition-header {
         background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        background-size: 200% 200%;
         color: white;
         padding: 2rem 0;
         margin-bottom: 2rem;
         border-radius: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        animation: gradientAnimation 15s ease infinite;
+    }
+    
+    .petition-header h1 {
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .petition-header .breadcrumb {
+        animation: fadeIn 1s ease-out;
+    }
+    
+    .petition-header .badge {
+        animation: slideInRight 0.8s ease-out, pulse 2s infinite;
     }
     
     .status-card {
         transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        border-radius: 0.75rem;
+        border: 1px solid rgba(26, 95, 122, 0.1);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 1), rgba(245, 247, 250, 0.8));
+        animation: fadeIn 0.8s ease-out;
     }
     
     .status-card:hover {
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        transform: translateY(-3px);
+    }
+    
+    .card {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    .card-header h3 {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .card-header h3:after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -5px;
+        left: 0;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        transition: width 0.5s ease;
+    }
+    
+    .card:hover .card-header h3:after {
+        width: 100%;
+    }
+    
+    .petition-id-badge {
+        min-width: 120px;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        background: linear-gradient(135deg, rgba(26, 95, 122, 0.08), rgba(53, 117, 153, 0.15)) !important;
+        border: 1px solid rgba(26, 95, 122, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .petition-id-badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(26, 95, 122, 0.2);
     }
     
     .progress {
         height: 25px;
-        border-radius: 1rem;
-        background-color: #e9ecef;
+        border-radius: 2rem;
+        background-color: rgba(233, 236, 239, 0.5);
         overflow: hidden;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin: 1.5rem 0;
     }
     
     .progress-bar {
@@ -36,21 +125,75 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 0 10px rgba(26, 95, 122, 0.5);
+        position: relative;
+        overflow: hidden;
+        animation: shimmer 2.5s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% {
+            background-position: -100% 0;
+        }
+        100% {
+            background-position: 100% 0;
+        }
     }
     
     .admin-notes {
         border-left: 4px solid var(--primary-color);
         padding-left: 1rem;
+        margin: 1.5rem 0;
+    }
+    
+    .admin-notes .bg-light {
+        background: rgba(245, 247, 250, 0.8) !important;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .feedback-section h4 {
+        margin-bottom: 1.25rem;
+        color: var(--primary-color);
+        position: relative;
+    }
+    
+    .feedback-section h4:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        border-radius: 3px;
+    }
+    
+    .feedback-history {
+        animation: fadeIn 1s ease-out;
     }
     
     .feedback-history .list-group-item {
         transition: all 0.3s ease;
         border-left: 3px solid transparent;
+        margin-bottom: 0.75rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        animation: slideInRight 0.5s ease-out;
+        animation-fill-mode: both;
     }
+    
+    .feedback-history .list-group-item:nth-child(1) { animation-delay: 0.1s; }
+    .feedback-history .list-group-item:nth-child(2) { animation-delay: 0.2s; }
+    .feedback-history .list-group-item:nth-child(3) { animation-delay: 0.3s; }
+    .feedback-history .list-group-item:nth-child(4) { animation-delay: 0.4s; }
+    .feedback-history .list-group-item:nth-child(5) { animation-delay: 0.5s; }
     
     .feedback-history .list-group-item:hover {
         border-left: 3px solid var(--primary-color);
-        background-color: rgba(62, 100, 255, 0.05);
+        background-color: rgba(26, 95, 122, 0.05);
+        transform: translateX(8px);
+        box-shadow: 0 3px 10px rgba(26, 95, 122, 0.1);
     }
     
     .feedback-date {
@@ -61,24 +204,100 @@
         font-weight: 600;
     }
     
+    .petition-info-table {
+        border-radius: 0.5rem;
+        overflow: hidden;
+        border: 1px solid rgba(26, 95, 122, 0.1);
+        animation: fadeIn 0.8s ease-out;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .petition-info-table:hover {
+        box-shadow: 0 5px 15px rgba(26, 95, 122, 0.15);
+    }
+    
+    .petition-info-table tr {
+        transition: all 0.3s ease;
+    }
+    
+    .petition-info-table tr:hover {
+        background-color: rgba(26, 95, 122, 0.03);
+    }
+    
     .petition-info-table th {
         width: 35%;
-        background-color: rgba(62, 100, 255, 0.05);
+        background-color: rgba(26, 95, 122, 0.05);
+        color: var(--primary-color);
+        font-weight: 600;
+        border-color: rgba(26, 95, 122, 0.1);
+    }
+    
+    .petition-info-table td {
+        border-color: rgba(26, 95, 122, 0.1);
+        padding: 0.75rem 1rem;
     }
     
     .back-button {
         transition: all 0.3s ease;
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        border-radius: 50rem;
+        padding: 0.5rem 1.25rem;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .back-button:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(26, 95, 122, 0.1), transparent);
+        transition: all 0.4s ease;
+        z-index: -1;
+    }
+    
+    .back-button:hover:before {
+        left: 0;
     }
     
     .back-button:hover {
         transform: translateX(-5px);
+        background-color: rgba(26, 95, 122, 0.05);
+        box-shadow: 0 3px 8px rgba(26, 95, 122, 0.15);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        background-size: 200% auto !important;
+        border: none;
+        border-radius: 50rem;
+        padding: 0.5rem 1.25rem;
+        box-shadow: 0 3px 8px rgba(26, 95, 122, 0.25);
+        transition: all 0.3s ease;
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(26, 95, 122, 0.35);
+        background-position: right center !important;
+    }
+    
+    .card-footer {
+        border-top: 1px solid rgba(26, 95, 122, 0.1);
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="petition-header py-4">
-    <div class="container">
+    <div class="container-fluid px-1 px-md-2">
         <div class="row align-items-center">
             <div class="col-md-8">
                 <h1 class="mb-2">Petition Status</h1>
@@ -100,14 +319,19 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container-fluid px-1 px-md-2">
     <div class="row">
         <div class="col-12">
             <div class="card shadow mb-4 border-0">
                 <div class="card-header bg-white border-bottom-0 py-3">
-                    <h3 class="mb-0 text-primary"><i class="fas fa-file-alt me-2"></i>Petition Details</h3>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0" style="color: #1a5f7a;"><i class="fas fa-file-alt me-2"></i>Petition Details</h3>
+                        <span class="badge rounded-pill bg-light text-primary fw-bold petition-id-badge">
+                            <i class="fas fa-hashtag me-1"></i>Petition #{{ petition.id }}
+                        </span>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body px-4">
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <h4 class="text-primary"><i class="fas fa-info-circle me-2"></i>Petition Information</h4>

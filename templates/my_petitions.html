@@ -6,78 +6,745 @@
 {{ super() }}
 <link rel="stylesheet" href="{{ url_for('static', filename='styles/my-petitions.css') }}">
 <style>
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideInUp {
+        from { 
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideInLeft {
+        from { 
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes slideInRight {
+        from { 
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: 0% 0; }
+        100% { background-position: 200% 0; }
+    }
+    
+    @keyframes gradientAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Header Styling */
     .petitions-header {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), #4a8db7, var(--primary-color));
+        background-size: 300% 300%;
+        animation: gradientAnimation 15s ease infinite;
         color: white;
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2.5rem 0;
+        margin-bottom: 2.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 15px 30px rgba(26, 95, 122, 0.2), 0 5px 15px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+        transform: translateZ(0);
+        -webkit-font-smoothing: antialiased;
+    }
+    
+    .petitions-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+        opacity: 0.8;
+        animation: rotate 25s linear infinite;
+    }
+    
+    .petitions-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" width="100" height="100"/><rect fill="rgba(255,255,255,0.05)" width="50" height="50"/><rect fill="rgba(255,255,255,0.05)" x="50" y="50" width="50" height="50"/></svg>');
+        background-size: 20px 20px;
+        opacity: 0.3;
+    }
+    
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .petitions-header h1 {
+        animation: slideInLeft 0.8s ease-out;
+        position: relative;
+        display: inline-block;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .petitions-header h1::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 0;
+        width: 60%;
+        height: 3px;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.3));
+        border-radius: 3px;
+        animation: expandWidth 1.5s ease-out forwards;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    @keyframes expandWidth {
+        from { width: 0; }
+        to { width: 60%; }
+    }
+    
+    /* Enhanced Navbar and Breadcrumb Styling */
+    .navbar {
+        box-shadow: 0 4px 12px rgba(26, 95, 122, 0.08);
+        animation: slideInDown 0.5s ease-out;
+    }
+    
+    @keyframes slideInDown {
+        from { 
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .navbar .nav-link {
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    
+    .navbar .nav-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+    
+    .navbar .nav-link:hover::after {
+        width: 80%;
+    }
+    
+    .breadcrumb {
+        animation: fadeIn 1s ease-out 0.3s forwards;
+        opacity: 0;
+        animation-fill-mode: forwards;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0.5rem 1rem !important;
+        border-radius: 50px;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        -webkit-backdrop-filter: blur(5px);
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .badge {
+        animation: slideInRight 0.8s ease-out, pulse 2s infinite 1s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    
+    /* Card and Table Styling */
+    .card {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(26, 95, 122, 0.07);
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        border: none;
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .card:hover {
+        transform: translateY(-8px) scale(1.01);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12), 0 15px 30px rgba(26, 95, 122, 0.15) !important;
+    }
+    
+    .card-header {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
+        border-bottom: none !important;
+        padding: 1.5rem 2rem !important;
+    }
+    
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" width="100" height="100"/><rect fill="rgba(26, 95, 122, 0.02)" width="50" height="50"/><rect fill="rgba(26, 95, 122, 0.02)" x="50" y="50" width="50" height="50"/></svg>');
+        background-size: 20px 20px;
+        opacity: 1;
+        z-index: 0;
+    }
+    
+    .card-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, var(--primary-color), var(--secondary-color), var(--primary-color), transparent);
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+        z-index: 1;
+    }
+    
+    .card-header h3 {
+        position: relative;
+        display: inline-block;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin: 0;
+        z-index: 2;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+    }
+    
+    .card-header h3 i {
+        animation: pulse 2s infinite;
+        margin-right: 0.75rem;
+        font-size: 1.25rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
     }
     
     .table-container {
-        border-radius: 0.5rem;
+        border-radius: 1rem;
         overflow: hidden;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), 0 5px 15px rgba(26, 95, 122, 0.05);
+        width: 100%;
+        max-width: 100%;
+        animation: fadeIn 1s ease-out 0.5s forwards;
+        opacity: 0;
+        animation-fill-mode: forwards;
+        background: linear-gradient(135deg, #ffffff, #f9fafb);
+        border: 1px solid rgba(26, 95, 122, 0.08);
+        transform: translateZ(0);
     }
     
+    .petition-table {
+        margin-bottom: 0;
+        width: 100%;
+        table-layout: fixed;
+    }
+    
+    .petition-table th:nth-child(1) { width: 7%; }  /* ID */
+    .petition-table th:nth-child(2) { width: 14%; } /* Form Type */
+    .petition-table th:nth-child(3) { width: 17%; } /* Beneficiary */
+    .petition-table th:nth-child(4) { width: 16%; } /* Submission Date */
+    .petition-table th:nth-child(5) { width: 12%; } /* Status */
+    .petition-table th:nth-child(6) { width: 34%; } /* Actions */
+    
     .petition-table th {
-        background-color: rgba(62, 100, 255, 0.05);
+        background: linear-gradient(135deg, rgba(26, 95, 122, 0.08), rgba(53, 117, 153, 0.05));
         color: var(--primary-color);
-        font-weight: 600;
-        border-bottom: 2px solid rgba(62, 100, 255, 0.1);
+        font-weight: 700;
+        border-bottom: none;
+        padding: 1.25rem 1rem;
+        position: relative;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        vertical-align: middle;
+    }
+    
+    .petition-table th::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 10%;
+        width: 80%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--secondary-color), transparent);
+        border-radius: 2px;
+    }
+    
+    .petition-table td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+        border-color: rgba(26, 95, 122, 0.05);
     }
     
     .petition-row {
-        transition: all 0.2s ease;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        animation-fill-mode: both;
+        animation-duration: 0.6s;
+        animation-name: fadeIn;
+        border-left: 3px solid transparent;
     }
     
+    .petition-row:nth-child(1) { animation-delay: 0.1s; }
+    .petition-row:nth-child(2) { animation-delay: 0.2s; }
+    .petition-row:nth-child(3) { animation-delay: 0.3s; }
+    .petition-row:nth-child(4) { animation-delay: 0.4s; }
+    .petition-row:nth-child(5) { animation-delay: 0.5s; }
+    
     .petition-row:hover {
-        background-color: rgba(62, 100, 255, 0.05);
+        background-color: rgba(26, 95, 122, 0.04);
+        transform: translateY(-3px) scale(1.005);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+        border-left: 3px solid var(--primary-color);
+    }
+    
+    .petition-id {
+        text-align: center;
+        padding-right: 10px;
+    }
+    
+    .petition-id .badge {
+        min-width: 40px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        background: linear-gradient(135deg, rgba(26, 95, 122, 0.08), rgba(53, 117, 153, 0.15));
+        border: 1px solid rgba(26, 95, 122, 0.1);
+        color: var(--primary-color);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .petition-id .badge:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(26, 95, 122, 0.2);
+    }
+    
+    .form-type-cell, .beneficiary-cell, .date-cell {
+        padding: 1rem 0.75rem;
+    }
+    
+    .form-type-cell .badge, .beneficiary-cell .badge, .date-cell .badge {
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 0.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+        margin-right: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .date-cell .badge {
+        background-color: rgba(240, 242, 245, 0.8) !important;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        color: #495057 !important;
     }
     
     .petition-status-badge {
         font-size: 0.85rem;
-        padding: 0.4em 0.8em;
+        padding: 0.5em 1em;
         border-radius: 50rem;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+    
+    .petition-status-badge i {
+        margin-right: 0.4rem;
+        animation: pulse 2s infinite;
+    }
+    
+    .petition-status-badge.bg-success {
+        background: linear-gradient(135deg, #28a745, #20c997) !important;
+        box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+    }
+    
+    .petition-status-badge.bg-warning {
+        background: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+        box-shadow: 0 3px 8px rgba(255, 193, 7, 0.3);
+    }
+    
+    .petition-status-badge.bg-danger {
+        background: linear-gradient(135deg, #dc3545, #c82333) !important;
+        box-shadow: 0 3px 8px rgba(220, 53, 69, 0.3);
+    }
+    
+    .petition-status-badge:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
     }
     
     .petition-actions .btn {
+        position: relative;
+        overflow: hidden;
         border-radius: 50rem;
+        padding: 0.5rem 1.25rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
         transition: all 0.3s ease;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        border: none;
+        box-shadow: 0 4px 10px rgba(26, 95, 122, 0.2);
+        transform: translateZ(0);
+    }
+    
+    .petition-actions .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+        transition: all 0.6s ease;
+    }
+    
+    .petition-actions .btn:hover::before {
+        left: 100%;
+    }
+    
+    .petition-actions .btn::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .petition-actions .btn:hover::after {
+        opacity: 1;
     }
     
     .petition-actions .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 8px 15px rgba(26, 95, 122, 0.3);
+    }
+    
+    .petition-actions .btn:active {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(26, 95, 122, 0.2);
+    }
+    
+    .petition-actions .btn i {
+        margin-right: 0.5rem;
+        animation: pulse 2s infinite;
     }
     
     .back-button {
-        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+        animation: fadeIn 0.5s ease-out, slideInLeft 0.5s ease-out;
     }
     
-    .back-button:hover {
+    .back-button .btn {
+        border-radius: 50rem;
+        padding: 0.6rem 1.75rem;
+        box-shadow: 0 5px 15px rgba(26, 95, 122, 0.15);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        border: none;
+    }
+    
+    .back-button .btn i {
+        margin-right: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .back-button .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+        transition: all 0.6s ease;
+    }
+    
+    .back-button .btn:hover::before {
+        left: 100%;
+    }
+    
+    .back-button .btn:hover {
+        transform: translateX(-8px);
+        box-shadow: 0 8px 20px rgba(26, 95, 122, 0.25);
+    }
+    
+    .back-button .btn:hover i {
         transform: translateX(-5px);
     }
     
+    /* Empty State Styling */
     .no-petitions-message {
-        padding: 3rem;
-        background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+        padding: 4rem 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
         border-radius: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(26, 95, 122, 0.05);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(26, 95, 122, 0.08);
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    .no-petitions-message::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, rgba(26, 95, 122, 0.05) 0%, transparent 70%);
+    }
+    
+    .no-petitions-message::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" width="100" height="100"/><rect fill="rgba(26, 95, 122, 0.03)" width="50" height="50"/><rect fill="rgba(26, 95, 122, 0.03)" x="50" y="50" width="50" height="50"/></svg>');
+        background-size: 20px 20px;
+        opacity: 0.5;
+        z-index: 0;
     }
     
     .no-petitions-message i {
-        font-size: 3.5rem;
+        font-size: 5rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 2rem;
+        display: block;
+        animation: pulse 2s infinite;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .no-petitions-message i::after {
+        content: '';
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        background: radial-gradient(circle, rgba(26, 95, 122, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: -1;
+        animation: pulse 2s infinite 0.5s;
+    }
+    
+    .no-petitions-message h4 {
+        animation: fadeIn 0.8s ease-out 0.3s forwards, slideInUp 0.8s ease-out 0.3s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+        z-index: 1;
+    }
+    
+    .no-petitions-message h4::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 25%;
+        width: 50%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        border-radius: 2px;
+    }
+    
+    .no-petitions-message p {
+        animation: fadeIn 0.8s ease-out 0.5s forwards, slideInUp 0.8s ease-out 0.5s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+        max-width: 500px;
+        margin: 0 auto 2rem;
+        color: var(--light-text);
+        line-height: 1.8;
+        font-size: 1.1rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .no-petitions-message .btn {
+        animation: fadeIn 0.8s ease-out 0.7s forwards, pulse 2s infinite 1.5s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+        box-shadow: 0 8px 20px rgba(26, 95, 122, 0.2);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border: none;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+        border-radius: 50rem;
+    }
+    
+    .no-petitions-message .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+        transition: all 0.6s ease;
+    }
+    
+    .no-petitions-message .btn:hover::before {
+        left: 100%;
+    }
+    
+    .no-petitions-message .btn:hover {
+        transform: translateY(-5px) scale(1.03);
+        box-shadow: 0 12px 25px rgba(26, 95, 122, 0.3);
+    }
+    
+    /* Card Footer Styling */
+    .card-footer {
+        background: linear-gradient(135deg, rgba(26, 95, 122, 0.02), rgba(53, 117, 153, 0.01));
+        border-top: none;
+        padding: 1.25rem !important;
+        position: relative;
+    }
+    
+    .card-footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 10%;
+        width: 80%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(26, 95, 122, 0.2), transparent);
+    }
+    
+    .card-footer .text-muted {
+        font-size: 0.85rem;
+        letter-spacing: 0.3px;
+        background: rgba(26, 95, 122, 0.03);
+        padding: 0.5rem 1rem;
+        border-radius: 50rem;
+        display: inline-flex;
+        align-items: center;
+        animation: fadeIn 1s ease-out;
+    }
+    
+    .card-footer .text-muted i {
+        margin-right: 0.5rem;
         color: var(--primary-color);
-        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    }
+    .text-muted i {
+        animation: pulse 2s infinite;
+    }
+    
+    /* Form Control Styling */
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(26, 95, 122, 0.25);
+    }
+    
+    .form-control {
+        transition: all 0.3s ease;
+        border-radius: 0.5rem;
+    }
+    
+    /* Focus Visual Feedback */
+    a:focus, button:focus, input:focus, select:focus, textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(26, 95, 122, 0.3);
+    }
+    
+    /* Interactive Elements Hover State */
+    a:not(.btn):hover {
+        text-decoration: none;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="petitions-header py-4">
-    <div class="container">
+    <div class="container-fluid px-4 px-md-5">
         <div class="row align-items-center">
             <div class="col-md-8">
                 <h1 class="mb-2">My Petitions</h1>
@@ -97,19 +764,19 @@
     </div>
 </div>
 
-<div class="container">
+<div class="container-fluid px-4 px-md-5">
     <div class="row">
         <div class="col-12">
             <div class="card shadow mb-4 border-0">
                 <div class="card-header bg-white border-bottom-0 py-3">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h3 class="mb-0 text-primary"><i class="fas fa-clipboard-list me-2"></i> My Petitions</h3>
-                        <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-primary">
+                        <h3 class="mb-0" style="color: #1a5f7a;"><i class="fas fa-clipboard-list me-2"></i> My Petitions</h3>
+                        <!-- <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-primary" style="background-color: #1a5f7a; border-color: #1a5f7a;">
                             <i class="fas fa-plus-circle me-1"></i> New Petition
-                        </a>
+                        </a> -->
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body px-4">
                     <p class="text-muted mb-4"><i class="fas fa-info-circle me-2"></i>View and track your petition status and receive attorney feedback</p>
                     
                     {% if user_petitions %}
@@ -119,17 +786,19 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Form Type</th>
-                                    <th>Submission Date</th>
+                                    <th>Beneficiary</th>
+                                    <th>Date Submitted</th>
                                     <th>Status</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for petition in user_petitions %}
+                                {% for petition in user_petitions|sort(attribute='created_at', reverse=True) %}
                                 <tr class="petition-row">
-                                    <td class="petition-id">{{ petition.id }}</td>
-                                    <td><span class="badge bg-light text-primary"><i class="fas fa-file-alt me-1"></i> I-129 Petition</span></td>
-                                    <td><i class="far fa-calendar-alt me-1 text-muted"></i> {{ petition.created_at.strftime('%Y-%m-%d') if petition.created_at else 'N/A' }}</td>
+                                    <td class="petition-id"><span class="badge rounded-pill bg-light text-primary fw-bold"><i class="fas fa-hashtag me-1"></i>{{ petition.id }}</span></td>
+                                    <td class="form-type-cell"><span class="badge bg-light" style="color: #1a5f7a;"><i class="fas fa-file-alt me-1"></i> I-129 Petition</span></td>
+                                    <td class="beneficiary-cell"><span class="badge bg-light text-primary"><i class="fas fa-user me-1"></i> {{ petition.beneficiary_given_name }} {{ petition.beneficiary_family_name }}</span></td>
+                                    <td class="date-cell"><span class="badge bg-light text-secondary"><i class="far fa-calendar-alt me-1"></i> {{ petition.created_at.strftime('%Y-%m-%d') if petition.created_at else 'N/A' }}</span></td>
                                     <td>
                                         {% if petition.state == 'Approved' %}
                                         <span class="badge bg-success petition-status-badge"><i class="fas fa-check-circle me-1"></i> {{ petition.state }}</span>
@@ -140,7 +809,7 @@
                                         {% endif %}
                                     </td>
                                     <td class="text-center petition-actions">
-                                        <a href="{{ url_for('user_view_petition', petition_id=petition.id) }}" class="btn btn-sm btn-primary">
+                                        <a href="{{ url_for('user_view_petition', petition_id=petition.id) }}" class="btn btn-sm btn-primary" style="background-color: #1a5f7a; border-color: #1a5f7a;">
                                             <i class="fas fa-eye me-1"></i> View Status & Feedback
                                         </a>
                                     </td>
@@ -152,22 +821,22 @@
                     {% else %}
                     <div class="no-petitions-message">
                         <i class="fas fa-file-alt"></i>
-                        <h4 class="text-primary">No Petitions Found</h4>
+                        <h4 style="color: #1a5f7a;">No Petitions Found</h4>
                         <p class="text-muted mb-4">You don't have any petitions yet. Start a new petition from the dashboard.</p>
-                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg" style="background-color: #1a5f7a; border-color: #1a5f7a;">
                             <i class="fas fa-plus-circle me-2"></i> Start New Petition
                         </a>
                     </div>
                     {% endif %}
                 </div>
-                <div class="card-footer bg-white py-3">
+                <div class="card-footer py-3">
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary back-button">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary back-button" style="color: #1a5f7a; border-color: #1a5f7a;">
                             <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
                         </a>
-                        <div class="text-muted small">
+                        <!-- <div class="text-muted small">
                             <i class="fas fa-info-circle me-1"></i> Last updated: {{ now.strftime('%Y-%m-%d %H:%M') }}
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>

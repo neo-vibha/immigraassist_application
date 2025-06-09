@@ -46,9 +46,148 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/modal.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/upload-modal.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script src="{{ url_for('static', filename='js/api.js') }}"></script>
     
     <style>
+        /* Datepicker styling */
+        .datepicker {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            font-family: inherit;
+            font-size: inherit;
+        }
+        
+        /* Custom styling for jQuery UI Datepicker */
+        .immigraassist-datepicker {
+            font-family: inherit;
+            font-size: 14px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .immigraassist-datepicker .ui-datepicker-header {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px 4px 0 0;
+        }
+        
+        .immigraassist-datepicker .ui-datepicker-calendar .ui-state-default {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        
+        .immigraassist-datepicker .ui-datepicker-calendar .ui-state-active,
+        .immigraassist-datepicker .ui-datepicker-calendar .ui-state-hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        /* Application Status Steps Animation */
+        .status-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .status-step .step-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #777;
+            font-size: 1.2rem;
+            position: relative;
+            transition: all 0.5s ease;
+            border: 2px solid #ddd;
+        }
+        
+        .status-step.completed .step-icon {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.5);
+        }
+        
+        .status-step.in-progress .step-icon {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+                transform: scale(1);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+                transform: scale(1.05);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+                transform: scale(1);
+            }
+        }
+        
+        .status-step.completed .step-icon i {
+            animation: checkmark 0.5s ease-in-out forwards;
+        }
+        
+        @keyframes checkmark {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .status-step::after {
+            content: '';
+            position: absolute;
+            left: 25px;
+            top: 60px;
+            height: calc(100% - 10px);
+            width: 2px;
+            background-color: #ddd;
+            z-index: 0;
+        }
+        
+        .status-step:last-child::after {
+            display: none;
+        }
+        
+        .status-step.completed::after {
+            background-color: #28a745;
+            transition: background-color 0.5s ease;
+        }
+        
+        /* Position the parent container relatively */
+        .form-field, .form-group {
+            position: relative;
+        }
+        
         /* Required field styling */
         .required-field::after {
             content: ' *';
@@ -62,6 +201,17 @@
             padding: 10px 15px;
             margin-bottom: 20px;
             font-size: 0.9rem;
+        }
+        
+        .upload-status {
+            margin-left: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .upload-status.error {
+            color: #e53935;
+            font-weight: bold;
         }
         
         .required-note {
@@ -275,8 +425,8 @@
                 <!-- I-129 Form Section -->
                 <div id="i129-form-section" class="i129-form-section hidden">
                     <div class="section-header">
-                        <h3>Form I-129: Petition for Nonimmigrant Worker</h3>
-                        <p>Complete the form below to begin your H-1B visa application process</p>
+                        <h3>Petitioner/Beneficiary From</h3>
+                        <!-- <p>Complete the form below to begin your H-1B visa application process</p> -->
                     </div>
                     
                     <!-- Form Pagination -->
@@ -292,12 +442,12 @@
                     </div>
                     
                     <div class="form-container">
-                        <div id="form-success-message" class="success-message hidden">
+                        <!-- <div id="form-success-message" class="success-message hidden">
                             <i class="fas fa-check-circle"></i>
                             <p>Form I-129 information saved successfully! Please proceed to document upload.</p>
-                        </div>
+                        </div> -->
                         
-                        <form id="petition-form" action="/dashboard" method="post" enctype="multipart/form-data">
+                        <form id="petition-form" action="/dashboard" method="post" enctype="multipart/form-data" onsubmit="return handleFormSubmit(event)">
                             <div class="form-instructions">
                                 <p><span class="required-note">*</span> indicates a mandatory field. All mandatory fields must be completed to submit the form.</p>
                             </div>
@@ -442,7 +592,7 @@
                                     <label>3. Other Information</label>
                                     <div class="other-info-fields">
                                         <div class="field-group">
-                                            <label for="birth-date" class="required-field">Date of Birth (dd/mm/yyyy)</label>
+                                            <label for="birth-date" class="required-field">Date of Birth (mm/dd/yyyy)</label>
                                             <input type="date" id="birth-date" name="birthDate" required>
                                         </div>
                                         
@@ -488,6 +638,16 @@
                                         <label for="education-qualification" class="required-field">Educational Qualification</label>
                                         <input type="text" id="education-qualification" name="educationQualification" placeholder="Highest degree earned (e.g., Bachelor's in Computer Science)" required>
                                     </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="beneficiary-phone" class="required-field">Beneficiary Phone Number</label>
+                                        <input type="tel" id="beneficiary-phone" name="beneficiaryPhone" placeholder="Include country code (e.g., +1 555-123-4567)" required>
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="beneficiary-email" class="required-field">Beneficiary Email Address</label>
+                                        <input type="email" id="beneficiary-email" name="beneficiaryEmail" placeholder="example@email.com" required>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -530,7 +690,7 @@
                                         <input type="text" id="passport-number" name="passportNumber" required>
                                     </div>
                                     <div class="form-field">
-                                        <label for="passport-expiry-date" class="required-field">Passport Expiry Date</label>
+                                        <label for="passport-expiry-date" class="required-field">Passport Expiry Date (mm/dd/yyyy)</label>
                                         <input type="date" id="passport-expiry-date" name="passportExpiryDate" required>
                                     </div>
                                 </div>
@@ -670,7 +830,7 @@
                 <div id="h1b-document-requirements" class="document-requirements-section hidden" style="display: none;">
                     <div class="section-header">
                         <div class="header-with-back">
-                            <button id="back-to-form" class="back-button"><i class="fas fa-arrow-left"></i> Back to Form</button>
+                            <button id="back-to-form" class="back-button" onclick="showFormSection()"><i class="fas fa-arrow-left"></i> Back to Form</button>
                             <div>
                                 <h3>Required Documents for H-1B Visa</h3>
                                 <p>Please upload the following documents to complete your application</p>
@@ -688,14 +848,14 @@
                     </div>
                     
                     <div class="documents-grid">
-                        <div class="document-card completed">
+                        <!-- <div class="document-card completed">
                             <div class="document-icon">
                                 <i class="fas fa-file-alt"></i>
                                 <div class="completed-badge">
                                     <i class="fas fa-check"></i>
                                 </div>
-                            </div>
-                            <div class="document-info">
+                            </div> -->
+                            <!-- <div class="document-info">
                                 <h4>Form I-129</h4>
                                 <p>Petition for Nonimmigrant Worker</p>
                                 <div class="form-completed-info">
@@ -705,15 +865,15 @@
                                         <button id="download-form" class="btn-primary btn-sm"><i class="fas fa-download"></i> Download PDF</button>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </div> -->
+                        <!-- </div> -->
                         
                         <div class="document-card">
                             <div class="document-icon">
                                 <i class="fas fa-file-contract"></i>
                             </div>
                             <div class="document-info">
-                                <h4>PassPort<h4>
+                                <h4>Passport<h4>
                                 <p>Approved by the Department of Labor</p>
                                 <div class="document-upload">
                                     <input type="file" id="passport-upload" accept=".pdf,.jpg,.jpeg,.png">
@@ -858,7 +1018,7 @@
                         <i class="fas fa-cogs"></i> Process Application
                     </button>
                     <p class="help-text">Upload all required documents to check eligibility</p>
-                    <div class="document-tips">
+                    <!-- <div class="document-tips">
                         <h4><i class="fas fa-lightbulb"></i> Document Tips</h4>
                         <ul>
                             <li><strong>Critical</strong> documents are absolutely essential for your application.</li>
@@ -866,7 +1026,7 @@
                             <li>Upload clear, complete copies of all documents.</li>
                             <li>Ensure all text is legible and nothing is cut off.</li>
                         </ul>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -874,7 +1034,7 @@
             <div class="application-status-section">
                 <div class="section-header">
                     <h2>Application Status</h2>
-                    <span class="status-badge" id="status-badge">Not Started</span>
+                    <!-- <span class="status-badge" id="status-badge">Not Started</span> -->
                 </div>
 
                 <div class="processing-status" id="processing-status">
@@ -899,13 +1059,13 @@
                             <p>OCR extraction and verification</p>
                         </div>
                     </div>
-                    <div class="status-step" id="analysis-step">
+                    <!-- <div class="status-step" id="analysis-step">
                         <div class="step-icon"><i class="fas fa-chart-bar"></i></div>
                         <div class="step-details">
                             <h4>Application Analysis</h4>
                             <p>Evaluating visa eligibility</p>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="status-step" id="result-step">
                         <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
                         <div class="step-details">
@@ -1009,6 +1169,70 @@
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
+        // Function to show the form section and hide document upload page
+        function showFormSection() {
+            // Hide the document requirements section
+            const docRequirements = document.getElementById('h1b-document-requirements');
+            docRequirements.classList.add('hidden');
+            docRequirements.style.display = 'none';
+            
+            // Show the form section
+            const formSection = document.getElementById('i129-form-section');
+            formSection.classList.remove('hidden');
+            formSection.style.display = 'block';
+            
+            // Update pagination indicators
+            document.getElementById('documents-page-indicator').classList.remove('active');
+            document.getElementById('form-page-indicator').classList.add('active');
+            
+            // Scroll to the top of the form section
+            formSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Function to handle form submission and redirect to document upload page
+        function handleFormSubmit(event) {
+            event.preventDefault(); // Prevent the default form submission
+            
+            // Get the form data
+            const form = document.getElementById('petition-form');
+            const formData = new FormData(form);
+            
+            // First, immediately show the document upload page
+            // Hide the form section
+            document.getElementById('i129-form-section').classList.add('hidden');
+            document.getElementById('i129-form-section').style.display = 'none';
+            
+            // Show the document requirements section
+            const docRequirements = document.getElementById('h1b-document-requirements');
+            docRequirements.classList.remove('hidden');
+            docRequirements.style.display = 'block';
+            
+            // Update pagination indicators
+            document.getElementById('form-page-indicator').classList.remove('active');
+            document.getElementById('documents-page-indicator').classList.add('active');
+            
+            // Scroll to the top of the document requirements section
+            docRequirements.scrollIntoView({ behavior: 'smooth' });
+            
+            // Then submit the form data in the background
+            fetch('/dashboard', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Form submitted successfully');
+                } else {
+                    console.error('Error submitting form');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            
+            return false; // Prevent default form submission
+        }
+        
         const extractedDocumentData = {};
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1117,7 +1341,6 @@
                     alert(`${file.name} uploaded successfully!`);
                 }, 1500);
             });
-            
             // Process application
             const processBtn = document.getElementById('process-btn');
             const statusBadge = document.getElementById('status-badge');
@@ -1174,19 +1397,17 @@
                 // Simulate OCR and document verification
                 setTimeout(() => {
                     // Document verification complete
-                    Step.classList.remove('in-progress');
+                    verificationStep.classList.remove('in-progress');
                     verificationStep.classList.add('completed');
                     
-                    // Start application analysis
-                    analysisStep.classList.add('in-progress');
+                    // Show results directly since analysis step is commented out in HTML
+                    resultStep.classList.add('in-progress');
                     
                     // Simulate application analysis
                     setTimeout(() => {
-                        // Analysis complete
-                        analysisStep.classList.remove('in-progress');
-                        analysisStep.classList.add('completed');
-                        
-                        // Show results
+                        // Remove in-progress from result step
+                        resultStep.classList.remove('in-progress');
+                        // Show results with completed animation
                         resultStep.classList.add('completed');
                         
                         // Update status badge
@@ -1259,19 +1480,66 @@
             emp_support: false,
             resume: false
             };
+            
+        // Function to update the document card UI to show completed status
+        function updateDocumentCardStatus(documentType, isVerified) {
+            const documentCard = document.querySelector(`.document-card:has(#${documentType}-upload)`);
+            if (!documentCard) return;
+            
+            if (isVerified) {
+                // Add completed class to the document card
+                documentCard.classList.add('completed');
+                
+                // Add the completed badge with check icon if it doesn't exist
+                let completedBadge = documentCard.querySelector('.completed-badge');
+                if (!completedBadge) {
+                    completedBadge = document.createElement('div');
+                    completedBadge.className = 'completed-badge';
+                    completedBadge.innerHTML = '<i class="fas fa-check"></i>';
+                    const documentIcon = documentCard.querySelector('.document-icon');
+                    if (documentIcon) {
+                        documentIcon.appendChild(completedBadge);
+                    }
+                }
+            } else {
+                // Remove completed class and badge if verification failed
+                documentCard.classList.remove('completed');
+                const completedBadge = documentCard.querySelector('.completed-badge');
+                if (completedBadge) {
+                    completedBadge.remove();
+                }
+            }
+        }
 
         function checkDocumentsAndEnableButton() {
-        const allUploaded = Object.values(uploadStatus).every(status => status === true);
+            const allUploaded = Object.values(uploadStatus).every(status => status === true);
 
-        const processBtn = document.getElementById('process-btn');
-        if (allUploaded) {
-            processBtn.disabled = false;
-            processBtn.classList.remove('disabled');
-        } else {
-            processBtn.disabled = true;
-            processBtn.classList.add('disabled');
+            const processBtn = document.getElementById('process-btn');
+            const documentStep = document.getElementById('document-step');
+            
+            if (allUploaded) {
+                // Enable the process button
+                processBtn.disabled = false;
+                processBtn.classList.remove('disabled');
+                
+                // Update the document step to completed with animation
+                documentStep.classList.add('completed');
+                
+                // Update the icon to a check mark
+                const iconElement = documentStep.querySelector('.step-icon i');
+                iconElement.className = 'fas fa-check-circle';
+            } else {
+                processBtn.disabled = true;
+                processBtn.classList.add('disabled');
+                
+                // If not all documents are uploaded, ensure document step is not marked as completed
+                documentStep.classList.remove('completed');
+                
+                // Reset the icon
+                const iconElement = documentStep.querySelector('.step-icon i');
+                iconElement.className = 'fas fa-file-alt';
+            }
         }
-    }
     console.log("extracted data "+extractedDocumentData)
    document.getElementById('process-btn').addEventListener('click', () => {
 
@@ -1467,6 +1735,53 @@
     </script>
     
     <script>
+        // Function to format dates as mm/dd/yyyy
+        function convertDateInputsToJQueryDatepicker() {
+            // Find all date inputs and replace them with jQuery datepicker
+            document.querySelectorAll('input[type="date"]').forEach(function(dateInput) {
+                // Create a new text input to replace the date input
+                const textInput = document.createElement('input');
+                textInput.type = 'text';
+                textInput.id = dateInput.id;
+                textInput.name = dateInput.name;
+                textInput.className = dateInput.className + ' datepicker';
+                textInput.placeholder = 'mm/dd/yyyy';
+                textInput.required = dateInput.required;
+                
+                // If the date input has a value, format it as mm/dd/yyyy
+                if (dateInput.value) {
+                    const date = new Date(dateInput.value);
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const year = date.getFullYear();
+                    textInput.value = `${month}/${day}/${year}`;
+                }
+                
+                // Replace the date input with the text input
+                dateInput.parentNode.replaceChild(textInput, dateInput);
+                
+                // Initialize jQuery datepicker on the new text input
+                $(textInput).datepicker({
+                    dateFormat: 'mm/dd/yy',
+                    changeMonth: true,
+                    changeYear: true,
+                    yearRange: '-100:+20',
+                    showButtonPanel: true,
+                    beforeShow: function(input) {
+                        setTimeout(function() {
+                            // Add a class to the datepicker to customize it if needed
+                            $('.ui-datepicker').addClass('immigraassist-datepicker');
+                        }, 0);
+                    }
+                });
+            });
+        }
+        
+        $(document).ready(function() {
+            // Convert all date inputs to jQuery datepicker with mm/dd/yyyy format
+            convertDateInputsToJQueryDatepicker();
+        });
+        
         // Document checklist toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
             const h1bRadio = document.getElementById('h1b');
