@@ -418,5 +418,19 @@
             }
         });
     </script>
+    
+    <!-- Copilot Bot Container (Hidden by default) -->
+    <div id="copilot-container" class="copilot-container">
+        <iframe src="/static/copilot.html" frameborder="0" class="copilot-iframe"></iframe>
+        <div class="resize-handle"></div>
+    </div>
+    
+    <!-- Copilot Button -->
+    <div class="copilot-button">
+        <i class="fas fa-robot"></i>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/copilot.js') }}"></script>
 </body>
 </html>

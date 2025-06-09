@@ -100,6 +100,12 @@ class Petition(db.Model):
     feedback = db.Column(db.Text)   # JSON string containing feedback history
     admin_notes = db.Column(db.Text)  # Notes from attorney/admin
     
+    passport_location = db.Column(db.Text)
+    cv_location = db.Column(db.Text)
+    emp_doc = db.Column(db.Text)
+    degree_location = db.Column(db.Text)
+
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):

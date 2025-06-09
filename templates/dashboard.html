@@ -836,7 +836,7 @@
                                 <p>Please upload the following documents to complete your application</p>
                             </div>
                         </div>
-                        <div class="document-header-actions">
+                        <!-- <div class="document-header-actions">
                             <button class="bulk-upload-btn" id="open-bulk-upload">
                                 <div class="btn-icon">
                                     <i class="fas fa-cloud-upload-alt"></i>
@@ -844,7 +844,7 @@
                                 <span>Bulk Upload</span>
                                 <span class="new-badge">New</span>
                             </button>
-                        </div>
+                        </div> -->
                     </div>
                     
                     <div class="documents-grid">
@@ -948,9 +948,9 @@
                             <h3>Top 5 Required Documents</h3>
                             <p class="document-intro">These are the most critical documents needed for your visa application.</p>
                         </div>
-                        <button id="bulk-upload-button" class="btn-secondary bulk-upload-btn">
+                        <!-- <button id="bulk-upload-button" class="btn-secondary bulk-upload-btn">
                             <i class="fas fa-cloud-upload-alt"></i> Bulk Upload
-                        </button>
+                        </button> -->
                     </div>
                     
                     <!-- H1B Documents - Top 5 most important -->
@@ -985,7 +985,7 @@
                     </div>
                     
                     <!-- Bulk Upload Modal -->
-                    <div id="bulk-upload-modal" class="modal">
+                    <!-- <div id="bulk-upload-modal" class="modal">
                         <div class="modal-content">
                             <span class="close-modal">&times;</span>
                             <h3>Bulk Document Upload</h3>
@@ -1002,14 +1002,14 @@
                                 </label>
                             </div>
                             <div class="bulk-file-list" id="bulk-file-list">
-                                <!-- Files will be listed here -->
-                            </div>
+                                 Files will be listed here -->
+                            <!-- </div>
                             <div class="upload-actions">
                                 <button id="bulk-upload-submit" class="btn-primary">Upload All Documents</button>
                                 <button class="btn-secondary cancel-bulk-upload">Cancel</button>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
 
                 <!-- Process Application Button -->
@@ -1555,9 +1555,11 @@
             console.log('Python response:', data);            
             if (data.verified) {
                 alert('Form data and document data are matching');
+                
                 window.location.href = '/user/petitions';
             } else {
                 alert('Mismatch found in the following fields:\n\n');
+                console.log(data.reason)
             }
         })
         .catch(error => {
@@ -1875,5 +1877,19 @@
     <script src="{{ url_for('static', filename='js/visa-form.js') }}"></script>
     <script src="{{ url_for('static', filename='js/form-viewer.js') }}"></script>
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+        <!-- Copilot Bot Container (Hidden by default) -->
+    <!-- <div id="copilot-container" class="copilot-container">
+        <iframe src="/static/copilot.html" frameborder="0" class="copilot-iframe"></iframe>
+        <div class="resize-handle"></div>
+    </div>
+   
+     Copilot Button -->
+    <!-- <div class="copilot-button">
+        <i class="fas fa-robot"></i>
+    </div>
+   
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/copilot.js') }}"></script> -->
+
 </body>
 </html>

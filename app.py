@@ -2111,11 +2111,14 @@ def validate_passport():
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
 
+
     try:
         # Step 1: Image similarity check
         indian_passport_similarity = compare_passport_pdf_to_reference(pdf_path=filepath, ref_path=passport_ref_file_path)
         if not indian_passport_similarity>=0.80:
             return jsonify({'verified': False, 'message': 'Image similarity check failed.','reason':'Attached file is not passport.Please attach passport.'}), 400
+
+
 
         # Step 2: OCR + Text check
         text = extract_text_from_file(filepath)
@@ -2124,11 +2127,35 @@ def validate_passport():
             return jsonify({'verified': False, 'message': 'No readable text detected.','reason':'Unable to extract text due to poor quality of image'}), 400
 
         lower = text.lower()
-        if "republic of india" not in lower or not ("passport no" in lower or "p<ind" in lower):
-            return jsonify({'verified': False, 'message': 'Not a standard Indian passport.'}), 400
+        # if "republic of india" not in lower or not ("passport no" in lower or "p<ind" in lower):
+        #     return jsonify({'verified': False, 'message': 'Not a standard Indian passport.'}), 400
 
         # Step 3: Extract and validate passport fields
         data = extract_passport_data(text)
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='123Qwerty!@#',
+            database='Immigraassist'
+        )
+        cursor = conn.cursor(dictionary=True)
+
+        query = """
+        UPDATE petitions SET passport_location=%s 
+        WHERE passport_number = %s
+        ORDER BY created_at DESC
+        LIMIT 1
+        """
+
+        # Example values for filepath and data['passport_number']
+        filepath_value = filepath  # Assuming filepath is a valid path or string
+        passport_number_value = data['passport_number']  # Assuming this is a valid passport number
+
+        cursor.execute(query, (filepath_value, passport_number_value))
+        conn.commit()  # Don't forget to commit the transaction if you're updating data
+
+        cursor.close()
+        conn.close()
 
         # valid = all(data.get(field) for field in ["passport_number", "date_of_issue", "date_of_expiry"])
 
@@ -2335,12 +2362,13 @@ def validate_cv():
 @login_required
 def process_documents():
     data = request.get_json()
-    print("data from docs",data)
     passport = data.get('passportNumber').strip()
     passport_expiry_date = data.get('dateOfExpiry').strip()
     passport_expiry_date = datetime.strptime(passport_expiry_date, '%d/%m/%Y').date()
-    full_name_emp = data.get('employee_name').strip()
-    full_name_edu = data.get('name').strip()
+
+    full_name_emp = data.get('employee_name').strip()   #emp
+    full_name_edu = data.get('name').strip()            #deg
+    position = data.get('position').strip()
     
     fein_number = str(data.get("fein_number"))
     if fein_number:
@@ -2348,12 +2376,21 @@ def process_documents():
     lca_number = data.get("lca_number").strip()
     education = data.get("education").strip()
 
-    if not passport or not full_name_emp or not fein_number or not lca_number or not full_name_edu:
-        return jsonify({'error': 'Missing required fields'}), 400
+    if not passport:
+        return jsonify({"verified":False, 'reason':'Passport number is missing'})
+    elif not full_name_emp:
+        return jsonify({"verified":False, 'reason':'Full name in Employee support document is missing'})
+    elif not fein_number:
+        return jsonify({"verified":False, 'reason':'FEIN in Employee support document is missing'})
+    elif not lca_number:
+        return jsonify({"verified":False, 'reason':'LCA number in Employee support document is missing'})
 
+        
     # Split full_name_emp
     name_parts = full_name_emp.split()
     name_parts_ed = full_name_edu.split()
+
+
     if len(name_parts) < 2:
         return jsonify({'error': 'Full name must include at least first and last name'}), 400
     
@@ -2370,39 +2407,46 @@ def process_documents():
     )
     cursor = conn.cursor(dictionary=True)
 
+# //passport_number = %s
     query = """
     SELECT * FROM petitions
-    WHERE passport_number = %s
-        AND beneficiary_given_name = %s
+    WHERE beneficiary_given_name = %s           
         AND beneficiary_middle_name = %s
         AND beneficiary_family_name = %s
     ORDER BY created_at DESC
     LIMIT 1
     """
-    # AND fein =%s
-    # AND lca_number = %s
-    # AND passport_expiry_date = %s
 
     params = (
-        passport,
         first_name,
         middle_name,
         last_name,
-        # fein_number, 
-        # lca_number,
-        # passport_expiry_date
     )
     cursor.execute(query, params)
     records = cursor.fetchall()
     cursor.close()
     conn.close()
 
-    print("records", records)
-    
-    if not records:
-        return jsonify({'message': 'Passport and username is not matching',"verified":False}), 404
-
     print(records)
+    
+    if not records:    # mismatch in name
+        if first_name_ed !=first_name:
+            query = """
+                SELECT * FROM petitions
+                WHERE beneficiary_given_name = %s           
+                ORDER BY created_at DESC
+                LIMIT 1
+            """
+            params = (
+            middle_name,
+            )
+            cursor.execute(query, params)
+            records = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            if records:
+                return jsonify({'message': 'Firstname in Passport is not matching with form data',"verified":False,'reason':[{'first_name':[first_name, first_name_ed]}]}), 404
+
 
     # Match and mismatch tracking
     response_records = []
@@ -2411,6 +2455,7 @@ def process_documents():
         matches, mismatches = compare("education", education, record.get('education_qualification'))
         matches, mismatches = compare("lca_number", lca_number, record.get('lca_number'))
         matches, mismatches = compare("passport_expiry_data", passport_expiry_date, record.get('passport_expiry_date'))
+        matched, mismatches = compare("job_title", position, record.get('job_title'))
 
         response_records.append({
             'record_id': record.get('id'),  # adjust to your PK field

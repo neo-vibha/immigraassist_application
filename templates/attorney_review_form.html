@@ -37,7 +37,7 @@
                 </div>
             </div>
             
-            <div class="completion-status">
+            <!-- <div class="completion-status">
                 <h3>Completion Status</h3>
                 <div class="progress-container">
                     <div class="progress-bar">
@@ -51,18 +51,18 @@
                         {% if petition.is_eligible %}Eligible{% else %}Not Eligible{% endif %}
                     </span>
                 </div>
-            </div>
+            </div> -->
             
             <div class="form-document-matching">
-                <h3>Form and Document Matching</h3>
+                <h3>Data Verification Summary</h3>
                 <div class="match-status">
                     <div class="match-indicator {% if petition.has_mismatches %}mismatch{% else %}match{% endif %}">
                         <i class="fas {% if petition.has_mismatches %}fa-times-circle{% else %}fa-check-circle{% endif %}"></i>
                         <span>{% if petition.has_mismatches %}Mismatches Found{% else %}All Fields Match{% endif %}</span>
                     </div>
-                    <button id="check-matches-btn" class="btn btn-primary">
+                    <!-- <button id="check-matches-btn" class="btn btn-primary">
                         <i class="fas fa-sync-alt"></i> Re-Check Matches
-                    </button>
+                    </button> -->
                 </div>
                 
                 <div class="match-details">
@@ -105,9 +105,13 @@
                     {% endfor %}
                 </div>
             </div> -->
-            
+            <div class="button-container mt-4">
+                <a href="{{ url_for('attorney_i129_form', petition_id=petition.id) }}" class="btn btn-primary">
+                    <i class="fas fa-file-alt"></i> Review Petitioner/Beneficiary Details
+                </a>
+            </div>
             <div class="uploaded-documents">
-                <h3>Uploaded Documents</h3>
+                <h3>Review Uploaded Documents</h3>
                 <div class="document-list">
                     {% for doc in petition.documents %}
                     <div class="document-item">
@@ -206,9 +210,9 @@
             </div> -->
             
             <div class="button-container mt-4">
-                <a href="{{ url_for('attorney_i129_form', petition_id=petition.id) }}" class="btn btn-primary">
+                <!-- <a href="{{ url_for('attorney_i129_form', petition_id=petition.id) }}" class="btn btn-primary">
                     <i class="fas fa-file-alt"></i> Review I-129 Form
-                </a>
+                </a> -->
                 <a href="{{ url_for('attorney_i140_form', petition_id=petition.id) }}" class="btn btn-success ms-2">
                     <i class="fas fa-file-alt"></i> Complete Immigration Form
                 </a>

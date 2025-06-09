@@ -71,19 +71,19 @@
                 </a>
             </div>
             <div class="nav-links">
-                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('attorney') }}">Home</a>
                 <a href="{{ url_for('attorney') }}" class="active">Attorney Corner</a>
-                <a href="{{ url_for('services') }}">Services</a>
+                <!-- <a href="{{ url_for('services') }}">Services</a>
                 <a href="{{ url_for('about') }}">About</a>
-                <a href="{{ url_for('contact') }}">Contact</a>
+                <a href="{{ url_for('contact') }}">Contact</a> -->
             </div>
             <div class="admin-header-buttons">
                 {% if session.logged_in %}
-                    {% if session.is_admin %}
+                    <!-- {% if session.is_admin %}
                         <a href="{{ url_for('admin') }}" class="admin-btn">
                             <i class="fas fa-cog"></i>Admin Panel
                         </a>
-                    {% endif %}
+                    {% endif %} -->
                     <a href="{{ url_for('logout') }}" class="admin-btn logout">
                         <i class="fas fa-sign-out-alt"></i>Logout
                     </a>
@@ -106,15 +106,15 @@
                 <h3><i class="fas fa-gavel"></i> Attorney Portal</h3>
                 <p class="sidebar-subtitle">Streamlined legal workflows</p>
             </div>
-            <div class="user-profile">
-                <div class="user-avatar">
+            <!-- <div class="user-profile">
+                 <div class="user-avatar">
                     <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="user-info">
+                </div> -->
+                <!-- <div class="user-info">
                     <h4>{{ session.attorney_name }}</h4>
                     <span class="user-role">Immigration Attorney</span>
-                </div>
-            </div>
+                </div> -->
+            <!-- </div>  -->
             <div class="sidebar-divider"></div>
             <button id="mobile-menu-toggle" class="mobile-menu-toggle">
                 <i class="fas fa-bars"></i>
@@ -141,13 +141,13 @@
                         <span class="menu-badge new">New</span>
                     </a>
                 </li> -->
-                <li>
+                <!-- <li>
                     <a href="{{ url_for('attorney_forms') }}" {% if request.path == url_for('attorney_forms') %}class="active"{% endif %}>
                         <div class="menu-icon"><i class="fas fa-file-alt"></i></div>
                         <span class="menu-text">Immigration Forms</span>
-                        <!-- <span class="menu-badge update">Updated</span> -->
-                    </a>
-                </li>
+                         <span class="menu-badge update">Updated</span> -->
+                    <!-- </a>
+                </li>  -->
                 <!-- <li>
                     <a href="{{ url_for('attorney_documents') }}" {% if request.path == url_for('attorney_documents') %}class="active"{% endif %}>
                         <div class="menu-icon"><i class="fas fa-file-pdf"></i></div>

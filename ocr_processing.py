@@ -149,7 +149,7 @@ def extract_structured_data(text):
 
     return data
 
-def extract_passport_data(text):
+def extract_passport_data_(text):
     print("======= OCR PASSPORT TEXT START =======")
     print(text)
     print("======= OCR PASSPORT TEXT END ========")
@@ -215,7 +215,7 @@ def extract_passport_data(text):
 
     return data
 
-def extract_passport_data_(text):
+def extract_passport_data(text):
     """
     Extract passport details, including full name (first, middle, last).
     Falls back gracefully if “Given Names” or “Surname” aren’t found.
