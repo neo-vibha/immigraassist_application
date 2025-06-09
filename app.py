@@ -286,7 +286,9 @@ def dashboard():
             birth_date = None
             if request.form.get('birthDate'):
                 try:
-                    birth_date = datetime.strptime(request.form['birthDate'], '%Y-%m-%d')
+                    date_obj = datetime.strptime(request.form['birthDate'], '%m/%d/%Y') 
+                    # birth_date = datetime.strptime(request.form['birthDate'], '%Y-%m-%d')
+                    birth_date = date_obj.strftime('%Y-%m-%d')
                     print(f"Parsed birth date: {birth_date}")
                 except ValueError as e:
                     print(f"Error parsing birth date: {e}")
@@ -333,7 +335,7 @@ def dashboard():
                 country_of_birth=request.form['countryOfBirth'],
                 country_of_citizenship=request.form['countryOfCitizenship'],
                 passport_number=request.form['passportNumber'],
-                passport_expiry_date=datetime.strptime(request.form['passportExpiryDate'], '%Y-%m-%d'),
+                passport_expiry_date = datetime.strptime(request.form['passportExpiryDate'], '%m/%d/%Y').strftime('%Y-%m-%d'),
                 education_qualification=request.form['educationQualification'],
                 
                 # Part 4: Processing Information
@@ -2397,7 +2399,6 @@ def process_documents():
 
     print("records", records)
     
-
     if not records:
         return jsonify({'message': 'Passport and username is not matching',"verified":False}), 404
 
