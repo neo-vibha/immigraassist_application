@@ -796,7 +796,7 @@
                                 {% for petition in user_petitions|sort(attribute='created_at', reverse=True) %}
                                 <tr class="petition-row">
                                     <td class="petition-id"><span class="badge rounded-pill bg-light text-primary fw-bold"><i class="fas fa-hashtag me-1"></i>{{ petition.id }}</span></td>
-                                    <td class="form-type-cell"><span class="badge bg-light" style="color: #1a5f7a;"><i class="fas fa-file-alt me-1"></i> I-129 Petition</span></td>
+                                    <td class="form-type-cell"><span class="badge bg-light" style="color: #1a5f7a;"><i class="fas fa-file-alt me-1"></i> Details</span></td>
                                     <td class="beneficiary-cell"><span class="badge bg-light text-primary"><i class="fas fa-user me-1"></i> {{ petition.beneficiary_given_name }} {{ petition.beneficiary_family_name }}</span></td>
                                     <td class="date-cell"><span class="badge bg-light text-secondary"><i class="far fa-calendar-alt me-1"></i> {{ petition.created_at.strftime('%Y-%m-%d') if petition.created_at else 'N/A' }}</span></td>
                                     <td>

@@ -34,7 +34,7 @@ model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-base")
 tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-base")
 model_emp = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = os.path.join(os.getcwd(), 'static', 'uploads')  # Absolute path
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
@@ -1047,6 +1047,7 @@ def petition_details(petition_id):
 def attorney_review_petition(petition_id):
     # Fetch petition data from database
     petition_data = Petition.query.get_or_404(petition_id)
+
     
     # Get the user associated with this petition
     user = User.query.get(petition_data.user_id) if petition_data.user_id else None
@@ -1138,36 +1139,43 @@ def attorney_review_petition(petition_id):
     # Get documents associated with this petition
     # In a real app, you would query the database for documents
     # For now, we'll create sample documents
+    # petition['documents'] = ['name':]
+    print(petition_data.passport_location)
     petition['documents'] = [
         {
             'id': 1,
             'name': 'Passport.pdf',
             'type': 'Identification',
             'icon': 'fa-passport',
-            'upload_date': '2023-05-10'
+            'upload_date': petition_data.created_at,
+            'path': petition_data.passport_location
         },
         {
             'id': 2,
             'name': 'Resume.pdf',
             'type': 'Professional',
             'icon': 'fa-file-alt',
-            'upload_date': '2023-05-10'
+            'upload_date': petition_data.created_at,
+            'path': petition_data.cv_location
         },
         {
             'id': 3,
-            'name': 'Birth_Certificate.pdf',
+            'name': 'Degree_Certificate.pdf',
             'type': 'Identification',
             'icon': 'fa-id-card',
-            'upload_date': '2023-05-12'
+            'upload_date': petition_data.created_at,
+            'path': petition_data.degree_location
         },
         {
             'id': 4,
             'name': 'Employment_Letter.pdf',
             'type': 'Employment',
             'icon': 'fa-file-contract',
-            'upload_date': '2023-05-15'
+            'upload_date': petition_data.created_at,
+            'path': petition_data.emp_doc
         }
     ]
+    print(petition['documents'])
     
     # Get feedback history for this petition
     # In a real app, you would query the database for feedback entries
@@ -2109,8 +2117,9 @@ def validate_passport():
 
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
 
+    file.save(filepath)
+    
 
     try:
         # Step 1: Image similarity check
@@ -2118,46 +2127,17 @@ def validate_passport():
         if not indian_passport_similarity>=0.80:
             return jsonify({'verified': False, 'message': 'Image similarity check failed.','reason':'Attached file is not passport.Please attach passport.'}), 400
 
-
-
         # Step 2: OCR + Text check
         text = extract_text_from_file(filepath)
         print("text", text)
         if not text or len(text.strip()) < 20:
-            return jsonify({'verified': False, 'message': 'No readable text detected.','reason':'Unable to extract text due to poor quality of image'}), 400
+            return jsonify({'verified': False, 'message': 'No readable text detected.','reason':'Unable to extract text due to poor quality of passport image'}), 400
 
         lower = text.lower()
         # if "republic of india" not in lower or not ("passport no" in lower or "p<ind" in lower):
         #     return jsonify({'verified': False, 'message': 'Not a standard Indian passport.'}), 400
 
-        # Step 3: Extract and validate passport fields
         data = extract_passport_data(text)
-        conn = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='123Qwerty!@#',
-            database='Immigraassist'
-        )
-        cursor = conn.cursor(dictionary=True)
-
-        query = """
-        UPDATE petitions SET passport_location=%s 
-        WHERE passport_number = %s
-        ORDER BY created_at DESC
-        LIMIT 1
-        """
-
-        # Example values for filepath and data['passport_number']
-        filepath_value = filepath  # Assuming filepath is a valid path or string
-        passport_number_value = data['passport_number']  # Assuming this is a valid passport number
-
-        cursor.execute(query, (filepath_value, passport_number_value))
-        conn.commit()  # Don't forget to commit the transaction if you're updating data
-
-        cursor.close()
-        conn.close()
-
-        # valid = all(data.get(field) for field in ["passport_number", "date_of_issue", "date_of_expiry"])
 
         required = ['passport_number','date_of_issue','date_of_expiry']
         # required = ["passportNumber", "date_of_issue", "date_of_expiry"]
@@ -2168,8 +2148,9 @@ def validate_passport():
             "passport_number": "passportNumber",
             "date_of_expiry": "dateOfExpiry",
         }
+        filepath = "/static/"+filepath.split("static")[-1]
+        data['passport_location'] = filepath
         data = rename_keys_in_place(data, key_map)
-        print(data)
         if missing:
             return jsonify({'verified': False, 'message': f'Missing fields: {", ".join(missing)}'}), 400
 
@@ -2195,6 +2176,7 @@ def validate_education():
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
+    
 
     try:
         text = extract_text_from_certificate(filepath)        
@@ -2237,11 +2219,13 @@ def validate_education():
         result_dict = {
             'university': split_data[0],'education': split_data[1],'name': split_data[2],'date': split_data[3]
         }
-        print(result_dict)
+        
 
         if not result_dict:
             return jsonify({'verified': False, 'message': f'Missing fields: {", ".join(result_dict)}'}), 400
-
+        filepath = "/static/"+filepath.split("static")[-1]
+        result_dict['education_doc'] = filepath
+        print(result_dict)
         return jsonify({'verified': True, 'message': 'Education document is verified.', 'edu_dict':result_dict})
 
     except Exception as e:
@@ -2264,6 +2248,7 @@ def validate_emp_doc():
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
+    
 
     text = extract_text_from_file(filepath)
     ref_word_path = employer_ref_file_path
@@ -2285,6 +2270,8 @@ def validate_emp_doc():
         "lca_number": extract(r"\b(I-\d{4}-\d{5}-\d{5})\b", text=text)
     }
     valid = all(data.values())
+    filepath = "/static/"+filepath.split("static")[-1]
+    data["emp_support_doc"] = filepath
 
     return jsonify({
         "verified": valid,
@@ -2313,10 +2300,11 @@ def validate_cv():
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
+    
 
     text = extract_text_from_file(filepath)
     if not text or len(text.strip()) < 20:
-            return jsonify({'verified': False, 'message': 'No readable text detected.','reason':'Unable to extract text due to poor quality of image'}), 400
+            return jsonify({'verified': False, 'message': 'No readable text detected.','reason':'Unable to extract text due to poor quality of  Resume'}), 400
 
     text_lower = text.lower()
 
@@ -2331,6 +2319,7 @@ def validate_cv():
         return jsonify({'verified': False, 'message': 'Resume is not uploaded'}), 400
     
     features = extract_cv_features(text)
+    
     print(features)
 
     section_count = sum(features['sections_found'].values())
@@ -2349,7 +2338,10 @@ def validate_cv():
     if not features['date_range']: messages.append("Missing work experience date range.")
     if not features['coding_languages']: messages.append("Missing coding language.")
     if features['word_count'] < 100: messages.append("CV too short.")
-    elif features['word_count'] > 200: messages.append("CV too long.")    
+    elif features['word_count'] > 200: messages.append("CV too long.")   
+
+    filepath = "/static/"+filepath.split("static")[-1]
+    features['cv_path'] = filepath 
 
     return jsonify({
         "verified": valid,
@@ -2384,12 +2376,10 @@ def process_documents():
         return jsonify({"verified":False, 'reason':'FEIN in Employee support document is missing'})
     elif not lca_number:
         return jsonify({"verified":False, 'reason':'LCA number in Employee support document is missing'})
-
         
     # Split full_name_emp
     name_parts = full_name_emp.split()
     name_parts_ed = full_name_edu.split()
-
 
     if len(name_parts) < 2:
         return jsonify({'error': 'Full name must include at least first and last name'}), 400
@@ -2416,7 +2406,6 @@ def process_documents():
     ORDER BY created_at DESC
     LIMIT 1
     """
-
     params = (
         first_name,
         middle_name,
@@ -2430,51 +2419,97 @@ def process_documents():
     print(records)
     
     if not records:    # mismatch in name
-        if first_name_ed !=first_name:
-            query = """
-                SELECT * FROM petitions
-                WHERE beneficiary_given_name = %s           
-                ORDER BY created_at DESC
-                LIMIT 1
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='123Qwerty!@#',
+            database='Immigraassist'
+        )
+        cursor = conn.cursor(dictionary=True)
+        query = """
+            SELECT * FROM petitions
+            WHERE beneficiary_given_name = %s           
+            ORDER BY created_at DESC
+            LIMIT 1
             """
-            params = (
-            middle_name,
-            )
-            cursor.execute(query, params)
-            records = cursor.fetchall()
-            cursor.close()
-            conn.close()
-            if records:
-                return jsonify({'message': 'Firstname in Passport is not matching with form data',"verified":False,'reason':[{'first_name':[first_name, first_name_ed]}]}), 404
+        params = (
+        middle_name,
+        )
+        cursor.execute(query, params)
+        records = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        print(records)
 
+        first_ben_name = records[0].get("beneficiary_given_name")            
+        return jsonify({'message': 'First name in Passport is not matching with form data',"verified":False,'reason':[{"first name":False,'extracted_data': first_name, 'form_from_Db': first_ben_name, 'field':"first name"}]})
 
     # Match and mismatch tracking
+    fields = ["fein_number","education","lca_number","passport_expiry_data","job_title","passport_number"]
     response_records = []
-    for record in records:
-        matches, mismatches = compare("fein_number", fein_number, record.get('fein'))
-        matches, mismatches = compare("education", education, record.get('education_qualification'))
-        matches, mismatches = compare("lca_number", lca_number, record.get('lca_number'))
-        matches, mismatches = compare("passport_expiry_data", passport_expiry_date, record.get('passport_expiry_date'))
-        matched, mismatches = compare("job_title", position, record.get('job_title'))
+    mismatch_records = []
+    flag_ = []
 
-        response_records.append({
-            'record_id': record.get('id'),  # adjust to your PK field
-            'matches': matches,
-            'mismatches': mismatches
-        })
+    for field in fields:
+        if field == "fein_number":
+            data_dict, flag = compare(field, fein_number, records[0].get('fein'))     
+        elif field == "education":
+            data_dict, flag = compare(field, education, records[0].get('education_qualification'))
+        elif field == "lca_number":
+            data_dict, flag = compare(field, lca_number, records[0].get('lca_number'))
+        # elif field == "passport_expiry_data":
+        #     data_dict, flag = compare(field, passport_expiry_date, records[0].get('passport_expiry_date'))
+        elif field == "job_title":
+            data_dict, flag = compare(field,  position, records[0].get('job_title'))
+        elif field == "passport_number":
+            data_dict, flag = compare(field, passport, records[0].get('passport_number'))
+
+        if not flag:
+            flag_.append(flag)
+            mismatch_records.append(data_dict)
+        else:
+            response_records.append(data_dict)
+
     print("response records ",response_records)
-    if mismatches:
-        return jsonify({'message':'Mismatched are found',
-                        "mismatching_fields":response_records,
-                        "verified":False})
-    
-    
+    print("mismatch fields",mismatch_records)
+    all_true = all(flag_)
 
-    return jsonify({
-        'message': 'All records from form and documents are correct',
-        "verified":True,
-        "mismatching_fields":response_records
-    })
+    if all_true:
+        passport_location = data.get('passport_location')
+        cv_path = data.get("cv_path")
+        emp_support_doc = data.get("emp_support_doc")
+        education_doc = data.get("education_doc")
+
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='123Qwerty!@#',
+            database='Immigraassist'
+        )
+        cursor = conn.cursor(dictionary=True)
+        update_query = """
+            UPDATE petitions
+            SET passport_location = %s,cv_location=%s ,emp_doc = %s, degree_location=%s
+            WHERE id = %s
+            """
+        update_params = (passport_location, cv_path, emp_support_doc, education_doc, records[0]['id'])
+        cursor.execute(update_query, update_params)
+        conn.commit()  # Commit changes
+
+        cursor.close()
+        conn.close()
+
+        return jsonify({
+            'message': 'All records from form and documents are correct',
+            "verified":all_true,
+            "reason":response_records
+        })
+    else:
+        return jsonify({
+            'message': 'Mismatch records are found',
+            "verified":all_true,
+            "reason":mismatch_records
+        })
 
 
 if __name__ == '__main__':

@@ -122,14 +122,23 @@
                             <div class="doc-name">{{ doc.name }}</div>
                             <div class="doc-meta">
                                 <span class="doc-type">{{ doc.type }}</span>
-                                <span class="doc-date">Uploaded: {{ doc.upload_date }}</span>
+                                <!-- <span class="doc-date">Uploaded on: {{ doc.upload_date }}</span> -->
+                            </div>
+                            <div class="doc-meta">
+                                <!-- <span class="doc-type">{{ doc.type }}</span> -->
+                                <span class="doc-date">Uploaded on: {{ doc.upload_date }}</span>
                             </div>
 
                         </div>
-                        <div class="doc-actions">
+                        <!-- <div class="doc-actions">
                             <button class="btn btn-sm btn-secondary view-doc-btn" data-doc-id="{{ doc.id }}">
                                 <i class="fas fa-eye"></i> View
                             </button>
+                        </div> -->
+                        <div class="doc-actions">
+                            <a class="btn btn-sm btn-secondary" href="{{ doc.path }}" target="_blank">
+                                <i class="fas fa-eye"></i> View
+                            </a>
                         </div>
                     </div>
                     {% endfor %}

@@ -406,7 +406,7 @@
                                 <h3>H-1B Visa</h3>
                                 <!-- <p>For specialized workers in specific occupations requiring theoretical and practical application of specialized knowledge</p> -->
                             </div>
-                            <button id="show-i129-form" class="action-btn"><i class="fas fa-file-alt"></i>&nbsp; Start I-129 Form</button>
+                            <button id="show-i129-form" class="action-btn"><i class="fas fa-file-alt"></i>&nbsp; Start</button>
                         </div>
                         
                         <div class="visa-type" id="l1-visa">
@@ -867,7 +867,152 @@
                                 </div>
                             </div> -->
                         <!-- </div> -->
-                        
+                        <div class="refill-form" style="display:none;" id="refill-form">
+                            <div class="form-section">
+                                <h4>Part 3: Beneficiary Information</h4>
+                                
+                                <div class="form-field">
+                                    <label for="beneficiary-name" class="required-field">1. Name of Beneficiary</label>
+                                    <div class="name-fields">
+                                        <div class="field-group">
+                                            <input type="text" id="beneficiary-family-name" name="beneficiaryFamilyName" placeholder="Family Name (Last Name)" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="beneficiary-given-name" name="beneficiaryGivenName" placeholder="Given Name (First Name)" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="beneficiary-middle-name" name="beneficiaryMiddleName" placeholder="Middle Name">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>2. Other Names Used (if any)</label>
+                                    <div class="name-fields">
+                                        <div class="field-group">
+                                            <input type="text" id="other-family-name" name="otherFamilyName" placeholder="Family Name (Last Name)">
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="other-given-name" name="otherGivenName" placeholder="Given Name (First Name)">
+                                        </div>
+                                        <div class="field-group">
+                                            <input type="text" id="other-middle-name" name="otherMiddleName" placeholder="Middle Name">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>3. Other Information</label>
+                                    <div class="other-info-fields">
+                                        <div class="field-group">
+                                            <label for="birth-date" class="required-field">Date of Birth (mm/dd/yyyy)</label>
+                                            <input type="date" id="birth-date" name="birthDate" required>
+                                        </div>
+                                        
+                                        <div class="field-group">
+                                            <label>Gender</label>
+                                            <div class="radio-inline">
+                                                <label class="radio-label">
+                                                    <input type="radio" name="gender" value="male">
+                                                    Male
+                                                </label>
+                                                <label class="radio-label">
+                                                    <input type="radio" name="gender" value="female">
+                                                    Female
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="ssn">U.S. Social Security Number (if any)</label>
+                                        <input type="text" id="ssn" name="ssn" pattern="[0-9]{9}" placeholder="9-digit SSN (if applicable)">
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="alien-number">Alien Registration Number (A-Number)</label>
+                                        <div class="a-number-field">
+                                            <span class="prefix">A-</span>
+                                            <input type="text" id="alien-number" name="alienNumber" pattern="[0-9]{8,9}" placeholder="Alien Registration Number">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="country-of-birth" class="required-field">Country of Birth</label>
+                                        <input type="text" id="country-of-birth" name="countryOfBirth" required>
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="country-of-citizenship" class="required-field">Country of Citizenship or Nationality</label>
+                                        <input type="text" id="country-of-citizenship" name="countryOfCitizenship" required>
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="education-qualification" class="required-field">Educational Qualification</label>
+                                        <input type="text" id="education-qualification" name="educationQualification" placeholder="Highest degree earned (e.g., Bachelor's in Computer Science)" required>
+                                    </div>
+                                    
+                                    <!-- <div class="field-group">
+                                        <label for="beneficiary-phone" class="required-field">Beneficiary Phone Number</label>
+                                        <input type="tel" id="beneficiary-phone" name="beneficiaryPhone" placeholder="Include country code (e.g., +1 555-123-4567)" required>
+                                    </div>
+                                    
+                                    <div class="field-group">
+                                        <label for="beneficiary-email" class="required-field">Beneficiary Email Address</label>
+                                        <input type="email" id="beneficiary-email" name="beneficiaryEmail" placeholder="example@email.com" required>
+                                    </div> -->
+                                </div>
+                            </div>
+                            
+                            <!-- Part 4: Processing Information -->
+                            <div class="form-section">
+                                <h4>Part 4: Processing Information</h4>
+                                
+                                <div class="form-field">
+                                    <label>1. Beneficiary's Foreign Address</label>
+                                    <input type="text" id="foreign-street" name="foreignStreet" placeholder="Street Number and Name">
+                                    <div class="address-line">
+                                        <input type="text" id="foreign-apt" name="foreignApt" placeholder="Apt/Suite/Floor Number">
+                                        <input type="text" id="foreign-city" name="foreignCity" placeholder="City or Town">
+                                    </div>
+                                    <div class="address-line">
+                                        <input type="text" id="foreign-state" name="foreignState" placeholder="State/Province">
+                                        <input type="text" id="foreign-postal" name="foreignPostal" placeholder="Postal Code">
+                                    </div>
+                                    <input type="text" id="foreign-country" name="foreignCountry" placeholder="Country">
+                                </div>
+                                
+                                <div class="form-field">
+                                    <label>2. Does each person in this petition have a valid passport?</label>
+                                    <div class="radio-options inline-radio">
+                                        <label class="radio-label">
+                                            <input type="radio" name="validPassport" value="yes">
+                                            Yes
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="validPassport" value="no">
+                                            No
+                                        </label>
+                                    </div>
+                                    <div id="passport-explanation" class="conditional-field hidden">
+                                        <label for="passport-explanation-text">If no, provide explanation:</label>
+                                        <textarea id="passport-explanation-text" name="passportExplanation" rows="3"></textarea>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="passport-number" class="required-field">Passport Number</label>
+                                        <input type="text" id="passport-number" name="passportNumber" required>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="passport-expiry-date" class="required-field">Passport Expiry Date (mm/dd/yyyy)</label>
+                                        <input type="date" id="passport-expiry-date" name="passportExpiryDate" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </form>
+
+                        </div>
+
                         <div class="document-card">
                             <div class="document-icon">
                                 <i class="fas fa-file-contract"></i>
@@ -1015,7 +1160,7 @@
                 <!-- Process Application Button -->
                 <div class="process-application">
                     <button id="process-btn" class="btn-primary btn-large">
-                        <i class="fas fa-cogs"></i> Process Application
+                        <i class="fas fa-cogs"></i> Submit
                     </button>
                     <p class="help-text">Upload all required documents to check eligibility</p>
                     <!-- <div class="document-tips">
@@ -1028,7 +1173,21 @@
                         </ul>
                     </div> -->
                 </div>
+                <!-- Place this in your HTML -->
+
+                <div class="process-application" id="p1">
+                    <!-- <div class="document-tips">
+                        <h4><i class="fas fa-lightbulb"></i> Document Tips</h4>
+                        <ul>
+                            <li><strong>Critical</strong> documents are absolutely essential for your application.</li>
+                            <li><strong>High</strong> importance documents significantly strengthen your case.</li>
+                            <li>Upload clear, complete copies of all documents.</li>
+                            <li>Ensure all text is legible and nothing is cut off.</li>
+                        </ul>
+                    </div> -->
+                </div>
             </div>
+
 
             <!-- Right Section: Application Status and Updates -->
             <div class="application-status-section">
@@ -1072,7 +1231,7 @@
                             <h4>Final Results</h4>
                             <p>Application status and recommendations</p>
                         </div>
-                    </div>
+                    </div> 
                 </div>
 
                 <!-- USCIS Policy Updates -->
@@ -1541,31 +1700,82 @@
             }
         }
     console.log("extracted data "+extractedDocumentData)
-   document.getElementById('process-btn').addEventListener('click', () => {
-
-            fetch('/process-documents', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+    document.getElementById('process-btn').addEventListener('click', () => {
+        fetch('/process-documents', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(extractedDocumentData)
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Python response:', data);            
+            console.log('Python response:', data);
+
             if (data.verified) {
                 alert('Form data and document data are matching');
-                
                 window.location.href = '/user/petitions';
             } else {
-                alert('Mismatch found in the following fields:\n\n');
-                console.log(data.reason)
+                let mismatchMessage = 'Mismatch found in the following fields:\n\n';
+                mismatchMessage += 'Field\t\tExtracted Data\t\tData from Form\n';
+                
+                for (let i = 0; i < data.reason.length; i++) {
+                    let reason = data.reason[i];
+                    console.log(reason);
+                    mismatchMessage += ` ${reason.field}\t\t${reason.extracted_data}\t\t${reason.form_from_Db}\n`;
+                }
+
+                x_table = "<p>Mismatch found in following fields</p><br><table id='mismatchTable' border='1' style='width:100%; border-collapse:collapse;'><thead><tr><th>Field</th><th>Extracted Data</th><th>Data from Form</th></tr></thead>";
+                x_table+= "<tbody>"
+                
+                 for (let i = 0; i < data.reason.length; i++) {
+                    let reason = data.reason[i];
+                    x_table += `<tr>
+                                    <td>${reason.field}</td>
+                                    <td>${reason.extracted_data}</td>
+                                    <td>${reason.form_from_Db}</td>
+                                </tr>`;
+                    }
+
+                x_table += "</tbody></table>";                    
+                
+                x_table += `<br><div class="process-application"><button id="prefillBtn" type="button"><i class="fas fa-cogs"></i> Load Prefilled Form</button></div>`;
+                document.getElementById("p1").innerHTML = x_table;
+                // Add button with id so you can attach an event listener
+                // alert(mismatchMessage);
             }
         })
         .catch(error => {
             console.error('Error in data validation:', error);
         });
+    });
+        document.getElementById("prefillBtn").addEventListener("click", () => {
+    // Example: Show a form and prefill inputs with data from DB
+    
+    // Assuming you have a hidden form with inputs, e.g.:
+    // <form id="prefillForm" style="display:none;">
+    //    <input id="field1" name="field1" />
+    //    <input id="field2" name="field2" />
+    //    ...
+    // </form>
+
+        const form = document.getElementById("prefillForm");
+        
+        // Loop over the reason array and fill the form inputs
+        data.reason.forEach(reason => {
+            // Match your input IDs/names with reason.field or map accordingly
+            // For example, if input IDs are same as fields:
+            const input = form.querySelector(`#${reason.field}`);
+            if (input) {
+                input.value = reason.form_from_Db; // Prefill from DB data
+            }
         });
+
+        form.style.display = "block"; // Show the form to user
+    });
+
+
+                
     
         // passport upload validation
         document.getElementById('passport-upload').addEventListener('change', function () {
@@ -1598,7 +1808,7 @@
                 uploadStatus.passport = true;
                 checkDocumentsAndEnableButton();
             } else {
-                statusEl.textContent = `Verification failed: ${data.reason || 'Unknown error'}`;
+                statusEl.textContent = `Verification failed: ${data.reason || 'Poor passport quality'}`;
                 uploadStatus.passport = false;
                 statusEl.style.color = 'red';
             }
@@ -1638,7 +1848,7 @@
                 checkDocumentsAndEnableButton();
                 statusEl.style.color = 'green';
             } else {
-                statusEl.textContent = `Verification failed: ${data.reason || 'Unknown error'}`;
+                statusEl.textContent = `Verification failed: ${data.reason || 'Invalid document'}`;
                 uploadStatus.education = false;
                 statusEl.style.color = 'red';
             }
@@ -1678,7 +1888,7 @@
                 checkDocumentsAndEnableButton();
                 statusEl.style.color = 'green';
             } else {
-                statusEl.textContent = `Verification failed: ${data.reason || 'Unknown error'}`;
+                statusEl.textContent = `Verification failed: ${data.reason || 'Parsing failed for Employee support document'}`;
                 uploadStatus.emp_support = false;
                 statusEl.style.color = 'red';
             }
@@ -1720,7 +1930,7 @@
                 checkDocumentsAndEnableButton();
                 statusEl.style.color = 'green';
             } else {
-                statusEl.textContent = `Verification failed: ${data.reason || 'Unknown error'}`;
+                statusEl.textContent = `Verification failed: ${data.reason || 'Resume shoule be uploaded.'}`;
                 uploadStatus.resume = false;
                 statusEl.style.color = 'red';
             }
@@ -1804,6 +2014,12 @@
                 console.log('L1 selected');
             });
         });
+//         const data = [
+//     { field: true },
+//     { field: false, Form: "form_Content", doct: "doc_Content" }
+//   ];
+
+ 
     </script>
     <!-- Document Upload Modal -->
     <div id="upload-modal" class="modal">

@@ -22,28 +22,29 @@ def preprocess(text):
     return text.strip()
 
 
-def compare(field, form_value, db_value):
-    matches = {}
-    mismatches = {}
+def compare(field, form_value, db_value):   # extracted, form
+    flag = None
     if field == "education":
         form_value = preprocess(form_value)
         db_value = preprocess(db_value)
-        print(form_value, db_value)
         similarity = fuzz.token_set_ratio(form_value, db_value)
         print(f"Cleaned doc similarity: {similarity}%")
-        if similarity>0.85:
-            matches[field] = form_value
+        if similarity>85:
+            dict_final = True
+            flag = True
         else:
-            mismatches[field] = {'extracted_data': form_value, 'form_from_Db': db_value}
+            dict_final = {field:False,'extracted_data': form_value, 'form_from_Db': db_value,'field':field}
+            flag = False
     else:
-        print(form_value, db_value)
         if str(form_value).strip().lower() == str(db_value).strip().lower():
-            matches[field] = form_value
+            dict_final = True
+            flag = True
         else:
-            mismatches[field] = {'extracted_data': form_value, 'form_from_Db': db_value}
-    return matches, mismatches
+            dict_final = {'field':False,'extracted_data': form_value, 'form_from_Db': db_value,'field':field}
+            flag = False
+    return dict_final, flag
 
-# Function to extract text from a Word document (.docx)
+
 def extract_text_from_word(word_path):
     # Open the Word document
     doc = Document(word_path)
@@ -62,10 +63,12 @@ def extract_text_from_file(filepath):
             images = convert_from_path(filepath, 500, poppler_path=r'C:\poppler-24.08.0\Library\bin')
             text = ""
             for image in images:
+                # image = image.convert('L')
                 text += pytesseract.image_to_string(image)
             return text
         elif filepath.endswith(('.png', '.jpg', '.jpeg')):
-            image = Image.open(filepath)
+            # image = Image.open(filepath)
+            image = Image.open(filepath).convert('L')
             return pytesseract.image_to_string(image)
         else:
             return "Unsupported file format"
@@ -149,7 +152,7 @@ def extract_structured_data(text):
 
     return data
 
-def extract_passport_data_(text):
+def extract_passport_data(text):
     print("======= OCR PASSPORT TEXT START =======")
     print(text)
     print("======= OCR PASSPORT TEXT END ========")
@@ -215,7 +218,7 @@ def extract_passport_data_(text):
 
     return data
 
-def extract_passport_data(text):
+def extract_passport_data_(text):
     """
     Extract passport details, including full name (first, middle, last).
     Falls back gracefully if “Given Names” or “Surname” aren’t found.

@@ -436,11 +436,11 @@ document.addEventListener('DOMContentLoaded', function() {
     uploadSubmit.addEventListener('click', handleFileUpload);
     
     // Add event listeners for bulk upload modal
-    closeBulkModal.addEventListener('click', closeBulkUploadModal);
-    cancelBulkUpload.addEventListener('click', closeBulkUploadModal);
-    bulkUploadButton.addEventListener('click', openBulkUploadModal);
-    bulkFileInput.addEventListener('change', handleBulkFileSelection);
-    bulkUploadSubmit.addEventListener('click', handleBulkFileUpload);
+    // closeBulkModal.addEventListener('click', closeBulkUploadModal);
+    // cancelBulkUpload.addEventListener('click', closeBulkUploadModal);
+    // bulkUploadButton.addEventListener('click', openBulkUploadModal);
+    // bulkFileInput.addEventListener('change', handleBulkFileSelection);
+    // bulkUploadSubmit.addEventListener('click', handleBulkFileUpload);
     
     // Initialize the document display
     displayTopDocuments();
