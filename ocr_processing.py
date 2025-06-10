@@ -33,14 +33,27 @@ def compare(field, form_value, db_value):   # extracted, form
             dict_final = True
             flag = True
         else:
-            dict_final = {field:False,'extracted_data': form_value, 'form_from_Db': db_value,'field':field}
+            dict_final = {field:False,'extracted_data': form_value, 'form_from_Db': db_value,
+                          'field':"Educational Qualification", "html_field":field}
             flag = False
     else:
         if str(form_value).strip().lower() == str(db_value).strip().lower():
             dict_final = True
             flag = True
         else:
-            dict_final = {'field':False,'extracted_data': form_value, 'form_from_Db': db_value,'field':field}
+            if field == "fein_number":
+                html_content = "Federal Employer Identification Number (FEIN)"
+            elif field == "lca_number":
+                html_content = "LCA or ETA Case Number"
+            elif field == "passport_expiry_data":
+                html_content = "Passport Expiry Date"
+            elif field == "job_title":
+                html_content = "Job Title"
+            elif field == "passport_number":
+                html_content ="Passport Number"
+
+            dict_final = {'field':False,'extracted_data': form_value, 'form_from_Db': db_value,
+                          'field':html_content,"html_field":field}
             flag = False
     return dict_final, flag
 
@@ -63,7 +76,7 @@ def extract_text_from_file(filepath):
             images = convert_from_path(filepath, 500, poppler_path=r'C:\poppler-24.08.0\Library\bin')
             text = ""
             for image in images:
-                # image = image.convert('L')
+                image = image.convert('L')
                 text += pytesseract.image_to_string(image)
             return text
         elif filepath.endswith(('.png', '.jpg', '.jpeg')):
@@ -152,7 +165,7 @@ def extract_structured_data(text):
 
     return data
 
-def extract_passport_data(text):
+def extract_passport_data_(text):
     print("======= OCR PASSPORT TEXT START =======")
     print(text)
     print("======= OCR PASSPORT TEXT END ========")
@@ -218,7 +231,7 @@ def extract_passport_data(text):
 
     return data
 
-def extract_passport_data_(text):
+def extract_passport_data(text):
     """
     Extract passport details, including full name (first, middle, last).
     Falls back gracefully if “Given Names” or “Surname” aren’t found.

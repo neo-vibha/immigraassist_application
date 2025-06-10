@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 {% if show_documents and petition_submitted %}
+<style>
+    #mismatchTable, 
+    #mismatchTable th, 
+    #mismatchTable td {
+        border: 1px solid #333; /* dark border */
+    }
+    #mismatchTable {
+        width: 100%;
+        border-collapse: collapse;
+    }
+</style>
 <script>
     // This script will run when the page loads after form submission
     document.addEventListener('DOMContentLoaded', function() {
@@ -425,7 +436,7 @@
                 <!-- I-129 Form Section -->
                 <div id="i129-form-section" class="i129-form-section hidden">
                     <div class="section-header">
-                        <h3>Petitioner/Beneficiary From</h3>
+                        <h3>Petitioner/Beneficiary Details</h3>
                         <!-- <p>Complete the form below to begin your H-1B visa application process</p> -->
                     </div>
                     
@@ -433,7 +444,7 @@
                     <div class="form-pagination">
                         <div class="page-indicator active" id="form-page-indicator">
                             <div class="page-number">1</div>
-                            <div class="page-title">Form I-129</div>
+                            <div class="page-title">Details</div>
                         </div>
                         <div class="page-indicator" id="documents-page-indicator">
                             <div class="page-number">2</div>
@@ -867,163 +878,19 @@
                                 </div>
                             </div> -->
                         <!-- </div> -->
-                        <div class="refill-form" style="display:none;" id="refill-form">
-                            <div class="form-section">
-                                <h4>Part 3: Beneficiary Information</h4>
-                                
-                                <div class="form-field">
-                                    <label for="beneficiary-name" class="required-field">1. Name of Beneficiary</label>
-                                    <div class="name-fields">
-                                        <div class="field-group">
-                                            <input type="text" id="beneficiary-family-name" name="beneficiaryFamilyName" placeholder="Family Name (Last Name)" required>
-                                        </div>
-                                        <div class="field-group">
-                                            <input type="text" id="beneficiary-given-name" name="beneficiaryGivenName" placeholder="Given Name (First Name)" required>
-                                        </div>
-                                        <div class="field-group">
-                                            <input type="text" id="beneficiary-middle-name" name="beneficiaryMiddleName" placeholder="Middle Name">
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-field">
-                                    <label>2. Other Names Used (if any)</label>
-                                    <div class="name-fields">
-                                        <div class="field-group">
-                                            <input type="text" id="other-family-name" name="otherFamilyName" placeholder="Family Name (Last Name)">
-                                        </div>
-                                        <div class="field-group">
-                                            <input type="text" id="other-given-name" name="otherGivenName" placeholder="Given Name (First Name)">
-                                        </div>
-                                        <div class="field-group">
-                                            <input type="text" id="other-middle-name" name="otherMiddleName" placeholder="Middle Name">
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-field">
-                                    <label>3. Other Information</label>
-                                    <div class="other-info-fields">
-                                        <div class="field-group">
-                                            <label for="birth-date" class="required-field">Date of Birth (mm/dd/yyyy)</label>
-                                            <input type="date" id="birth-date" name="birthDate" required>
-                                        </div>
-                                        
-                                        <div class="field-group">
-                                            <label>Gender</label>
-                                            <div class="radio-inline">
-                                                <label class="radio-label">
-                                                    <input type="radio" name="gender" value="male">
-                                                    Male
-                                                </label>
-                                                <label class="radio-label">
-                                                    <input type="radio" name="gender" value="female">
-                                                    Female
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="field-group">
-                                        <label for="ssn">U.S. Social Security Number (if any)</label>
-                                        <input type="text" id="ssn" name="ssn" pattern="[0-9]{9}" placeholder="9-digit SSN (if applicable)">
-                                    </div>
-                                    
-                                    <div class="field-group">
-                                        <label for="alien-number">Alien Registration Number (A-Number)</label>
-                                        <div class="a-number-field">
-                                            <span class="prefix">A-</span>
-                                            <input type="text" id="alien-number" name="alienNumber" pattern="[0-9]{8,9}" placeholder="Alien Registration Number">
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="field-group">
-                                        <label for="country-of-birth" class="required-field">Country of Birth</label>
-                                        <input type="text" id="country-of-birth" name="countryOfBirth" required>
-                                    </div>
-                                    
-                                    <div class="field-group">
-                                        <label for="country-of-citizenship" class="required-field">Country of Citizenship or Nationality</label>
-                                        <input type="text" id="country-of-citizenship" name="countryOfCitizenship" required>
-                                    </div>
-                                    
-                                    <div class="field-group">
-                                        <label for="education-qualification" class="required-field">Educational Qualification</label>
-                                        <input type="text" id="education-qualification" name="educationQualification" placeholder="Highest degree earned (e.g., Bachelor's in Computer Science)" required>
-                                    </div>
-                                    
-                                    <!-- <div class="field-group">
-                                        <label for="beneficiary-phone" class="required-field">Beneficiary Phone Number</label>
-                                        <input type="tel" id="beneficiary-phone" name="beneficiaryPhone" placeholder="Include country code (e.g., +1 555-123-4567)" required>
-                                    </div>
-                                    
-                                    <div class="field-group">
-                                        <label for="beneficiary-email" class="required-field">Beneficiary Email Address</label>
-                                        <input type="email" id="beneficiary-email" name="beneficiaryEmail" placeholder="example@email.com" required>
-                                    </div> -->
-                                </div>
-                            </div>
-                            
-                            <!-- Part 4: Processing Information -->
-                            <div class="form-section">
-                                <h4>Part 4: Processing Information</h4>
-                                
-                                <div class="form-field">
-                                    <label>1. Beneficiary's Foreign Address</label>
-                                    <input type="text" id="foreign-street" name="foreignStreet" placeholder="Street Number and Name">
-                                    <div class="address-line">
-                                        <input type="text" id="foreign-apt" name="foreignApt" placeholder="Apt/Suite/Floor Number">
-                                        <input type="text" id="foreign-city" name="foreignCity" placeholder="City or Town">
-                                    </div>
-                                    <div class="address-line">
-                                        <input type="text" id="foreign-state" name="foreignState" placeholder="State/Province">
-                                        <input type="text" id="foreign-postal" name="foreignPostal" placeholder="Postal Code">
-                                    </div>
-                                    <input type="text" id="foreign-country" name="foreignCountry" placeholder="Country">
-                                </div>
-                                
-                                <div class="form-field">
-                                    <label>2. Does each person in this petition have a valid passport?</label>
-                                    <div class="radio-options inline-radio">
-                                        <label class="radio-label">
-                                            <input type="radio" name="validPassport" value="yes">
-                                            Yes
-                                        </label>
-                                        <label class="radio-label">
-                                            <input type="radio" name="validPassport" value="no">
-                                            No
-                                        </label>
-                                    </div>
-                                    <div id="passport-explanation" class="conditional-field hidden">
-                                        <label for="passport-explanation-text">If no, provide explanation:</label>
-                                        <textarea id="passport-explanation-text" name="passportExplanation" rows="3"></textarea>
-                                    </div>
-                                    <div class="form-field">
-                                        <label for="passport-number" class="required-field">Passport Number</label>
-                                        <input type="text" id="passport-number" name="passportNumber" required>
-                                    </div>
-                                    <div class="form-field">
-                                        <label for="passport-expiry-date" class="required-field">Passport Expiry Date (mm/dd/yyyy)</label>
-                                        <input type="date" id="passport-expiry-date" name="passportExpiryDate" required>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                        </form>
-
-                        </div>
-
+                        
                         <div class="document-card">
                             <div class="document-icon">
                                 <i class="fas fa-file-contract"></i>
                             </div>
                             <div class="document-info">
                                 <h4>Passport<h4>
-                                <p>Approved by the Department of Labor</p>
+                                <!-- <p>Approved by the Department of Labor</p> -->
+                                 <p style="font-weight: bold;">Passport document</p>
                                 <div class="document-upload">
                                     <input type="file" id="passport-upload" accept=".pdf,.jpg,.jpeg,.png">
-                                    <label for="passport-upload" class="upload-btn">Select File</label>
-                                    <span id="passport-status" class="upload-status">No file selected</span>
+                                    <label for="passport-upload" class="upload-btn" style="font-weight: bold;">Select File</label>
+                                    <span id="passport-status" class="upload-status" style="font-weight: bold;">No file selected</span>
                                 </div>
                                 <button onclick="uploadDocument('passport')" class="btn-upload">Upload</button>
                             </div>
@@ -1035,11 +902,11 @@
                             </div>
                             <div class="document-info">
                                 <h4>Educational Credentials</h4>
-                                <p>Degrees, transcripts, and evaluations</p>
+                                <p style="font-weight: bold;">Degrees, transcripts, and evaluations</p>
                                 <div class="document-upload">
                                     <input type="file" id="education-upload" accept=".pdf,.jpg,.jpeg,.png">
-                                    <label for="education-upload" class="upload-btn">Select File</label>
-                                    <span id="education-status" class="upload-status">No file selected</span>
+                                    <label for="education-upload" class="upload-btn" style="font-weight: bold;">Select File</label>
+                                    <span id="education-status" class="upload-status" style="font-weight: bold;">No file selected</span>
                                 </div>
                                 <button onclick="uploadDocument('education')" class="btn-upload">Upload</button>
                             </div>
@@ -1051,11 +918,11 @@
                             </div>
                             <div class="document-info">
                                 <h4>Employer Support Letter</h4>
-                                <p>Detailing job duties and requirements</p>
+                                <p style="font-weight: bold;">Detailing job duties and requirements</p>
                                 <div class="document-upload">
                                     <input type="file" id="support-upload" accept=".pdf,.jpg,.jpeg,.png">
-                                    <label for="support-upload" class="upload-btn">Select File</label>
-                                    <span id="support-status" class="upload-status">No file selected</span>
+                                    <label for="support-upload" class="upload-btn" style="font-weight: bold;">Select File</label>
+                                    <span id="support-status" class="upload-status" style="font-weight: bold;">No file selected</span>
                                 </div>
                                 <button onclick="uploadDocument('support')" class="btn-upload">Upload</button>
                             </div>
@@ -1067,11 +934,11 @@
                             </div>
                             <div class="document-info">
                                 <h4>Resume/CV</h4>
-                                <p>Professional experience and qualifications</p>
+                                <p style="font-weight: bold;">Professional experience and qualifications</p>
                                 <div class="document-upload">
                                     <input type="file" id="resume-upload" accept=".pdf,.jpg,.jpeg,.png">
-                                    <label for="resume-upload" class="upload-btn">Select File</label>
-                                    <span id="resume-status" class="upload-status">No file selected</span>
+                                    <label for="resume-upload" class="upload-btn" style="font-weight: bold;">Select File</label>
+                                    <span id="resume-status" class="upload-status" style="font-weight: bold;">No file selected</span>
                                 </div>
                                 <button onclick="uploadDocument('resume')" class="btn-upload">Upload</button>
                             </div>
@@ -1162,7 +1029,7 @@
                     <button id="process-btn" class="btn-primary btn-large">
                         <i class="fas fa-cogs"></i> Submit
                     </button>
-                    <p class="help-text">Upload all required documents to check eligibility</p>
+                    <p class="help-text"  id="submit-para">Upload all required documents to check eligibility</p>
                     <!-- <div class="document-tips">
                         <h4><i class="fas fa-lightbulb"></i> Document Tips</h4>
                         <ul>
@@ -1207,17 +1074,17 @@
                     <div class="status-step" id="document-step">
                         <div class="step-icon"><i class="fas fa-file-alt"></i></div>
                         <div class="step-details">
-                            <h4>Document Upload</h4>
-                            <p>Upload all required documents</p>
+                            <h4>Document Verification</h4>
+                            <p>Verify all uploaded documents and OCR extraction</p>
                         </div>
                     </div>
-                    <div class="status-step" id="verification-step">
+                    <!-- <div class="status-step" id="verification-step">
                         <div class="step-icon"><i class="fas fa-search"></i></div>
                         <div class="step-details">
-                            <h4>Document Verification</h4>
+                            <h4>Document Upload</h4>
                             <p>OCR extraction and verification</p>
                         </div>
-                    </div>
+                    </div> -->
                     <!-- <div class="status-step" id="analysis-step">
                         <div class="step-icon"><i class="fas fa-chart-bar"></i></div>
                         <div class="step-details">
@@ -1229,7 +1096,7 @@
                         <div class="step-icon"><i class="fas fa-clipboard-check"></i></div>
                         <div class="step-details">
                             <h4>Final Results</h4>
-                            <p>Application status and recommendations</p>
+                            <p>Application status</p>
                         </div>
                     </div> 
                 </div>
@@ -1713,9 +1580,17 @@
             console.log('Python response:', data);
 
             if (data.verified) {
+                document.getElementById("result-step").className = "status-step completed";
+                document.querySelector("#result-step .step-details p").textContent = "No mismatches are found";
+                document.getElementById("submit-para").remove();
+                document.getElementById("process-btn").remove()
                 alert('Form data and document data are matching');
-                window.location.href = '/user/petitions';
+                // window.location.href = '/user/petitions';
             } else {
+                document.getElementById("process-btn").remove();
+                document.getElementById("submit-para").remove();
+                document.querySelector("#result-step .step-details p").textContent ="Mismatch Detected"
+                document.getElementById("result-step").className = "status-step completed";
                 let mismatchMessage = 'Mismatch found in the following fields:\n\n';
                 mismatchMessage += 'Field\t\tExtracted Data\t\tData from Form\n';
                 
@@ -1739,44 +1614,17 @@
 
                 x_table += "</tbody></table>";                    
                 
-                x_table += `<br><div class="process-application"><button id="prefillBtn" type="button"><i class="fas fa-cogs"></i> Load Prefilled Form</button></div>`;
+                // x_table += `<br><div class="process-application"><button id="prefillBtn" type="button" onclick="refilled_form()"><i class="fas fa-cogs"></i> Load Prefilled Form</button></div>`;
                 document.getElementById("p1").innerHTML = x_table;
-                // Add button with id so you can attach an event listener
-                // alert(mismatchMessage);
             }
+            document.getElementById("h1b-document-requirements").remove();
+            
         })
         .catch(error => {
             console.error('Error in data validation:', error);
         });
     });
-        document.getElementById("prefillBtn").addEventListener("click", () => {
-    // Example: Show a form and prefill inputs with data from DB
-    
-    // Assuming you have a hidden form with inputs, e.g.:
-    // <form id="prefillForm" style="display:none;">
-    //    <input id="field1" name="field1" />
-    //    <input id="field2" name="field2" />
-    //    ...
-    // </form>
 
-        const form = document.getElementById("prefillForm");
-        
-        // Loop over the reason array and fill the form inputs
-        data.reason.forEach(reason => {
-            // Match your input IDs/names with reason.field or map accordingly
-            // For example, if input IDs are same as fields:
-            const input = form.querySelector(`#${reason.field}`);
-            if (input) {
-                input.value = reason.form_from_Db; // Prefill from DB data
-            }
-        });
-
-        form.style.display = "block"; // Show the form to user
-    });
-
-
-                
-    
         // passport upload validation
         document.getElementById('passport-upload').addEventListener('change', function () {
         const file = this.files[0];
@@ -1925,7 +1773,7 @@
             if (data.verified) {
                 statusEl.textContent = `Employee support document verified`;
                 // extractedData = data.extracted_resume_data;
-                Object.assign(extractedDocumentData, data.extracted_emp_doc_data);
+                Object.assign(extractedDocumentData, data.extracted_resume_data);
                 uploadStatus.resume = true;
                 checkDocumentsAndEnableButton();
                 statusEl.style.color = 'green';
@@ -2014,10 +1862,6 @@
                 console.log('L1 selected');
             });
         });
-//         const data = [
-//     { field: true },
-//     { field: false, Form: "form_Content", doct: "doc_Content" }
-//   ];
 
  
     </script>

@@ -6,6 +6,10 @@ from datetime import datetime
 from models import User, Petition, db
 import os
 import re
+import ast
+import json
+import json
+from datetime import datetime
 from markupsafe import Markup
 from urllib.parse import quote
 from flask import Flask, request, jsonify,  render_template, session,flash, redirect, url_for
@@ -706,6 +710,9 @@ def attorney_view_petition(petition_id):
             state = 'Needs Information'
     else:
         state = petition.state
+
+    print(petition)
+    print(state)
     
     return render_template('attorney_review_form.html', 
                           petition=petition,
@@ -1047,6 +1054,7 @@ def petition_details(petition_id):
 def attorney_review_petition(petition_id):
     # Fetch petition data from database
     petition_data = Petition.query.get_or_404(petition_id)
+    print(petition_data.id, petition_data.mismatch_data)
 
     
     # Get the user associated with this petition
@@ -1059,16 +1067,21 @@ def attorney_review_petition(petition_id):
         'last_name': petition_data.petitioner_family_name,
         'email': petition_data.email,
         'phone': petition_data.daytime_phone,
-        'submission_date': petition_data.created_at.strftime('%Y-%m-%d') if petition_data.created_at else 'N/A',
+        'submission_date': petition_data.created_at.strftime('%m-%d-%Y') if petition_data.created_at else 'N/A',  #'%m-%d-%Y'
         'form_type': 'I-129 Petition',  # Hardcoded for now, could be stored in a separate field
         'completion_percentage': 85,  # Placeholder, would be calculated based on form completeness
         'is_eligible': True,  # This would be determined by business logic
         'state': petition_data.state or 'Under Review',
         'admin_notes': '',
-        'has_mismatches': False,  # Will be updated based on field matches
-        'mismatch_fields': []  # Will store IDs of mismatched fields
+        'has_mismatches': True if petition_data.mismatch_data else False,  # Will be updated based on field matches
+        'mismatch_fields': petition_data.mismatch_data,  # Will store IDs of mismatched fields
+        'beneficiary_given_name': petition_data.beneficiary_given_name,
+        'beneficiary_middle_name': petition_data.beneficiary_middle_name,
+        'beneficiary_family_name': petition_data.beneficiary_family_name,
+        'passport_number': petition_data.passport_number,
+        'lca_number':petition_data.lca_number
     }
-    
+    print(petition,">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     # Get form data from the petition_data JSON field
     form_data = {}
     if petition_data.form_data:
@@ -1088,8 +1101,7 @@ def attorney_review_petition(petition_id):
             {'id': 'name', 'label': 'Full Name', 'value': f"{petition['first_name']} {petition['last_name']}"},
             {'id': 'email', 'label': 'Email', 'value': petition['email']},
             {'id': 'phone', 'label': 'Phone', 'value': petition['phone']}
-        ]
-    }
+        ]}
     
     # Add additional fields from form_data
     if form_data.get('personal_info'):
@@ -1104,7 +1116,7 @@ def attorney_review_petition(petition_id):
     petition['form_sections'].append(personal_info)
     
     # Employment Details section (for I-140 and I-129)
-    if petition['form_type'] in ['I-140', 'I-129'] and form_data.get('employment'):
+    if petition['form_type'] in ['I-140', 'Details'] and form_data.get('employment'):
         employment_info = {
             'title': 'Employment Details',
             'fields': []
@@ -1139,7 +1151,6 @@ def attorney_review_petition(petition_id):
     # Get documents associated with this petition
     # In a real app, you would query the database for documents
     # For now, we'll create sample documents
-    # petition['documents'] = ['name':]
     print(petition_data.passport_location)
     petition['documents'] = [
         {
@@ -1147,7 +1158,7 @@ def attorney_review_petition(petition_id):
             'name': 'Passport.pdf',
             'type': 'Identification',
             'icon': 'fa-passport',
-            'upload_date': petition_data.created_at,
+            'upload_date': petition_data.created_at.strftime('%m-%d-%Y'),
             'path': petition_data.passport_location
         },
         {
@@ -1155,15 +1166,15 @@ def attorney_review_petition(petition_id):
             'name': 'Resume.pdf',
             'type': 'Professional',
             'icon': 'fa-file-alt',
-            'upload_date': petition_data.created_at,
+            'upload_date': petition_data.created_at.strftime('%m-%d-%Y'),
             'path': petition_data.cv_location
         },
         {
             'id': 3,
             'name': 'Degree_Certificate.pdf',
-            'type': 'Identification',
+            'type': 'Educational Qualification',
             'icon': 'fa-id-card',
-            'upload_date': petition_data.created_at,
+            'upload_date': petition_data.created_at.strftime('%m-%d-%Y'),
             'path': petition_data.degree_location
         },
         {
@@ -1171,12 +1182,10 @@ def attorney_review_petition(petition_id):
             'name': 'Employment_Letter.pdf',
             'type': 'Employment',
             'icon': 'fa-file-contract',
-            'upload_date': petition_data.created_at,
+            'upload_date': petition_data.created_at.strftime('%m-%d-%Y'),
             'path': petition_data.emp_doc
         }
-    ]
-    print(petition['documents'])
-    
+    ]    
     # Get feedback history for this petition
     # In a real app, you would query the database for feedback entries
     petition['feedback_history'] = []
@@ -1195,46 +1204,42 @@ def attorney_review_petition(petition_id):
     # Field Matching Details
     # This would normally be determined by comparing form data with document data
     # For now, we'll create sample field matches
-    petition['field_matches'] = [
-        {
-            'field_name': 'Full Name',
-            'matches': True,
-            'form_value': f"{petition_data.petitioner_given_name} {petition_data.petitioner_family_name}",
-            'doc_value': f"{petition_data.petitioner_given_name} {petition_data.petitioner_family_name}"
-        },
-        {
-            'field_name': 'Date of Birth',
-            'matches': True,
-            'form_value': petition_data.birth_date.strftime('%Y-%m-%d') if hasattr(petition_data, 'birth_date') and petition_data.birth_date else 'N/A',
-            'doc_value': petition_data.birth_date.strftime('%Y-%m-%d') if hasattr(petition_data, 'birth_date') and petition_data.birth_date else 'N/A'
-        },
-        {
-            'field_name': 'Passport Number',
-            'matches': True,
-            'form_value': petition_data.passport_number if hasattr(petition_data, 'passport_number') else 'N/A',
-            'doc_value': petition_data.passport_number if hasattr(petition_data, 'passport_number') else 'N/A'
-        },
-        {
-            'field_name': 'Country of Birth',
-            'matches': False,
-            'form_value': petition_data.country_of_birth if hasattr(petition_data, 'country_of_birth') else 'United States',
-            'doc_value': 'Canada'
-        },
-        {
-            'field_name': 'Alien Registration Number',
-            'matches': False,
-            'form_value': petition_data.alien_number if hasattr(petition_data, 'alien_number') else 'A123456789',
-            'doc_value': 'A987654321'
-        }
-    ]
-    
+ 
+    if petition_data.mismatch_data is not None and isinstance(petition_data.mismatch_data, str):
+        try:
+            mismatch_data_list = ast.literal_eval(petition_data.mismatch_data)
+            petition['field_matches'] =[]
+
+            for mismatch_doc in mismatch_data_list:
+                print(type(mismatch_doc))
+                print(mismatch_doc)
+                inner_doc = {}
+                inner_doc['field_name'] =  mismatch_doc['field']
+                inner_doc['matches'] = False
+                inner_doc['form_value'] = mismatch_doc['form_from_Db']
+                inner_doc['doc_value'] = mismatch_doc['extracted_data']
+                petition['field_matches'].append(inner_doc)
+
+            print(petition)
+        
+        except (ValueError, SyntaxError) as e:
+            # If the string is malformed, log an error and treat it as empty
+            print(f"Error evaluating mismatch_data for petition {petition_id}: {petition_data.mismatch_data} - {e}")
+            petition['field_matches'] = []
+    else:
+        # If mismatch_data is None or not a string, there are no mismatches to process
+        petition['field_matches'] = []
+
+
+   
     # Update has_mismatches flag based on field matches
-    for field_match in petition['field_matches']:
-        if not field_match['matches']:
-            petition['has_mismatches'] = True
-            petition['mismatch_fields'].append(field_match['field_name'].lower().replace(' ', '_'))
+    # for field_match in petition['field_matches']:
+    #     if not field_match['matches']:
+    #         petition['has_mismatches'] = True
+    #         petition['mismatch_fields'].append(field_match['field_name'].lower().replace(' ', '_'))
     
     return render_template('attorney_review_form.html', petition=petition, state=petition['state'])
+
 
 @app.route('/attorney/update-petition-status/<int:petition_id>', methods=['POST'])
 @login_required
@@ -1259,8 +1264,7 @@ def attorney_update_petition_status(petition_id):
             petition.admin_notes = notes
         
         # Add to feedback history
-        import json
-        from datetime import datetime
+
         
         # Get current attorney name from session
         attorney_name = session.get('attorney_name', session.get('admin_name', 'Unknown Attorney'))
@@ -1395,11 +1399,16 @@ def user_view_petition(petition_id):
         'last_name': petition_data.petitioner_family_name,
         'email': petition_data.email,
         'phone': petition_data.daytime_phone,
-        'submission_date': petition_data.created_at.strftime('%Y-%m-%d') if petition_data.created_at else 'N/A',
+        'submission_date': petition_data.created_at.strftime('%m-%d-%Y') if petition_data.created_at else 'N/A',
         'form_type': 'I-129 Petition',  # Hardcoded for now
         'status': petition_data.state or 'Under Review',
         'completion_percentage': 85,  # Placeholder
-        'admin_notes': petition_data.admin_notes or ''
+        'admin_notes': petition_data.admin_notes or '',
+        'beneficiary_given_name': petition_data.beneficiary_given_name,
+        'beneficiary_middle_name': petition_data.beneficiary_middle_name,
+        'beneficiary_family_name': petition_data.beneficiary_family_name,
+        'passport_number': petition_data.passport_number,
+        'lca_number':petition_data.lca_number
     }
     
     # Get feedback history for this petition
@@ -1560,7 +1569,6 @@ def get_client_cases(client_id):
             'visa_type': case_types[i % len(case_types)],
             'status': 'Active'
         })
-    
     return jsonify({'success': True, 'cases': cases})
 
 @app.route('/attorney/add-client', methods=['POST'])
@@ -2119,7 +2127,6 @@ def validate_passport():
     filepath = os.path.join(UPLOAD_FOLDER, filename)
 
     file.save(filepath)
-    
 
     try:
         # Step 1: Image similarity check
@@ -2148,11 +2155,11 @@ def validate_passport():
             "passport_number": "passportNumber",
             "date_of_expiry": "dateOfExpiry",
         }
-        filepath = "/static/"+filepath.split("static")[-1]
+        filepath = "\static"+filepath.split("static")[-1]
         data['passport_location'] = filepath
         data = rename_keys_in_place(data, key_map)
         if missing:
-            return jsonify({'verified': False, 'message': f'Missing fields: {", ".join(missing)}'}), 400
+            return jsonify({'verified': False, 'message': f'Missing fields: {", ".join(missing)}','reason':'Unable to extract data from passport due to poor quality'}), 400
 
         return jsonify({'verified': True, 'message': 'Passport is verified.','passport_data':data})
 
@@ -2223,7 +2230,7 @@ def validate_education():
 
         if not result_dict:
             return jsonify({'verified': False, 'message': f'Missing fields: {", ".join(result_dict)}'}), 400
-        filepath = "/static/"+filepath.split("static")[-1]
+        filepath = "\static"+filepath.split("static")[-1]
         result_dict['education_doc'] = filepath
         print(result_dict)
         return jsonify({'verified': True, 'message': 'Education document is verified.', 'edu_dict':result_dict})
@@ -2259,7 +2266,7 @@ def validate_emp_doc():
     similarity_score = cosine_similarity(embedding_doc, embedding_ref)
     print("similarity score of emplye support doc", similarity_score)
 
-    if not similarity_score[0][0] > 0.8:
+    if not similarity_score[0][0] > 0.75:
         return jsonify({'verified': False, 'message': 'Employee Support Document is not uploaded','reason':'Please upload Employee support document'}), 400
 
     data = {
@@ -2270,7 +2277,7 @@ def validate_emp_doc():
         "lca_number": extract(r"\b(I-\d{4}-\d{5}-\d{5})\b", text=text)
     }
     valid = all(data.values())
-    filepath = "/static/"+filepath.split("static")[-1]
+    filepath = "\static"+filepath.split("static")[-1]
     data["emp_support_doc"] = filepath
 
     return jsonify({
@@ -2291,16 +2298,15 @@ def validate_cv():
         return jsonify({'verified': False, 'message': 'Invalid input.'}), 400
 
     if not allowed_file(file.filename):
-        return jsonify({'verified': False, 'message': 'Unsupported file type.'}), 400
+        return jsonify({'verified': False, 'message': 'Unsupported file type.','reason':'Attach pdf files only'}), 400
 
     file = request.files.get("file")
     if not file:
-        return jsonify({"verified": False, "message": "No file provided."}), 400
+        return jsonify({"verified": False, "message": "No file provided.",'reason':'File not provided'}), 400
 
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
-    
 
     text = extract_text_from_file(filepath)
     if not text or len(text.strip()) < 20:
@@ -2319,8 +2325,6 @@ def validate_cv():
         return jsonify({'verified': False, 'message': 'Resume is not uploaded'}), 400
     
     features = extract_cv_features(text)
-    
-    print(features)
 
     section_count = sum(features['sections_found'].values())
 
@@ -2340,9 +2344,8 @@ def validate_cv():
     if features['word_count'] < 100: messages.append("CV too short.")
     elif features['word_count'] > 200: messages.append("CV too long.")   
 
-    filepath = "/static/"+filepath.split("static")[-1]
-    features['cv_path'] = filepath 
-
+    filepath = "\static"+filepath.split("static")[-1]
+    features['cv_location'] = filepath 
     return jsonify({
         "verified": valid,
         "message": "CV validation successful." if valid else " ".join(messages),
@@ -2416,9 +2419,12 @@ def process_documents():
     cursor.close()
     conn.close()
 
-    print(records)
+    response_records = []
+    mismatch_records = []
+    flag_ = []
     
     if not records:    # mismatch in name
+
         conn = mysql.connector.connect(
             host='localhost',
             user='root',
@@ -2428,28 +2434,32 @@ def process_documents():
         cursor = conn.cursor(dictionary=True)
         query = """
             SELECT * FROM petitions
-            WHERE beneficiary_given_name = %s           
+            WHERE beneficiary_given_name = %s AND passport_number=%s          
             ORDER BY created_at DESC
             LIMIT 1
             """
         params = (
         middle_name,
+        passport
         )
         cursor.execute(query, params)
         records = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        print(records)
 
-        first_ben_name = records[0].get("beneficiary_given_name")            
-        return jsonify({'message': 'First name in Passport is not matching with form data',"verified":False,'reason':[{"first name":False,'extracted_data': first_name, 'form_from_Db': first_ben_name, 'field':"first name"}]})
+        first_ben_name = records[0].get("beneficiary_given_name")
+        data_dict = {"beneficiary-given-name":False,'extracted_data': first_name, 'form_from_Db': first_ben_name,
+                          'field':"Beneficiary First Name", "html_field":"Beneficiary given Name"} 
+        mismatch_records.append(data_dict)
+        flag_.append(False)
+
+        second_ben_name = records[0].get("beneficiary_middle_name")
+        data_dict = {"beneficiary-middle-name":False,'extracted_data': middle_name, 'form_from_Db': second_ben_name,
+                          'field':"Beneficiary Middle Name", "html_field":"Beneficiary Middle Name"} 
+        mismatch_records.append(data_dict)
+        flag_.append(False)
 
     # Match and mismatch tracking
     fields = ["fein_number","education","lca_number","passport_expiry_data","job_title","passport_number"]
-    response_records = []
-    mismatch_records = []
-    flag_ = []
-
+    
     for field in fields:
         if field == "fein_number":
             data_dict, flag = compare(field, fein_number, records[0].get('fein'))     
@@ -2474,31 +2484,37 @@ def process_documents():
     print("mismatch fields",mismatch_records)
     all_true = all(flag_)
 
+    passport_location = data.get('passport_location')
+    print(data.get("cv_location"))
+    cv_location = data.get("cv_location")
+    emp_support_doc = data.get("emp_support_doc")
+    education_doc = data.get("education_doc")
+
     if all_true:
-        passport_location = data.get('passport_location')
-        cv_path = data.get("cv_path")
-        emp_support_doc = data.get("emp_support_doc")
-        education_doc = data.get("education_doc")
+        match_data = None
+    else:
+        match_data = str(mismatch_records)
 
-        conn = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='123Qwerty!@#',
-            database='Immigraassist'
-        )
-        cursor = conn.cursor(dictionary=True)
-        update_query = """
-            UPDATE petitions
-            SET passport_location = %s,cv_location=%s ,emp_doc = %s, degree_location=%s
-            WHERE id = %s
-            """
-        update_params = (passport_location, cv_path, emp_support_doc, education_doc, records[0]['id'])
-        cursor.execute(update_query, update_params)
-        conn.commit()  # Commit changes
+    conn = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='123Qwerty!@#',
+        database='Immigraassist'
+    )
+    cursor = conn.cursor(dictionary=True)
+    update_query = """
+        UPDATE petitions
+        SET passport_location = %s,cv_location=%s ,emp_doc = %s, degree_location=%s, mismatch_data=%s
+        WHERE id = %s
+        """
+    update_params = (passport_location, cv_location, emp_support_doc, education_doc, match_data, records[0]['id'])
+    cursor.execute(update_query, update_params)
+    conn.commit()  # Commit changes
 
-        cursor.close()
-        conn.close()
+    cursor.close()
+    conn.close()
 
+    if all_true:
         return jsonify({
             'message': 'All records from form and documents are correct',
             "verified":all_true,

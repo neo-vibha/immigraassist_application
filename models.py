@@ -61,7 +61,7 @@ class Petition(db.Model):
     alien_number = db.Column(db.String(20))
     country_of_birth = db.Column(db.String(100), nullable=False)
     country_of_citizenship = db.Column(db.String(100), nullable=False)
-    passport_number = db.Column(db.String(50), nullable=False, unique=True)
+    passport_number = db.Column(db.String(50), nullable=False)
     passport_expiry_date = db.Column(db.Date, nullable=False)
     education_qualification = db.Column(db.String(255), nullable=False)
     
@@ -104,6 +104,7 @@ class Petition(db.Model):
     cv_location = db.Column(db.Text)
     emp_doc = db.Column(db.Text)
     degree_location = db.Column(db.Text)
+    mismatch_data = db.Column(db.Text)
 
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

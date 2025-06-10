@@ -353,9 +353,26 @@
                                         <th>Submission Date</th>
                                         <td>{{ petition.submission_date }}</td>
                                     </tr>
-                                    <tr>
+                                    <!-- <tr>
                                         <th>Form Type</th>
                                         <td>{{ petition.form_type }}</td>
+                                    </tr> -->
+                                </tbody>
+                            </table>
+                            <h4 class="text-primary"><i class="fas fa-info-circle me-2"></i>Beneficiary Information</h4>
+                            <table class="table table-bordered petition-info-table">
+                                <tbody>
+                                    <tr>
+                                        <th>Beneficiary Name</th>
+                                        <td>{{ petition.beneficiary_given_name }} {{petition.beneficiary_middle_name}} {{ petition.beneficiary_family_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Passport Number</th>
+                                        <td>{{ petition.passport_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>LCA number</th>
+                                        <td>{{ petition.lca_number }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -374,7 +391,7 @@
                                     {% endif %}
                                 </div>
                                 
-                                <div class="progress mb-3">
+                                <!-- <div class="progress mb-3">
                                     <div class="progress-bar" role="progressbar" 
                                          style="width: {{ petition.completion_percentage }}%" 
                                          aria-valuenow="{{ petition.completion_percentage }}" 
@@ -382,7 +399,7 @@
                                          aria-valuemax="100">
                                         {{ petition.completion_percentage }}%
                                     </div>
-                                </div>
+                                </div> -->
                                 
                                 {% if petition.admin_notes %}
                                 <div class="admin-notes mb-3">
