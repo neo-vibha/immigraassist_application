@@ -61,9 +61,9 @@
                                     </td>
                                     <td>{{ petition.company_name }}</td>
                                     <td>
-                                        <span class="status-badge status-{{ petition.state|lower }}">
-                                            <i class="fas {% if petition.state == 'Pending' %}fa-clock{% elif petition.state == 'Approved' %}fa-check-circle{% elif petition.state == 'Rejected' %}fa-times-circle{% elif petition.state == 'Under Review' or petition.state == 'In Review' %}fa-search{% else %}fa-exclamation-circle{% endif %}"></i>
-                                            {{ petition.state }}
+                                        <span class="status-badge status-{{ petition.status|lower }}">
+                                            <i class="fas {% if petition.status == 'Pending' %}fa-clock{% elif petition.status == 'Approved' %}fa-check-circle{% elif petition.status == 'Rejected' %}fa-times-circle{% elif petition.status == 'Under Review' or petition.status == 'In Review' %}fa-search{% else %}fa-exclamation-circle{% endif %}"></i>
+                                            {{ petition.status }}
                                         </span>
                                     </td>
                                     <td>
@@ -85,8 +85,8 @@
                                 </tr>
                             {% endfor %}
                         {% else %}
-                            <!-- Example data if no petitions -->
-                            <tr class="petitioner-row">
+                            
+                            <!-- <tr class="petitioner-row">
                                 <td class="petitioner-name">John Smith</td>
                                 <td>Tech Solutions Inc.</td>
                                 <td>
@@ -212,19 +212,20 @@
                                 </td>
                             </tr>
                         {% endif %}
-                    </tbody>
-                </table>
-                
-                <!-- Pagination Controls -->
+                    </tbody> </table> -->
+  
                 <div class="pagination-controls">
-                    <div class="pagination-info">
-                        Showing <span id="showing-start">1</span>-<span id="showing-end">5</span> of <span id="showing-total">{{ petitions|length if petitions else '5' }}</span> petitioners
-                    </div>
-                    <div class="pagination-buttons">
+                     <div class="pagination-info">
+                        <!-- Showing <span id="showing-start">1</span>-<span id="showing-end">5</span> of <span id="showing-total">{{ petitions|length if petitions else '5' }}</span> petitioners -->
+                    </div> 
+                    <!-- //venus one line -->
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px;">
                         <button id="prev-page" class="btn btn-sm btn-outline-primary" disabled>
                             <i class="fas fa-chevron-left"></i> Previous
                         </button>
-                        <div class="page-numbers">
+                        <!-- //venus 1 line  -->
+                    
+                        <div style="margin: 0 15px;">
                             <span class="current-page">1</span> / <span id="total-pages">{{ ((petitions|length if petitions else 5) / 5)|round(0, 'ceil')|int }}</span>
                         </div>
                         <button id="next-page" class="btn btn-sm btn-outline-primary" {% if (petitions|length if petitions else 5) <= 5 %}disabled{% endif %}>

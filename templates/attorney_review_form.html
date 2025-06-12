@@ -13,6 +13,10 @@
         width: 100%;
         border-collapse: collapse;
     }
+  table thead {
+    background-color: #1a5f7a;
+    color: white;
+  }
 </style>
 <div class="review-container">
     <div class="card">
@@ -114,13 +118,12 @@
                     {%endif%} -->
                     {% if petition.has_mismatches %}
                         <div class="match-details">
-                            <h4>Field Mis-Matching Details</h4>
                             <div class="match-list">
                                 <table id='mismatchTable' border='1' style='width:100%; border-collapse:collapse;border-color: #333;'>
                                 <thead>
                                 <tr>
                                     <th>Field</th>
-                                    <th>Extracted Data</th>
+                                    <th>Extracted Data (<span style="color: green;">Recommended</span>)</th>
                                     <th>Data from Form</th>
                                 </tr>
                                 </thead>
@@ -248,14 +251,14 @@
         
         <div class="card-footer">
             <div class="review-decision-section"> 
-                <h3><i class="fas fa-gavel"></i> Form Decision</h3>
+                <h3><i class="fas fa-gavel"></i> Attorney Feedback</h3>
                 <div class="decision-options">
                     <form action="{{ url_for('attorney_update_petition_status', petition_id=petition.id) }}" method="post" id="petition-decision-form">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="status" id="decision-status" value="">
                         
                         <div class="form-group mb-3">
-                            <label for="decision-notes" class="form-label">Decision Notes</label>
+                            <label for="decision-notes" class="form-label">Feedback</label>
                             <textarea name="notes" id="decision-notes" class="form-control" rows="4" placeholder="Enter your decision notes here..."></textarea>
                         </div>
                         
@@ -332,6 +335,8 @@
 </div>
 
 <script>
+
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize progress bars
     const progressFills = document.querySelectorAll('.progress-fill');
@@ -423,8 +428,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const approveBtn = document.getElementById('approve-btn');
     const requestChangesBtn = document.getElementById('request-changes-btn');
     const rejectBtn = document.getElementById('reject-btn');
+    // const feedbackField = document.getElementById('decision-notes');
     const confirmActionBtn = document.getElementById('confirm-action-btn');
     let currentAction = null;
+
+    // function isFeedbackFilled() {
+    //     if (feedbackField.value.trim==""){
+    //         alert('Please provide feedback before approving the form.');
+    //     }
+    // // return feedbackField && feedbackField.value.trim() !== '';
+    // }
+
     
     function showConfirmation(title, message, action) {
         document.getElementById('confirmation-title').textContent = title;
@@ -461,6 +475,30 @@ document.addEventListener('DOMContentLoaded', function() {
             );
         });
     }
+//     if (approveBtn) {
+//     approveBtn.addEventListener('click', function () {
+//         // ✅ First check feedback
+//         if (!isFeedbackFilled()) {
+//             // alert('Please provide feedback before approving the form.');
+//             feedbackField.focus();
+//             return;
+//         }
+
+//         // ✅ Then show confirmation
+//         showConfirmation(
+//             'Confirm Approval',
+//             'Are you sure you want to approve this form? This will notify the petitioner that their form has been approved.',
+//             function () {
+//                 approveBtn.disabled = true;
+//                 approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Approving...';
+//                 setTimeout(() => {
+//                     window.location.href = "{{ url_for('attorney') }}";
+//                 }, 1000);
+//             }
+//         );
+//     });
+// }
+
     
     if (requestChangesBtn) {
         requestChangesBtn.addEventListener('click', function() {
@@ -501,6 +539,32 @@ document.addEventListener('DOMContentLoaded', function() {
             );
         });
     }
+
+    // if (rejectBtn) {
+    // rejectBtn.addEventListener('click', function () {
+    //     // ✅ First check feedback
+    //     if (!isFeedbackFilled()) {
+    //         alert('Please provide feedback before rejecting the form.');
+    //         feedbackField.focus();
+    //         return;
+    //     }
+    //     else{
+    //         // ✅ Then show confirmation
+    //     showConfirmation(
+    //         'Confirm Rejection',
+    //         'Are you sure you want to reject this form? This will notify the petitioner that their form has been rejected.',
+    //         function () {
+    //             rejectBtn.disabled = true;
+    //             rejectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rejecting...';
+    //             setTimeout(() => {
+    //                 window.location.href = "{{ url_for('attorney') }}";
+    //             }, 1000);
+    //         }
+    //     );
+    //     }
+        
+    // });
+
     
     // Modal functionality
     function openModal(modalId) {

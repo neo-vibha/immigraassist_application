@@ -32,7 +32,7 @@
                             <div class="form-group">
                                 <label for="company_name" class="required-field">Legal Name of Petitioning Company or Organization *</label>
                                 <input type="text" id="company_name" name="company_name" class="form-control" 
-                                    value="{{ petition.company_name or '' }}" required>
+                                    value="{{ petition.company_name or '' }}">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -47,9 +47,9 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="street_address" class="required-field">Street Address *</label>
+                                <label for="street_address" >Street Address </label>
                                 <input type="text" id="street_address" name="street_address" class="form-control" 
-                                    value="{{ petition.street_address or '' }}" required>
+                                    value="{{ petition.street_address or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -64,23 +64,23 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="city" class="required-field">City or Town *</label>
+                                <label for="city" class="required-field">City or Town </label>
                                 <input type="text" id="city" name="city" class="form-control" 
-                                    value="{{ petition.city or '' }}" required>
+                                    value="{{ petition.city or '' }}">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="state" class="required-field">State *</label>
+                                <label for="state" class="required-field">State </label>
                                 <input type="text" id="state" name="state" class="form-control" 
-                                    value="{{ petition.state or '' }}" required>
+                                    value="{{ petition.state or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="zip_code" class="required-field">ZIP Code *</label>
+                                <label for="zip_code" class="required-field">ZIP Code </label>
                                 <input type="text" id="zip_code" name="zip_code" class="form-control" 
-                                    value="{{ petition.zip_code or '' }}" required>
+                                    value="{{ petition.zip_code or '' }}" >
                             </div>
                         </div>
                     </div>
@@ -88,7 +88,7 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="country">Country</label>
+                                <label for="country">Country *</label>
                                 <input type="text" id="country" name="country" class="form-control" 
                                     value="{{ petition.country or 'United States' }}">
                             </div>
@@ -97,7 +97,7 @@
                             <div class="form-group">
                                 <label for="fein" class="required-field">Federal Employer Identification Number (FEIN) *</label>
                                 <input type="text" id="fein" name="fein" class="form-control" 
-                                    value="{{ petition.fein or '' }}" required>
+                                    value="{{ petition.fein or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -112,16 +112,16 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="contact_name" class="required-field">Contact Person Name *</label>
+                                <label for="contact_name" class="required-field">Contact Person Name</label>
                                 <input type="text" id="contact_name" name="contact_name" class="form-control" 
-                                    value="{{ petition.contact_name or '' }}" required>
+                                    value="{{ petition.contact_name or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="contact_title" class="required-field">Contact Person's Title *</label>
+                                <label for="contact_title" class="required-field">Contact Person's Title</label>
                                 <input type="text" id="contact_title" name="contact_title" class="form-control" 
-                                    value="{{ petition.contact_title or '' }}" required>
+                                    value="{{ petition.contact_title or '' }}" >
                             </div>
                         </div>
                     </div>
@@ -131,19 +131,19 @@
                             <div class="form-group">
                                 <label for="email" class="required-field">Contact Email *</label>
                                 <input type="email" id="email" name="email" class="form-control" 
-                                    value="{{ petition.email or '' }}" required>
+                                    value="{{ petition.email or '' }}" >
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <!-- <div class="col-md-4">
                             <div class="form-group">
-                                <label for="phone" class="required-field">Contact Phone *</label>
+                                <label for="phone" class="required-field">Contact Phone</label>
                                 <input type="tel" id="phone" name="phone" class="form-control" 
-                                    value="{{ petition.phone or '' }}" required>
+                                    value="{{ petition.phone or '' }}" >
                             </div>
-                        </div>
+                        </div> -->
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="mobile_phone">Mobile Phone</label>
+                                <label for="mobile_phone">Mobile Phone *</label>
                                 <input type="tel" id="mobile_phone" name="mobile_phone" class="form-control" 
                                     value="{{ petition.mobile_phone or '' }}">
                             </div>
@@ -158,9 +158,9 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="alien_number">Alien Registration Number (A-Number) *</label>
+                                <label for="alien_number">Alien Registration Number (A-Number)</label>
                                 <input type="text" class="form-control" id="alien_number" name="alien_number" 
-                                    value="{{ petition.alien_number or '' }}" required>
+                                    value="{{ petition.alien_number or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -184,19 +184,19 @@
                             <div class="form-group">
                                 <label for="beneficiary_family_name">Family Name (Last Name) *</label>
                                 <input type="text" class="form-control" id="beneficiary_family_name" name="beneficiary_family_name"
-                                    value="{{ petition.beneficiary_family_name or '' }}" required>
+                                    value="{{ petition.beneficiary_family_name or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="beneficiary_given_name">Given Name (First Name) *</label>
                                 <input type="text" class="form-control" id="beneficiary_given_name" name="beneficiary_given_name"
-                                    value="{{ petition.beneficiary_given_name or '' }}" required>
+                                    value="{{ petition.beneficiary_given_name or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="beneficiary_middle_name">Middle Name</label>
+                                <label for="beneficiary_middle_name">Middle Name *</label>
                                 <input type="text" class="form-control" id="beneficiary_middle_name" name="beneficiary_middle_name"
                                     value="{{ petition.beneficiary_middle_name or '' }}">
                             </div>
@@ -206,7 +206,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Have you ever used other names? *</label>
+                                <label>Have you ever used other names?</label>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="other_names_used" id="other_names_yes" value="yes" {% if petition.other_names_used == 'yes' %}checked{% endif %}>
                                     <label class="form-check-label" for="other_names_yes">Yes</label>
@@ -231,18 +231,18 @@
                         </div>
                     </div>
                     
-                    <div class="row">
+                    <!-- <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="birth_date">Date of Birth (mm/dd/yyyy) *</label>
                                 <input type="date" class="form-control" id="birth_date" name="birth_date"
-                                    value="{{ petition.birth_date or '' }}" required>
+                                    value="{{ petition.birth_date or '' }}" >
                             </div>
-                        </div>
+                        </div> -->
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="gender">Gender *</label>
-                                <select class="form-control" id="gender" name="gender" required>
+                                <label for="gender">Gender </label>
+                                <select class="form-control" id="gender" name="gender" >
                                     <option value="" {% if not petition.gender %}selected{% endif %}>Select Gender</option>
                                     <option value="Male" {% if petition.gender == 'Male' %}selected{% endif %}>Male</option>
                                     <option value="Female" {% if petition.gender == 'Female' %}selected{% endif %}>Female</option>
@@ -251,16 +251,16 @@
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="city_of_birth">City/Town/Village of Birth *</label>
+                                <label for="city_of_birth">City/Town/Village of Birth </label>
                                 <input type="text" class="form-control" id="city_of_birth" name="city_of_birth"
-                                    value="{{ petition.city_of_birth or '' }}" required>
+                                    value="{{ petition.city_of_birth or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="country_of_birth">Country of Birth *</label>
                                 <input type="text" class="form-control" id="country_of_birth" name="country_of_birth"
-                                    value="{{ petition.country_of_birth or '' }}" required>
+                                    value="{{ petition.country_of_birth or '' }}" >
                             </div>
                         </div>
                     </div>
@@ -270,12 +270,12 @@
                             <div class="form-group">
                                 <label for="country_of_citizenship">Country of Citizenship/Nationality *</label>
                                 <input type="text" class="form-control" id="country_of_citizenship" name="country_of_citizenship"
-                                    value="{{ petition.country_of_citizenship or '' }}" required>
+                                    value="{{ petition.country_of_citizenship or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="passport_number">Passport Number</label>
+                                <label for="passport_number">Passport Number *</label>
                                 <input type="text" class="form-control" id="passport_number" name="passport_number"
                                     value="{{ petition.passport_number or '' }}">
                             </div>
@@ -283,13 +283,13 @@
                     </div>
                     
                     <div class="row">
-                        <div class="col-md-6">
+                        <!-- <div class="col-md-6">
                             <div class="form-group">
                                 <label for="arrival_date">Date of Last Arrival (mm/dd/yyyy)</label>
                                 <input type="date" class="form-control" id="arrival_date" name="arrival_date"
                                     value="{{ petition.arrival_date or '' }}">
                             </div>
-                        </div>
+                        </div> -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="i94_number">I-94 Arrival-Departure Record Number</label>
@@ -309,7 +309,7 @@
                             <div class="form-group">
                                 <label for="job_title" class="required-field">Job Title *</label>
                                 <input type="text" class="form-control" id="job_title" name="job_title"
-                                    value="{{ petition.job_title or '' }}" required>
+                                    value="{{ petition.job_title or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -324,8 +324,8 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="education_level" class="required-field">Minimum Education Level Required *</label>
-                                <select class="form-control" id="education_level" name="education_level" required>
+                                <label for="education_level" >Minimum Education Level Required</label>
+                                <select class="form-control" id="education_level" name="education_level" >
                                     <option value="" {% if not petition.education_level %}selected{% endif %}>Select Education Level</option>
                                     <option value="Bachelor's" {% if petition.education_level == "Bachelor's" %}selected{% endif %}>Bachelor's Degree</option>
                                     <option value="Master's" {% if petition.education_level == "Master's" %}selected{% endif %}>Master's Degree</option>
@@ -336,33 +336,33 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="years_experience" class="required-field">Years of Experience Required *</label>
+                                <label for="years_experience" >Years of Experience Required</label>
                                 <input type="number" class="form-control" id="years_experience" name="years_experience"
-                                    value="{{ petition.years_experience or '' }}" required>
+                                    value="{{ petition.years_experience or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label for="annual_salary" class="required-field">Annual Salary Offered (USD) *</label>
+                                <label for="annual_salary" >Annual Salary Offered (USD) </label>
                                 <input type="text" class="form-control" id="annual_salary" name="annual_salary"
-                                    value="{{ petition.annual_salary or '' }}" required>
+                                    value="{{ petition.annual_salary or '' }}" >
                             </div>
                         </div>
                     </div>
                     
-                    <div class="row">
+                    <!-- <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="job_duties">Job Duties</label>
                                 <textarea class="form-control" id="job_duties" name="job_duties" rows="4">{{ petition.job_duties or '' }}</textarea>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Is this a full-time position? *</label>
+                                <label>Is this a full-time position?</label>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="full_time" id="full_time_yes" value="yes" {% if petition.full_time == 'yes' %}checked{% endif %}>
                                     <label class="form-check-label" for="full_time_yes">Yes</label>
@@ -440,8 +440,8 @@
                 
                 <!-- Form submission button -->
                 <div class="form-submit mt-4 d-flex justify-content-between">
-                    <a href="{{ url_for('attorney_view_petition', petition_id=petition.id) }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Petition
+                    <a href="{{ url_for('attorney') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Attorney
                     </a>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Save Form
@@ -461,7 +461,10 @@
         // Form validation
         const form = document.getElementById('i140-form');
         
+        // Handle form submission via AJAX
         form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            
             let isValid = true;
             const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
             
@@ -471,11 +474,12 @@
                     isValid = false;
                 } else {
                     field.classList.remove('is-invalid');
+                    alert("form saved")
+                    window.location.href = "{{ url_for('attorney_review_petition', petition_id=petition.id) }}";
                 }
             });
             
             if (!isValid) {
-                event.preventDefault();
                 alert('Please fill in all required fields');
                 
                 // Scroll to the first invalid field
@@ -483,7 +487,64 @@
                 if (firstInvalid) {
                     firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+                return;
             }
+            if (isValid) {
+                alert("form saved");
+                window.location.href = "{{ url_for('attorney') }}";
+            }
+            
+            // Show loading indicator
+            const saveButton = document.querySelector('button[type="submit"]');
+            const originalButtonHtml = saveButton.innerHTML;
+            saveButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveButton.disabled = true;
+            
+            // Collect form data
+            const formData = new FormData(form);
+            const petitionId = "{{ petition.id }}";
+            
+            // Send AJAX request
+            fetch(`/api/save_i140_form/${petitionId}`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        <strong>Success!</strong> ${data.message}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    `;
+                    form.prepend(alertDiv);
+                    
+                    // Auto-dismiss the alert after 5 seconds
+                    setTimeout(() => {
+                        alertDiv.classList.remove('show');
+                        setTimeout(() => alertDiv.remove(), 500);
+                    }, 5000);
+                } else {
+                    // Show error message
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving the form. Please try again.');
+            })
+            .finally(() => {
+                // Restore button state
+                saveButton.innerHTML = originalButtonHtml;
+                saveButton.disabled = false;
+            });
         });
         
         // Toggle Other Names section

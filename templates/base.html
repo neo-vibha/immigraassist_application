@@ -344,6 +344,7 @@
     </header>
 
     <!-- Flash Messages -->
+    {% if not request.path.endswith('petition') and not 'petition' in request.path %}
     <div class="container mt-3">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -356,6 +357,7 @@
             {% endif %}
         {% endwith %}
     </div>
+    {% endif %}
 
     <!-- Main Content -->
     <main>
@@ -405,16 +407,16 @@
     {% block scripts %}{% endblock %}
     
     <!-- Copilot Bot Container (Hidden by default) -->
-    <!-- <div id="copilot-container" class="copilot-container">
+    <div id="copilot-container" class="copilot-container">
         <iframe src="/static/copilot.html" frameborder="0" class="copilot-iframe"></iframe>
         <div class="resize-handle"></div>
-    </div> -->
-    
-    <!-- Copilot Button -->
-    <!-- <div class="copilot-button">
-        <i class="fas fa-robot"></i>
     </div>
     
-    <script src="{{ url_for('static', filename='js/copilot.js') }}"></script> -->
+    <!-- Copilot Button -->
+    <div class="copilot-button">
+        <i class="fas fa-robot"></i>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/copilot.js') }}"></script> 
 </body>
 </html>

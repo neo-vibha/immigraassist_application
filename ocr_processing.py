@@ -25,8 +25,8 @@ def preprocess(text):
 def compare(field, form_value, db_value):   # extracted, form
     flag = None
     if field == "education":
-        form_value = preprocess(form_value)
-        db_value = preprocess(db_value)
+        # form_value = preprocess(form_value)
+        # db_value = preprocess(db_value)
         similarity = fuzz.token_set_ratio(form_value, db_value)
         print(f"Cleaned doc similarity: {similarity}%")
         if similarity>85:

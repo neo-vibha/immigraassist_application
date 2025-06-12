@@ -436,7 +436,7 @@ def attorney_i129_form(petition_id):
         'needs_info': 'Needs Information'
     }
     
-    state = state_display.get(petition.state.lower() if petition.state else 'pending', 'Pending')
+    state = state_display.get(petition.status.lower() if petition.status else 'pending', 'Pending')
     
     return render_template('attorney_i129_form.html', petition=petition, state=state)
 
@@ -446,6 +446,7 @@ def attorney_i140_form(petition_id):
     # Get petition details from database
     petition = Petition.query.join(User).filter(Petition.id == petition_id).first()
     
+
     if not petition:
         flash('Petition not found', 'error')
         return redirect(url_for('admin'))
@@ -458,7 +459,7 @@ def attorney_i140_form(petition_id):
         'needs_info': 'Needs Information'
     }
     
-    state = state_display.get(petition.state.lower() if petition.state else 'pending', 'Pending')
+    state = state_display.get(petition.status.lower() if petition.status else 'pending', 'Pending')
     
     return render_template('attorney_i140_form.html', petition=petition, state=state)
 
@@ -536,6 +537,82 @@ def update_i129_petition(petition_id):
     flash('I-129 form updated successfully', 'success')
     return redirect(url_for('attorney_i129_form', petition_id=petition_id))
 
+# @app.route('/attorney/update-i140/<int:petition_id>', methods=['POST'])
+# @attorney_required
+# def update_i140_petition(petition_id):
+#     petition = Petition.query.get(petition_id)
+    
+#     if not petition:
+#         flash('Petition not found', 'error')
+#         return redirect(url_for('admin'))
+    
+#     # Update petition fields from form data
+#     # Basic Information
+#     petition.alien_number = request.form.get('alien_number', petition.alien_number)
+#     petition.uscis_account = request.form.get('uscis_account', petition.uscis_account)
+#     petition.ssn = request.form.get('ssn', petition.ssn)
+#     petition.beneficiary_family_name = request.form.get('beneficiary_family_name', petition.beneficiary_family_name)
+#     petition.beneficiary_given_name = request.form.get('beneficiary_given_name', petition.beneficiary_given_name)
+#     petition.beneficiary_middle_name = request.form.get('beneficiary_middle_name', petition.beneficiary_middle_name)
+    
+#     # Other Names
+#     other_names_used = request.form.get('other_names_used')
+#     if other_names_used == 'yes':
+#         petition.other_family_name = request.form.get('other_family_name', petition.other_family_name)
+#         petition.other_given_name = request.form.get('other_given_name', petition.other_given_name)
+#     else:
+#         petition.other_family_name = None
+#         petition.other_given_name = None
+    
+#     # Personal Information
+#     petition.birth_date = request.form.get('birth_date', petition.birth_date)
+#     petition.gender = request.form.get('gender', petition.gender)
+#     petition.city_of_birth = request.form.get('city_of_birth', petition.city_of_birth)
+#     petition.country_of_birth = request.form.get('country_of_birth', petition.country_of_birth)
+#     petition.country_of_citizenship = request.form.get('country_of_citizenship', petition.country_of_citizenship)
+#     petition.marital_status = request.form.get('marital_status', petition.marital_status)
+    
+#     # Application Type
+#     petition.adjustment_category = request.form.get('application_type', petition.adjustment_category)
+#     petition.receipt_number = request.form.get('receipt_number', petition.receipt_number)
+#     petition.priority_date = request.form.get('priority_date', petition.priority_date)
+    
+#     # Travel Information
+#     petition.last_arrival_date = request.form.get('last_arrival_date', petition.last_arrival_date)
+#     petition.i94_number = request.form.get('i94_number', petition.i94_number)
+#     petition.current_status = request.form.get('current_status', petition.current_status)
+#     petition.status_expires = request.form.get('status_expires', petition.status_expires)
+#     petition.passport_number = request.form.get('passport_number', petition.passport_number)
+#     petition.passport_expiry_date = request.form.get('passport_expiry_date', petition.passport_expiry_date)
+    
+#     # Address Information
+#     petition.current_address = request.form.get('current_address', petition.current_address)
+#     petition.current_apt = request.form.get('current_apt', petition.current_apt)
+#     petition.current_city = request.form.get('current_city', petition.current_city)
+#     petition.current_state = request.form.get('current_state', petition.current_state)
+#     petition.current_zip = request.form.get('current_zip', petition.current_zip)
+    
+#     # Check if mailing address is different
+#     if not request.form.get('same_address'):
+#         petition.mailing_address = request.form.get('mailing_address', petition.mailing_address)
+#         petition.mailing_apt = request.form.get('mailing_apt', petition.mailing_apt)
+#         petition.mailing_city = request.form.get('mailing_city', petition.mailing_city)
+#         petition.mailing_state = request.form.get('mailing_state', petition.mailing_state)
+#         petition.mailing_zip = request.form.get('mailing_zip', petition.mailing_zip)
+#     else:
+#         # If same address is checked, copy current address to mailing address
+#         petition.mailing_address = petition.current_address
+#         petition.mailing_apt = petition.current_apt
+#         petition.mailing_city = petition.current_city
+#         petition.mailing_state = petition.current_state
+#         petition.mailing_zip = petition.current_zip
+    
+#     # In a real application, we would commit changes to the database
+#     # db.session.commit()
+    
+#     flash('I-140 form updated successfully', 'success')
+#     return redirect(url_for('attorney_i140_form', petition_id=petition_id))
+
 @app.route('/attorney/update-i140/<int:petition_id>', methods=['POST'])
 @attorney_required
 def update_i140_petition(petition_id):
@@ -565,6 +642,15 @@ def update_i140_petition(petition_id):
     
     # Personal Information
     petition.birth_date = request.form.get('birth_date', petition.birth_date)
+    if petition.birth_date:
+        # Convert from 'MM-DD-YYYY' to 'YYYY-MM-DD'
+        petition.birth_date = datetime.strptime(petition.birth_date, '%m-%d-%Y').strftime('%Y-%m-%d')
+    else:
+        petition.birth_date = petition.birth_date.strftime('%Y-%m-%d')
+
+
+    # petition.birth_date = datetime.strptime(petition.birth_date, '%Y-%m-%d')
+    # petition.birth_date = petition.birth_date.strftime('%m-%d-%Y')
     petition.gender = request.form.get('gender', petition.gender)
     petition.city_of_birth = request.form.get('city_of_birth', petition.city_of_birth)
     petition.country_of_birth = request.form.get('country_of_birth', petition.country_of_birth)
@@ -607,10 +693,11 @@ def update_i140_petition(petition_id):
         petition.mailing_zip = petition.current_zip
     
     # In a real application, we would commit changes to the database
-    # db.session.commit()
-    
+    db.session.commit()
+
     flash('I-140 form updated successfully', 'success')
     return redirect(url_for('attorney_i140_form', petition_id=petition_id))
+
 
 @app.route('/admin')
 @login_required
@@ -656,15 +743,15 @@ def attorney():
         petition.is_eligible = petition.completion_percentage >= 90
         
         # Set state based on completion percentage if not already set
-        if not hasattr(petition, 'state') or not petition.state or petition.state == '':
+        if not hasattr(petition, 'state') or not petition.status or petition.status == '':
             if petition.completion_percentage == 100:
-                petition.state = 'Approved'
+                petition.status = 'Approved'
             elif petition.completion_percentage >= 90:
-                petition.state = 'Under Review'
+                petition.status = 'Under Review'
             elif petition.completion_percentage >= 50:
-                petition.state = 'Pending'
+                petition.status = 'Pending'
             else:
-                petition.state = 'Needs Information'
+                petition.status = 'Needs Information'
         
         # Add user information to each petition for display
         petition.petitioner_name = f"{petition.user.firstname} {petition.user.lastname}"
@@ -699,27 +786,27 @@ def attorney_view_petition(petition_id):
     is_eligible = completion_percentage >= 90
     
     # Determine state if not set
-    if not hasattr(petition, 'state') or not petition.state or petition.state == '':
+    if not hasattr(petition, 'status') or not petition.status or petition.status == '':
         if completion_percentage == 100:
-            state = 'Approved'
+            status = 'Approved'
         elif completion_percentage >= 90:
-            state = 'Under Review'
+            status = 'Under Review'
         elif completion_percentage >= 50:
-            state = 'Pending'
+            status = 'Pending'
         else:
-            state = 'Needs Information'
+            status = 'Needs Information'
     else:
-        state = petition.state
+        status = petition.status
 
     print(petition)
-    print(state)
+    # print(state)
     
     return render_template('attorney_review_form.html', 
                           petition=petition,
                           user=user,
                           completion_percentage=completion_percentage,
                           is_eligible=is_eligible,
-                          state=state)
+                          state=status)
 
 @app.route('/attorney/cases')
 @login_required
@@ -1071,7 +1158,7 @@ def attorney_review_petition(petition_id):
         'form_type': 'I-129 Petition',  # Hardcoded for now, could be stored in a separate field
         'completion_percentage': 85,  # Placeholder, would be calculated based on form completeness
         'is_eligible': True,  # This would be determined by business logic
-        'state': petition_data.state or 'Under Review',
+        'state': petition_data.status or 'Under Review',
         'admin_notes': '',
         'has_mismatches': True if petition_data.mismatch_data else False,  # Will be updated based on field matches
         'mismatch_fields': petition_data.mismatch_data,  # Will store IDs of mismatched fields
@@ -1156,7 +1243,7 @@ def attorney_review_petition(petition_id):
         {
             'id': 1,
             'name': 'Passport.pdf',
-            'type': 'Identification',
+            'type': 'Identification Document',
             'icon': 'fa-passport',
             'upload_date': petition_data.created_at.strftime('%m-%d-%Y'),
             'path': petition_data.passport_location
@@ -1164,7 +1251,7 @@ def attorney_review_petition(petition_id):
         {
             'id': 2,
             'name': 'Resume.pdf',
-            'type': 'Professional',
+            'type': 'Professional Details',
             'icon': 'fa-file-alt',
             'upload_date': petition_data.created_at.strftime('%m-%d-%Y'),
             'path': petition_data.cv_location
@@ -1180,7 +1267,7 @@ def attorney_review_petition(petition_id):
         {
             'id': 4,
             'name': 'Employment_Letter.pdf',
-            'type': 'Employment',
+            'type': 'Employment Details',
             'icon': 'fa-file-contract',
             'upload_date': petition_data.created_at.strftime('%m-%d-%Y'),
             'path': petition_data.emp_doc
@@ -1257,7 +1344,7 @@ def attorney_update_petition_status(petition_id):
             return redirect(url_for('attorney_review_petition', petition_id=petition_id))
         
         # Update the petition status in the database
-        petition.state = status
+        petition.status = status
         
         # Add notes if provided
         if notes:
@@ -1265,13 +1352,12 @@ def attorney_update_petition_status(petition_id):
         
         # Add to feedback history
 
-        
         # Get current attorney name from session
         attorney_name = session.get('attorney_name', session.get('admin_name', 'Unknown Attorney'))
         
         # Create new feedback entry
         new_feedback = {
-            'date': datetime.now().strftime('%Y-%m-%d'),
+            'date': datetime.now().strftime('%m-%d-%Y'),
             'admin': attorney_name,
             'content': notes if notes else f'Status updated to {status}'
         }
@@ -1298,6 +1384,7 @@ def attorney_update_petition_status(petition_id):
         
         flash(f'Petition status updated to {status}', 'success')
         return redirect(url_for('attorney'))
+    
 
 @app.route('/attorney/save-feedback/<int:petition_id>', methods=['POST'])
 @login_required
@@ -1401,7 +1488,7 @@ def user_view_petition(petition_id):
         'phone': petition_data.daytime_phone,
         'submission_date': petition_data.created_at.strftime('%m-%d-%Y') if petition_data.created_at else 'N/A',
         'form_type': 'I-129 Petition',  # Hardcoded for now
-        'status': petition_data.state or 'Under Review',
+        'status': petition_data.status or 'Under Review',
         'completion_percentage': 85,  # Placeholder
         'admin_notes': petition_data.admin_notes or '',
         'beneficiary_given_name': petition_data.beneficiary_given_name,
@@ -1428,7 +1515,7 @@ def user_view_petition(petition_id):
     
     return render_template('user_petition_view.html', petition=petition)
     
-    return redirect(url_for('attorney_review_petition', petition_id=petition_id))
+    # return redirect(url_for('attorney_review_petition', petition_id=petition_id))
 
 @app.route('/attorney/calendar')
 @login_required
@@ -2131,7 +2218,7 @@ def validate_passport():
     try:
         # Step 1: Image similarity check
         indian_passport_similarity = compare_passport_pdf_to_reference(pdf_path=filepath, ref_path=passport_ref_file_path)
-        if not indian_passport_similarity>=0.80:
+        if not indian_passport_similarity>=0.70:
             return jsonify({'verified': False, 'message': 'Image similarity check failed.','reason':'Attached file is not passport.Please attach passport.'}), 400
 
         # Step 2: OCR + Text check
@@ -2391,6 +2478,8 @@ def process_documents():
     middle_name, middle_name_ed = name_parts[1] if len(name_parts) > 2 else '', name_parts_ed[1] if len(name_parts_ed)>2 else''
     last_name ,last_name_ed = name_parts[-1], name_parts_ed[-1]
 
+    # if first_name==first_name_ed and middle_name==middle_name_ed and last
+
     # Connect to MySQL
     conn = mysql.connector.connect(
         host='localhost',
@@ -2403,16 +2492,16 @@ def process_documents():
 # //passport_number = %s
     query = """
     SELECT * FROM petitions
-    WHERE beneficiary_given_name = %s           
-        AND beneficiary_middle_name = %s
-        AND beneficiary_family_name = %s
+    WHERE beneficiary_given_name = %s  
+        AND beneficiary_family_name = %s         
+        OR beneficiary_middle_name = %s
     ORDER BY created_at DESC
     LIMIT 1
     """
     params = (
         first_name,
-        middle_name,
         last_name,
+        middle_name,
     )
     cursor.execute(query, params)
     records = cursor.fetchall()
@@ -2528,6 +2617,126 @@ def process_documents():
         })
 
 
+@app.route('/api/save_i140_form/<int:petition_id>', methods=['POST'])
+@attorney_required
+def save_i140_form(petition_id):
+    petition = db.session.get(Petition, petition_id)
+    
+    if not petition:
+        return jsonify({'success': False, 'message': 'Petition not found'}), 404
+    
+    try:
+        # Part 1: Petitioner Information
+        petition.company_name = request.form.get('company_name', petition.company_name)
+        petition.trade_name = request.form.get('trade_name', petition.trade_name)
+        petition.street_address = request.form.get('street_address', petition.street_address)
+        petition.apt_ste_flr = request.form.get('apt_ste_flr', petition.apt_ste_flr)
+        petition.city = request.form.get('city', petition.city)
+        petition.state = request.form.get('state', petition.state)
+        petition.zip_code = request.form.get('zip_code', petition.zip_code)
+        petition.country = request.form.get('country', petition.country)
+        petition.fein = request.form.get('fein', petition.fein)
+        petition.uscis_account = request.form.get('uscis_account', petition.uscis_account)
+        petition.contact_name = request.form.get('contact_name', petition.contact_name)
+        petition.contact_title = request.form.get('contact_title', petition.contact_title)
+        petition.email = request.form.get('email', petition.email)
+        petition.phone = request.form.get('phone', petition.phone)
+        petition.mobile_phone = request.form.get('mobile_phone', petition.mobile_phone)
+        
+        # Part 2: Beneficiary Information
+        petition.alien_number = request.form.get('alien_number', petition.alien_number)
+        petition.ssn = request.form.get('ssn', petition.ssn)
+        petition.visa_classification = request.form.get('visa_classification', petition.visa_classification)
+        petition.beneficiary_family_name = request.form.get('beneficiary_family_name', petition.beneficiary_family_name)
+        petition.beneficiary_given_name = request.form.get('beneficiary_given_name', petition.beneficiary_given_name)
+        petition.beneficiary_middle_name = request.form.get('beneficiary_middle_name', petition.beneficiary_middle_name)
+        petition.other_names_used = request.form.get('other_names_used', petition.other_names_used)
+        petition.other_family_name = request.form.get('other_family_name', petition.other_family_name)
+        petition.other_given_name = request.form.get('other_given_name', petition.other_given_name)
+        
+        # Process birth date if provided
+        birth_date = request.form.get('birth_date')
+        if birth_date:
+            try:
+                petition.birth_date = datetime.strptime(birth_date, '%Y-%m-%d').date()
+                petition.birth_date = petition.birth_date.strftime('%m-%d-%Y')
+            except ValueError:
+                pass
+        
+        petition.gender = request.form.get('gender', petition.gender)
+        petition.city_of_birth = request.form.get('city_of_birth', petition.city_of_birth)
+        petition.country_of_birth = request.form.get('country_of_birth', petition.country_of_birth)
+        petition.country_of_citizenship = request.form.get('country_of_citizenship', petition.country_of_citizenship)
+        petition.passport_number = request.form.get('passport_number', petition.passport_number)
+        
+        # Process arrival date if provided
+        arrival_date = request.form.get('arrival_date')
+        if arrival_date:
+            try:
+                petition.arrival_date = datetime.strptime(arrival_date, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+        
+        petition.i94_number = request.form.get('i94_number', petition.i94_number)
+        
+        # Part 3: Employment Information
+        petition.job_title = request.form.get('job_title', petition.job_title)
+        petition.soc_code = request.form.get('soc_code', petition.soc_code)
+        petition.education_level = request.form.get('education_level', petition.education_level)
+        
+        # Process years of experience if provided
+        years_experience = request.form.get('years_experience')
+        if years_experience:
+            try:
+                petition.years_experience = int(years_experience)
+            except ValueError:
+                pass
+        
+        # Process annual salary if provided
+        annual_salary = request.form.get('annual_salary')
+        if annual_salary:
+            try:
+                petition.annual_salary = float(annual_salary)
+            except ValueError:
+                pass
+        
+        petition.job_duties = request.form.get('job_duties', petition.job_duties)
+        petition.full_time = request.form.get('full_time', petition.full_time)
+        
+        # Process hours per week if provided
+        hours_per_week = request.form.get('hours_per_week')
+        if hours_per_week:
+            try:
+                petition.hours_per_week = int(hours_per_week)
+            except ValueError:
+                pass
+        
+        # Work location information
+        petition.work_street_1 = request.form.get('work_street_1', petition.work_street_1)
+        petition.work_apt_1 = request.form.get('work_apt_1', petition.work_apt_1)
+        petition.work_city_1 = request.form.get('work_city_1', petition.work_city_1)
+        petition.work_state_1 = request.form.get('work_state_1', petition.work_state_1)
+        petition.work_zip_1 = request.form.get('work_zip_1', petition.work_zip_1)
+        
+        # Save changes to database
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': 'I-140 form saved successfully',
+            'petition_id': petition_id
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False, 
+            'message': f'Error saving I-140 form: {str(e)}'
+        }), 500
+
+
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
@@ -2559,4 +2768,5 @@ if __name__ == '__main__':
             db.session.add(admin)
             db.session.commit()
             
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

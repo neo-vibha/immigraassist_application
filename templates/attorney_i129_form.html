@@ -12,10 +12,10 @@
 <div class="form-container">
     <div class="card">
         <div class="card-header">
-            <h2>Form I-129: Petition for Nonimmigrant Worker (H-1B)</h2>
+            <h2>Petitioner/Beneficiary Details</h2>
             <div class="petition-meta">
                 <span class="petition-id">Petition ID: {{ petition.id }}</span>
-                <div class="status-badge status-{{ petition.state|lower }}">{{ petition.state }}</div>
+                <div class="status-badge status-{{ petition.status|lower }}">{{ petition.status }}</div>
             </div>
         </div>
         
@@ -33,16 +33,11 @@
                             </div>
                         </div>
                         
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="trade_name">Trade Name or "Doing Business As" Name (if any)</label>
-                                <input type="text" id="trade_name" name="trade_name" class="form-control" value="{{ petition.trade_name if petition.trade_name else '' }}" readonly>
-                            </div>
-                        </div>
+                        
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="street_address" class="required-field">Street Address</label>
+                                <label for="street_address">Street Address</label>
                                 <input type="text" id="street_address" name="street_address" class="form-control" value="{{ petition.street_address }}" required readonly>
                             </div>
                         </div>
@@ -56,24 +51,24 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="city" class="required-field">City or Town</label>
+                                <label for="city">City or Town</label>
                                 <input type="text" id="city" name="city" class="form-control" value="{{ petition.city }}" required readonly>
                             </div>
                             
                             <div class="form-group">
-                                <label for="state" class="required-field">State</label>
+                                <label for="state">State</label>
                                 <input type="text" id="state" name="state" class="form-control" value="{{ petition.state }}" required readonly>
                             </div>
                             
                             <div class="form-group">
-                                <label for="zip_code" class="required-field">ZIP Code</label>
+                                <label for="zip_code" >ZIP Code</label>
                                 <input type="text" id="zip_code" name="zip_code" class="form-control" value="{{ petition.zip_code }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="country" class="required-field">Country</label>
+                                <label for="country">Country</label>
                                 <input type="text" id="country" name="country" class="form-control" value="{{ petition.country }}" required readonly>
                             </div>
                         </div>
@@ -92,12 +87,12 @@
                             </div>
                             
                             <div class="form-group">
-                                <label for="daytime_phone" class="required-field">Daytime Phone Number</label>
+                                <label for="daytime_phone" >Daytime Phone Number</label>
                                 <input type="tel" id="daytime_phone" name="daytime_phone" class="form-control" value="{{ petition.daytime_phone }}" required readonly>
                             </div>
                             
                             <div class="form-group">
-                                <label for="mobile_phone">Mobile Phone Number</label>
+                                <label for="mobile_phone" class="required-field">Mobile Phone Number</label>
                                 <input type="tel" id="mobile_phone" name="mobile_phone" class="form-control" value="{{ petition.mobile_phone if petition.mobile_phone else '' }}" readonly>
                             </div>
                         </div>
@@ -109,7 +104,7 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="required-field">Requested Nonimmigrant Classification</label>
+                                <label class=>Requested Nonimmigrant Classification</label>
                                 <div class="form-check">
                                     <input type="radio" id="h1b" name="classification" value="H-1B" class="form-check-input" {% if petition.basis_for_classification == 'H-1B' %}checked{% endif %} required readonly>
                                     <label for="h1b" class="form-check-label">H-1B - Specialty Occupation Worker</label>
@@ -120,7 +115,7 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="petition_type" class="required-field">Petition Type</label>
-                                <select id="petition_type" name="petition_type" class="form-control" required>
+                                <select id="petition_type" name="petition_type" class="form-control" required readonly>
                                     <option value="new_employment" {% if petition.petition_type == 'new_employment' %}selected{% endif %}>New Employment</option>
                                     <option value="continuation" {% if petition.petition_type == 'continuation' %}selected{% endif %}>Continuation of previously approved employment</option>
                                     <option value="change_employer" {% if petition.petition_type == 'change_employer' %}selected{% endif %}>Change of Employer</option>
@@ -132,22 +127,11 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="lca_number" class="required-field">LCA Case Number</label>
-                                <input type="text" id="lca_number" name="lca_number" class="form-control" value="{{ petition.lca_number }}" required>
+                                <input type="text" id="lca_number" name="lca_number" class="form-control" value="{{ petition.lca_number }}" required readonly>
                             </div>
                         </div>
                         
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="requested_start_date" class="required-field">Requested Employment Start Date</label>
-                                <input type="date" id="requested_start_date" name="requested_start_date" class="form-control" value="{{ petition.requested_start_date if petition.requested_start_date else '' }}" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="requested_end_date" class="required-field">Requested Employment End Date</label>
-                                <input type="date" id="requested_end_date" name="requested_end_date" class="form-control" value="{{ petition.requested_end_date if petition.requested_end_date else '' }}" required>
-                            </div>
-                        </div>
-                    </div>
+                        
                     
                     <!-- Part 3: Beneficiary Information -->
                     <div class="form-section">
@@ -156,46 +140,46 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="beneficiary_family_name" class="required-field">Family Name (Last Name)</label>
-                                <input type="text" id="beneficiary_family_name" name="beneficiary_family_name" class="form-control" value="{{ petition.beneficiary_family_name }}" required>
+                                <input type="text" id="beneficiary_family_name" name="beneficiary_family_name" class="form-control" value="{{ petition.beneficiary_family_name }}" required readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="beneficiary_given_name" class="required-field">Given Name (First Name)</label>
-                                <input type="text" id="beneficiary_given_name" name="beneficiary_given_name" class="form-control" value="{{ petition.beneficiary_given_name }}" required>
+                                <input type="text" id="beneficiary_given_name" name="beneficiary_given_name" class="form-control" value="{{ petition.beneficiary_given_name }}" required readonly>
                             </div>
                             
                             <div class="form-group">
-                                <label for="beneficiary_middle_name">Middle Name</label>
-                                <input type="text" id="beneficiary_middle_name" name="beneficiary_middle_name" class="form-control" value="{{ petition.beneficiary_middle_name if petition.beneficiary_middle_name else '' }}">
+                                <label for="beneficiary_middle_name" class="required-field">Middle Name</label>
+                                <input type="text" id="beneficiary_middle_name" name="beneficiary_middle_name" class="form-control" value="{{ petition.beneficiary_middle_name if petition.beneficiary_middle_name else '' }}" readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="other_family_name">Other Names Used (Last Name)</label>
-                                <input type="text" id="other_family_name" name="other_family_name" class="form-control" value="{{ petition.other_family_name if petition.other_family_name else '' }}">
+                                <input type="text" id="other_family_name" name="other_family_name" class="form-control" value="{{ petition.other_family_name if petition.other_family_name else '' }}" readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="other_given_name">Other Names Used (First Name)</label>
-                                <input type="text" id="other_given_name" name="other_given_name" class="form-control" value="{{ petition.other_given_name if petition.other_given_name else '' }}">
+                                <input type="text" id="other_given_name" name="other_given_name" class="form-control" value="{{ petition.other_given_name if petition.other_given_name else '' }}" readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="other_middle_name">Other Names Used (Middle Name)</label>
-                                <input type="text" id="other_middle_name" name="other_middle_name" class="form-control" value="{{ petition.other_middle_name if petition.other_middle_name else '' }}">
+                                <input type="text" id="other_middle_name" name="other_middle_name" class="form-control" value="{{ petition.other_middle_name if petition.other_middle_name else '' }}" readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="birth_date" class="required-field">Date of Birth (mm/dd/yyyy)</label>
-                                <input type="date" id="birth_date" name="birth_date" class="form-control" value="{{ petition.birth_date }}" required>
+                                <input type="date" id="birth_date" name="birth_date" class="form-control" value="{{ petition.birth_date }}" required readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="gender" class="required-field">Gender</label>
-                                <select id="gender" name="gender" class="form-control" required>
+                                <select id="gender" name="gender" class="form-control" required readonly>
                                     <option value="Male" {% if petition.gender == 'Male' %}selected{% endif %}>Male</option>
                                     <option value="Female" {% if petition.gender == 'Female' %}selected{% endif %}>Female</option>
                                 </select>
@@ -205,81 +189,81 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="country_of_birth" class="required-field">Country of Birth</label>
-                                <input type="text" id="country_of_birth" name="country_of_birth" class="form-control" value="{{ petition.country_of_birth }}" required>
+                                <input type="text" id="country_of_birth" name="country_of_birth" class="form-control" value="{{ petition.country_of_birth }}" required readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="country_of_citizenship" class="required-field">Country of Citizenship</label>
-                                <input type="text" id="country_of_citizenship" name="country_of_citizenship" class="form-control" value="{{ petition.country_of_citizenship }}" required>
+                                <input type="text" id="country_of_citizenship" name="country_of_citizenship" class="form-control" value="{{ petition.country_of_citizenship }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="alien_number">U.S. Alien Registration Number (if any)</label>
-                                <input type="text" id="alien_number" name="alien_number" class="form-control" value="{{ petition.alien_number if petition.alien_number else '' }}">
+                                <input type="text" id="alien_number" name="alien_number" class="form-control" value="{{ petition.alien_number if petition.alien_number else '' }}"readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="ssn">U.S. Social Security Number (if any)</label>
-                                <input type="text" id="ssn" name="ssn" class="form-control" value="{{ petition.ssn if petition.ssn else '' }}">
+                                <input type="text" id="ssn" name="ssn" class="form-control" value="{{ petition.ssn if petition.ssn else '' }}" readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="passport_number" class="required-field">Passport Number</label>
-                                <input type="text" id="passport_number" name="passport_number" class="form-control" value="{{ petition.passport_number }}" required>
+                                <input type="text" id="passport_number" name="passport_number" class="form-control" value="{{ petition.passport_number }}" required readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="passport_expiry_date" class="required-field">Passport Expiration Date</label>
-                                <input type="date" id="passport_expiry_date" name="passport_expiry_date" class="form-control" value="{{ petition.passport_expiry_date }}" required>
+                                <input type="date" id="passport_expiry_date" name="passport_expiry_date" class="form-control" value="{{ petition.passport_expiry_date }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="foreign_street" class="required-field">Foreign Address - Street</label>
-                                <input type="text" id="foreign_street" name="foreign_street" class="form-control" value="{{ petition.foreign_street }}" required>
+                                <label for="foreign_street">Foreign Address - Street</label>
+                                <input type="text" id="foreign_street" name="foreign_street" class="form-control" value="{{ petition.foreign_street }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="foreign_apt">Foreign Address - Apt/Suite/Floor</label>
-                                <input type="text" id="foreign_apt" name="foreign_apt" class="form-control" value="{{ petition.foreign_apt if petition.foreign_apt else '' }}">
+                                <input type="text" id="foreign_apt" name="foreign_apt" class="form-control" value="{{ petition.foreign_apt if petition.foreign_apt else '' }}" readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="foreign_city" class="required-field">Foreign Address - City/Town</label>
-                                <input type="text" id="foreign_city" name="foreign_city" class="form-control" value="{{ petition.foreign_city }}" required>
+                                <label for="foreign_city">Foreign Address - City/Town</label>
+                                <input type="text" id="foreign_city" name="foreign_city" class="form-control" value="{{ petition.foreign_city }}" required readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="foreign_state">Foreign Address - Province</label>
-                                <input type="text" id="foreign_state" name="foreign_state" class="form-control" value="{{ petition.foreign_state if petition.foreign_state else '' }}">
+                                <input type="text" id="foreign_state" name="foreign_state" class="form-control" value="{{ petition.foreign_state if petition.foreign_state else '' }}" readonly>
                             </div>
                             
                             <div class="form-group">
                                 <label for="foreign_postal">Foreign Address - Postal Code</label>
-                                <input type="text" id="foreign_postal" name="foreign_postal" class="form-control" value="{{ petition.foreign_postal if petition.foreign_postal else '' }}">
+                                <input type="text" id="foreign_postal" name="foreign_postal" class="form-control" value="{{ petition.foreign_postal if petition.foreign_postal else '' }}" readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="foreign_country" class="required-field">Foreign Address - Country</label>
-                                <input type="text" id="foreign_country" name="foreign_country" class="form-control" value="{{ petition.foreign_country }}" required>
+                                <label for="foreign_country">Foreign Address - Country</label>
+                                <input type="text" id="foreign_country" name="foreign_country" class="form-control" value="{{ petition.foreign_country }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="education_qualification" class="required-field">Highest Education/Degree Completed</label>
-                                <input type="text" id="education_qualification" name="education_qualification" class="form-control" value="{{ petition.education_qualification }}" required>
+                                <input type="text" id="education_qualification" name="education_qualification" class="form-control" value="{{ petition.education_qualification }}" required readonly>
                             </div>
                         </div>
                     </div>
@@ -291,19 +275,19 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="job_title" class="required-field">Job Title</label>
-                                <input type="text" id="job_title" name="job_title" class="form-control" value="{{ petition.job_title }}" required>
+                                <input type="text" id="job_title" name="job_title" class="form-control" value="{{ petition.job_title }}" required readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="required-field">Is this full-time position?</label>
+                                <label>Is this full-time position?</label>
                                 <div class="form-check">
-                                    <input type="radio" id="full_time_yes" name="full_time" value="Yes" class="form-check-input" {% if petition.full_time == 'Yes' %}checked{% endif %} required>
+                                    <input type="radio" id="full_time_yes" name="full_time" value="Yes" class="form-check-input" {% if petition.full_time == 'Yes' %}checked{% endif %} required readonly>
                                     <label for="full_time_yes" class="form-check-label">Yes</label>
                                 </div>
                                 <div class="form-check">
-                                    <input type="radio" id="full_time_no" name="full_time" value="No" class="form-check-input" {% if petition.full_time == 'No' %}checked{% endif %}>
+                                    <input type="radio" id="full_time_no" name="full_time" value="No" class="form-check-input" {% if petition.full_time == 'No' %}checked{% endif %} readonly>
                                     <label for="full_time_no" class="form-check-label">No</label>
                                 </div>
                             </div>
@@ -312,19 +296,19 @@
                         <div id="hours_per_week_div" class="form-row" {% if petition.full_time != 'No' %}style="display: none;"{% endif %}>
                             <div class="form-group">
                                 <label for="hours_per_week">Hours per week</label>
-                                <input type="number" id="hours_per_week" name="hours_per_week" class="form-control" value="{{ petition.hours_per_week if petition.hours_per_week else '' }}">
+                                <input type="number" id="hours_per_week" name="hours_per_week" class="form-control" value="{{ petition.hours_per_week if petition.hours_per_week else '' }}" readonly>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="wage_amount" class="required-field">Wages</label>
-                                <input type="number" id="wage_amount" name="wage_amount" class="form-control" value="{{ petition.wage_amount }}" step="0.01" required>
+                                <label for="wage_amount">Wages</label>
+                                <input type="number" id="wage_amount" name="wage_amount" class="form-control" value="{{ petition.wage_amount }}" step="0.01" required readonly>
                             </div>
                             
                             <div class="form-group">
-                                <label for="wage_period" class="required-field">Per</label>
-                                <select id="wage_period" name="wage_period" class="form-control" required>
+                                <label for="wage_period">Per</label>
+                                <select id="wage_period" name="wage_period" class="form-control" required readonly>
                                     <option value="Hour" {% if petition.wage_period == 'Hour' %}selected{% endif %}>Hour</option>
                                     <option value="Week" {% if petition.wage_period == 'Week' %}selected{% endif %}>Week</option>
                                     <option value="Bi-Weekly" {% if petition.wage_period == 'Bi-Weekly' %}selected{% endif %}>Bi-Weekly</option>
@@ -334,46 +318,17 @@
                             </div>
                         </div>
                         
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="work_street_1" class="required-field">Address of Employment - Street</label>
-                                <input type="text" id="work_street_1" name="work_street_1" class="form-control" value="{{ petition.work_street_1 if petition.work_street_1 else petition.street_address }}" required>
-                            </div>
-                        </div>
+                        
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="work_apt_1">Address of Employment - Apt/Suite/Floor</label>
-                                <input type="text" id="work_apt_1" name="work_apt_1" class="form-control" value="{{ petition.work_apt_1 if petition.work_apt_1 else petition.apt_ste_flr }}">
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="work_city_1" class="required-field">Address of Employment - City/Town</label>
-                                <input type="text" id="work_city_1" name="work_city_1" class="form-control" value="{{ petition.work_city_1 if petition.work_city_1 else petition.city }}" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="work_state_1" class="required-field">Address of Employment - State</label>
-                                <input type="text" id="work_state_1" name="work_state_1" class="form-control" value="{{ petition.work_state_1 if petition.work_state_1 else petition.state }}" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="work_zip_1" class="required-field">Address of Employment - ZIP Code</label>
-                                <input type="text" id="work_zip_1" name="work_zip_1" class="form-control" value="{{ petition.work_zip_1 if petition.work_zip_1 else petition.zip_code }}" required>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="required-field">Will work be performed at multiple worksites?</label>
+                                <label>Will work be performed at multiple worksites?</label>
                                 <div class="form-check">
-                                    <input type="radio" id="itinerary_yes" name="itinerary" value="Yes" class="form-check-input" {% if petition.itinerary == 'Yes' %}checked{% endif %} required>
+                                    <input type="radio" id="itinerary_yes" name="itinerary" value="Yes" class="form-check-input" {% if petition.itinerary == 'Yes' %}checked{% endif %} required readonly>
                                     <label for="itinerary_yes" class="form-check-label">Yes (Submit an itinerary with this petition)</label>
                                 </div>
                                 <div class="form-check">
-                                    <input type="radio" id="itinerary_no" name="itinerary" value="No" class="form-check-input" {% if petition.itinerary == 'No' %}checked{% endif %}>
+                                    <input type="radio" id="itinerary_no" name="itinerary" value="No" class="form-check-input" {% if petition.itinerary == 'No' %}checked{% endif %} readonly>
                                     <label for="itinerary_no" class="form-check-label">No</label>
                                 </div>
                             </div>
@@ -381,13 +336,13 @@
                         
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="required-field">Will the beneficiary work off-site?</label>
+                                <label>Will the beneficiary work off-site?</label>
                                 <div class="form-check">
-                                    <input type="radio" id="work_offsite_yes" name="work_offsite" value="Yes" class="form-check-input" {% if petition.work_offsite == 'Yes' %}checked{% endif %} required>
+                                    <input type="radio" id="work_offsite_yes" name="work_offsite" value="Yes" class="form-check-input" {% if petition.work_offsite == 'Yes' %}checked{% endif %} required readonly>
                                     <label for="work_offsite_yes" class="form-check-label">Yes</label>
                                 </div>
                                 <div class="form-check">
-                                    <input type="radio" id="work_offsite_no" name="work_offsite" value="No" class="form-check-input" {% if petition.work_offsite == 'No' %}checked{% endif %}>
+                                    <input type="radio" id="work_offsite_no" name="work_offsite" value="No" class="form-check-input" {% if petition.work_offsite == 'No' %}checked{% endif %}readonly>
                                     <label for="work_offsite_no" class="form-check-label">No</label>
                                 </div>
                             </div>
@@ -396,8 +351,8 @@
                 </div>
                 
                 <div class="form-buttons mt-4">
-                    <button type="submit" class="btn btn-primary">Save Form</button>
-                    <a href="{{ url_for('admin') }}" class="btn btn-secondary">Back to Dashboard</a>
+                    <!-- <button type="submit" class="btn btn-primary">Save Form</button> -->
+                    <a href="{{ url_for('attorney_review_petition', petition_id=petition.id) }}" class="btn btn-secondary">Back to Petition</a>
                 </div>
             </form>
         </div>
