@@ -231,14 +231,7 @@
                         </div>
                     </div>
                     
-                    <!-- <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="birth_date">Date of Birth (mm/dd/yyyy) *</label>
-                                <input type="date" class="form-control" id="birth_date" name="birth_date"
-                                    value="{{ petition.birth_date or '' }}" >
-                            </div>
-                        </div> -->
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="gender">Gender </label>
@@ -475,7 +468,7 @@
                 } else {
                     field.classList.remove('is-invalid');
                     alert("form saved")
-                    window.location.href = "{{ url_for('attorney_review_petition', petition_id=petition.id) }}";
+                    window.location.href = "{{ url_for('attorney') }}";
                 }
             });
             
@@ -489,9 +482,10 @@
                 }
                 return;
             }
-            if (isValid) {
+	    if (isValid) {
                 alert("form saved");
-                window.location.href = "{{ url_for('attorney') }}";
+                window.location.href = "{{ url_for('attorney_review_petition',petition_id=petition.id) }}";
+
             }
             
             // Show loading indicator
@@ -538,7 +532,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while saving the form. Please try again.');
+                // alert('An error occurred while saving the form. Please try again.');
             })
             .finally(() => {
                 // Restore button state

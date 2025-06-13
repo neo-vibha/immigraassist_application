@@ -15,6 +15,7 @@ from thefuzz import fuzz
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
+
 def preprocess(text):
     text = text.lower()
     text = re.sub(r'\s+', ' ', text)  # normalize whitespace
@@ -51,6 +52,12 @@ def compare(field, form_value, db_value):   # extracted, form
                 html_content = "Job Title"
             elif field == "passport_number":
                 html_content ="Passport Number"
+            elif field == "beneficiary-middle-name":
+                html_content = "Beneficiary Middle Name"
+            elif field == "beneficiary-given-name":
+                html_content = "Beneficiary First Name"
+            elif field == "beneficiary-family-name":
+                html_content = "Beneficiary Family Name"
 
             dict_final = {'field':False,'extracted_data': form_value, 'form_from_Db': db_value,
                           'field':html_content,"html_field":field}

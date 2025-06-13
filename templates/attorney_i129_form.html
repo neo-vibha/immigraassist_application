@@ -15,7 +15,8 @@
             <h2>Petitioner/Beneficiary Details</h2>
             <div class="petition-meta">
                 <span class="petition-id">Petition ID: {{ petition.id }}</span>
-                <div class="status-badge status-{{ petition.status|lower }}">{{ petition.status }}</div>
+                <div class="status-badge status-{% if petition.status == 'Pending' %}submitted{% else %}{{ petition.status|lower }}{% endif %}">{% if petition.status == 'Pending' %}Submitted{% else %}{{ petition.status }}{% endif %}</div>
+
             </div>
         </div>
         
@@ -99,10 +100,10 @@
                     </div>
                     
                     <!-- Part 2: Information About This Petition -->
-                    <div class="form-section">
-                        <h3>Part 2. Information About This Petition</h3>
+                    <!-- <div class="form-section">
+                        <h3>Part 2. Information About This Petition</h3> -->
                         
-                        <div class="form-row">
+                        <!-- <div class="form-row">
                             <div class="form-group">
                                 <label class=>Requested Nonimmigrant Classification</label>
                                 <div class="form-check">
@@ -110,9 +111,9 @@
                                     <label for="h1b" class="form-check-label">H-1B - Specialty Occupation Worker</label>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         
-                        <div class="form-row">
+                        <!-- <div class="form-row">
                             <div class="form-group">
                                 <label for="petition_type" class="required-field">Petition Type</label>
                                 <select id="petition_type" name="petition_type" class="form-control" required readonly>
@@ -122,20 +123,28 @@
                                     <option value="amended" {% if petition.petition_type == 'amended' %}selected{% endif %}>Amended Petition</option>
                                 </select>
                             </div>
-                        </div>
+                        </div> -->
                         
-                        <div class="form-row">
+                        <!-- <div class="form-row">
+                            <div class="form-group">
+                                <label for="petition_type" class="required-field">Petition Type</label>
+                                <input type="text" id="petition_type" name="petition_type" class="form-control" value="{{ petition.petition_type }}" readonly>
+                            </div>
+                        </div> -->
+                            
+                             
+                        <!-- <div class="form-row">
                             <div class="form-group">
                                 <label for="lca_number" class="required-field">LCA Case Number</label>
                                 <input type="text" id="lca_number" name="lca_number" class="form-control" value="{{ petition.lca_number }}" required readonly>
                             </div>
-                        </div>
+                        </div> -->
                         
                         
                     
-                    <!-- Part 3: Beneficiary Information -->
+                    <!-- Part 2: Beneficiary Information -->
                     <div class="form-section">
-                        <h3>Part 3. Beneficiary Information</h3>
+                        <h3>Part 2. Beneficiary Information</h3>
                         
                         <div class="form-row">
                             <div class="form-group">
@@ -177,12 +186,16 @@
                                 <input type="date" id="birth_date" name="birth_date" class="form-control" value="{{ petition.birth_date }}" required readonly>
                             </div>
                             
-                            <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label for="gender" class="required-field">Gender</label>
                                 <select id="gender" name="gender" class="form-control" required readonly>
                                     <option value="Male" {% if petition.gender == 'Male' %}selected{% endif %}>Male</option>
                                     <option value="Female" {% if petition.gender == 'Female' %}selected{% endif %}>Female</option>
                                 </select>
+                            </div> -->
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <input type="text" id="gender" name="gender" class="form-control" value="{{ petition.gender }}" readonly>
                             </div>
                         </div>
                         
@@ -268,9 +281,9 @@
                         </div>
                     </div>
                     
-                    <!-- Part 5: Basic Information About Proposed Employment and Employer -->
+                    <!-- Part 3: Basic Information About Proposed Employment and Employer -->
                     <div class="form-section">
-                        <h3>Part 5. Basic Information About the Proposed Employment and Employer</h3>
+                        <h3>Part 3. Basic Information About the Proposed Employment and Employer</h3>
                         
                         <div class="form-row">
                             <div class="form-group">
@@ -278,8 +291,16 @@
                                 <input type="text" id="job_title" name="job_title" class="form-control" value="{{ petition.job_title }}" required readonly>
                             </div>
                         </div>
-                        
+
                         <div class="form-row">
+                            <div class="form-group">
+                                <label for="lca_number" class="required-field">LCA Case Number</label>
+                                <input type="text" id="lca_number" name="lca_number" class="form-control" value="{{ petition.lca_number }}" required readonly>
+                            </div>
+                        </div>
+                        
+                        
+                        <!-- <div class="form-row">
                             <div class="form-group">
                                 <label>Is this full-time position?</label>
                                 <div class="form-check">
@@ -291,7 +312,7 @@
                                     <label for="full_time_no" class="form-check-label">No</label>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         
                         <div id="hours_per_week_div" class="form-row" {% if petition.full_time != 'No' %}style="display: none;"{% endif %}>
                             <div class="form-group">
@@ -300,7 +321,7 @@
                             </div>
                         </div>
                         
-                        <div class="form-row">
+                        <!-- <div class="form-row">
                             <div class="form-group">
                                 <label for="wage_amount">Wages</label>
                                 <input type="number" id="wage_amount" name="wage_amount" class="form-control" value="{{ petition.wage_amount }}" step="0.01" required readonly>
@@ -316,11 +337,11 @@
                                     <option value="Year" {% if petition.wage_period == 'Year' %}selected{% endif %}>Year</option>
                                 </select>
                             </div>
-                        </div>
+                        </div> -->
                         
                         
                         
-                        <div class="form-row">
+                        <!-- <div class="form-row">
                             <div class="form-group">
                                 <label>Will work be performed at multiple worksites?</label>
                                 <div class="form-check">
@@ -332,9 +353,9 @@
                                     <label for="itinerary_no" class="form-check-label">No</label>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         
-                        <div class="form-row">
+                        <!-- <div class="form-row">
                             <div class="form-group">
                                 <label>Will the beneficiary work off-site?</label>
                                 <div class="form-check">
@@ -346,12 +367,12 @@
                                     <label for="work_offsite_no" class="form-check-label">No</label>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
-                
+                        
                 <div class="form-buttons mt-4">
-                    <!-- <button type="submit" class="btn btn-primary">Save Form</button> -->
+                    
                     <a href="{{ url_for('attorney_review_petition', petition_id=petition.id) }}" class="btn btn-secondary">Back to Petition</a>
                 </div>
             </form>

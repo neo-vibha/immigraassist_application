@@ -26,7 +26,6 @@ import mysql.connector
 from datetime import datetime
 import re
 
-
 # Inside your Flask route or function
 passport_ref_file_path = os.path.join(os.getcwd(), 'static', 'supporting_doc', 'indian.jpg')
 employer_ref_file_path = os.path.join(os.getcwd(), 'static', 'supporting_doc', 'Employee Support Letter_ref.docx')
@@ -43,7 +42,11 @@ ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+#  -----------------------   db creds  ------------------------------
 password = quote("123Qwerty!@#")
+db_username = "root"
+db_name = "immigraassist"
 
 # Define the nl2br filter
 @app.template_filter('nl2br')
@@ -54,7 +57,7 @@ def nl2br(value):
     return ''
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Venus%402002@localhost/immigraassist'
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://root:{password}@127.0.0.1/immigraassist"
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_username}:{password}@127.0.0.1/{db_name}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['WTF_CSRF_ENABLED'] = False  # Temporarily disable CSRF for testing
 
@@ -376,6 +379,7 @@ def dashboard():
             db.session.add(petition)
             print("Petition added to session")
             db.session.commit()
+            session['pet_id'] = petition.id
             print("Database commit successful")
             
             # Show success message
@@ -431,12 +435,12 @@ def attorney_i129_form(petition_id):
     # Map the petition state to a user-friendly string
     state_display = {
         'approved': 'Approved',
-        'under_review': 'Under Review',
-        'pending': 'Pending',
+        'under_review': 'Submitted',
+        'pending': 'Submitted',
         'needs_info': 'Needs Information'
     }
     
-    state = state_display.get(petition.status.lower() if petition.status else 'pending', 'Pending')
+    state = state_display.get(petition.status.lower() if petition.status else 'pending', 'Submitted')
     
     return render_template('attorney_i129_form.html', petition=petition, state=state)
 
@@ -454,12 +458,12 @@ def attorney_i140_form(petition_id):
     # Map the petition state to a user-friendly string
     state_display = {
         'approved': 'Approved',
-        'under_review': 'Under Review',
-        'pending': 'Pending',
+        'under_review': 'Submitted',
+        'pending': 'Submitted',
         'needs_info': 'Needs Information'
     }
     
-    state = state_display.get(petition.status.lower() if petition.status else 'pending', 'Pending')
+    state = state_display.get(petition.status.lower() if petition.status else 'pending', 'Submitted')
     
     return render_template('attorney_i140_form.html', petition=petition, state=state)
 
@@ -747,9 +751,9 @@ def attorney():
             if petition.completion_percentage == 100:
                 petition.status = 'Approved'
             elif petition.completion_percentage >= 90:
-                petition.status = 'Under Review'
+                petition.status = 'Submitted'
             elif petition.completion_percentage >= 50:
-                petition.status = 'Pending'
+                petition.status = 'Submitted'
             else:
                 petition.status = 'Needs Information'
         
@@ -790,9 +794,9 @@ def attorney_view_petition(petition_id):
         if completion_percentage == 100:
             status = 'Approved'
         elif completion_percentage >= 90:
-            status = 'Under Review'
+            status = 'Submitted'
         elif completion_percentage >= 50:
-            status = 'Pending'
+            status = 'Submitted'
         else:
             status = 'Needs Information'
     else:
@@ -1090,7 +1094,7 @@ def petition_details(petition_id):
     petition = {
         'id': petition_id,
         'type': 'H-1B Visa',
-        'status': 'Under Review',
+        'status': 'Submitted',
         'priority_date': '2023-05-15',
         'completion_percentage': 65,
         'petitioner': {
@@ -1158,7 +1162,7 @@ def attorney_review_petition(petition_id):
         'form_type': 'I-129 Petition',  # Hardcoded for now, could be stored in a separate field
         'completion_percentage': 85,  # Placeholder, would be calculated based on form completeness
         'is_eligible': True,  # This would be determined by business logic
-        'state': petition_data.status or 'Under Review',
+        'state': petition_data.status or 'Submitted',
         'admin_notes': '',
         'has_mismatches': True if petition_data.mismatch_data else False,  # Will be updated based on field matches
         'mismatch_fields': petition_data.mismatch_data,  # Will store IDs of mismatched fields
@@ -1488,7 +1492,7 @@ def user_view_petition(petition_id):
         'phone': petition_data.daytime_phone,
         'submission_date': petition_data.created_at.strftime('%m-%d-%Y') if petition_data.created_at else 'N/A',
         'form_type': 'I-129 Petition',  # Hardcoded for now
-        'status': petition_data.status or 'Under Review',
+        'status': petition_data.status or 'Submitted',
         'completion_percentage': 85,  # Placeholder
         'admin_notes': petition_data.admin_notes or '',
         'beneficiary_given_name': petition_data.beneficiary_given_name,
@@ -2443,13 +2447,16 @@ def validate_cv():
 @app.route('/process-documents', methods=['POST'])
 @login_required
 def process_documents():
+    petition_id = session.get('pet_id')
+
     data = request.get_json()
+    print(data,">>>>>>>>============================")
     passport = data.get('passportNumber').strip()
     passport_expiry_date = data.get('dateOfExpiry').strip()
     passport_expiry_date = datetime.strptime(passport_expiry_date, '%d/%m/%Y').date()
 
-    full_name_emp = data.get('employee_name').strip()   #emp
-    full_name_edu = data.get('name').strip()            #deg
+    full_name_emp = data.get('employee_name').strip()   
+    full_name_edu = data.get('name').strip()          
     position = data.get('position').strip()
     
     fein_number = str(data.get("fein_number"))
@@ -2478,7 +2485,6 @@ def process_documents():
     middle_name, middle_name_ed = name_parts[1] if len(name_parts) > 2 else '', name_parts_ed[1] if len(name_parts_ed)>2 else''
     last_name ,last_name_ed = name_parts[-1], name_parts_ed[-1]
 
-    # if first_name==first_name_ed and middle_name==middle_name_ed and last
 
     # Connect to MySQL
     conn = mysql.connector.connect(
@@ -2491,18 +2497,11 @@ def process_documents():
 
 # //passport_number = %s
     query = """
-    SELECT * FROM petitions
-    WHERE beneficiary_given_name = %s  
-        AND beneficiary_family_name = %s         
-        OR beneficiary_middle_name = %s
-    ORDER BY created_at DESC
-    LIMIT 1
-    """
-    params = (
-        first_name,
-        last_name,
-        middle_name,
-    )
+    SELECT * FROM petitions WHERE id =%s LIMIT 1;"""
+
+    print("petition id>>>>>>>>>>", petition_id)
+    params = (petition_id,)
+
     cursor.execute(query, params)
     records = cursor.fetchall()
     cursor.close()
@@ -2511,46 +2510,19 @@ def process_documents():
     response_records = []
     mismatch_records = []
     flag_ = []
-    
-    if not records:    # mismatch in name
-
-        conn = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='123Qwerty!@#',
-            database='Immigraassist'
-        )
-        cursor = conn.cursor(dictionary=True)
-        query = """
-            SELECT * FROM petitions
-            WHERE beneficiary_given_name = %s AND passport_number=%s          
-            ORDER BY created_at DESC
-            LIMIT 1
-            """
-        params = (
-        middle_name,
-        passport
-        )
-        cursor.execute(query, params)
-        records = cursor.fetchall()
-
-        first_ben_name = records[0].get("beneficiary_given_name")
-        data_dict = {"beneficiary-given-name":False,'extracted_data': first_name, 'form_from_Db': first_ben_name,
-                          'field':"Beneficiary First Name", "html_field":"Beneficiary given Name"} 
-        mismatch_records.append(data_dict)
-        flag_.append(False)
-
-        second_ben_name = records[0].get("beneficiary_middle_name")
-        data_dict = {"beneficiary-middle-name":False,'extracted_data': middle_name, 'form_from_Db': second_ben_name,
-                          'field':"Beneficiary Middle Name", "html_field":"Beneficiary Middle Name"} 
-        mismatch_records.append(data_dict)
-        flag_.append(False)
 
     # Match and mismatch tracking
-    fields = ["fein_number","education","lca_number","passport_expiry_data","job_title","passport_number"]
+    fields = ["fein_number","education","lca_number","passport_expiry_data","job_title","passport_number", 
+              "beneficiary-middle-name","beneficiary-given-name","beneficiary-family-name"]
     
     for field in fields:
-        if field == "fein_number":
+        if field == "beneficiary-middle-name":
+            data_dict, flag = compare(field, middle_name_ed, records[0].get('beneficiary_middle_name'))
+        elif field == "beneficiary-family-name":
+            data_dict, flag = compare(field, last_name_ed, records[0].get('beneficiary_family_name'))
+        elif field == "beneficiary-given-name":
+            data_dict, flag = compare(field, first_name_ed, records[0].get('beneficiary_given_name'))
+        elif field == "fein_number":
             data_dict, flag = compare(field, fein_number, records[0].get('fein'))     
         elif field == "education":
             data_dict, flag = compare(field, education, records[0].get('education_qualification'))
@@ -2569,6 +2541,8 @@ def process_documents():
         else:
             response_records.append(data_dict)
 
+    mismatch_records = [dict(item) for item in set(tuple(sorted(d.items())) for d in mismatch_records)]
+
     print("response records ",response_records)
     print("mismatch fields",mismatch_records)
     all_true = all(flag_)
@@ -2585,10 +2559,10 @@ def process_documents():
         match_data = str(mismatch_records)
 
     conn = mysql.connector.connect(
-        host='localhost',
-        user='root',
+        host='127.0.0.1',
+        user=db_username,
         password='123Qwerty!@#',
-        database='Immigraassist'
+        database=db_name
     )
     cursor = conn.cursor(dictionary=True)
     update_query = """

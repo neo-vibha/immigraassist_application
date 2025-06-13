@@ -805,7 +805,7 @@
                                         {% elif petition.status == 'Rejected' %}
                                         <span class="badge bg-danger petition-status-badge"><i class="fas fa-times-circle me-1"></i> {{ petition.status }}</span>
                                         {% else %}
-                                        <span class="badge bg-warning text-dark petition-status-badge"><i class="fas fa-clock me-1"></i> {{ petition.status or 'Under Review' }}</span>
+                                        <span class="badge bg-warning text-dark petition-status-badge"><i class="fas fa-clock me-1"></i> {% if petition.status == 'Pending' %}Submitted{% else %}{{ petition.status }}{% endif %}</span>
                                         {% endif %}
                                     </td>
                                     <td class="text-center petition-actions">

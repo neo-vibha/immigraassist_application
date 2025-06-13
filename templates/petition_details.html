@@ -78,10 +78,11 @@
                                 <div class="status-indicator 
                                     {% if petition.status == 'Approved' %}bg-success
                                     {% elif petition.status == 'Rejected' %}bg-danger
-                                    {% elif petition.status == 'Under Review' %}bg-warning
-                                    {% else %}bg-info{% endif %}">
+                                    {% elif petition.status == 'Submitted' %}bg-warning
+                                    {% else %}bg-warning{% endif %}">
                                 </div>
-                                <h5 class="mb-0 ms-2">Status: {{ petition.status }}</h5>
+                                <!-- <h5 class="mb-0 ms-2">Status: {{ petition.status }}</h5> -->
+                                <h5 class="mb-0 ms-2">Status: {% if petition.status == 'Pending' %}Submitted{% else %}{{ petition.status }}{% endif %}</h5>
                             </div>
                         </div>
                         <div class="col-md-3">

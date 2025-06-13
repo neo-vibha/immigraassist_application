@@ -9,14 +9,14 @@ from torchvision.models import resnet50, ResNet50_Weights
 import torch.nn as nn
 
 
-# model = torch.hub.load('facebookresearch/swav:main', 'resnet50')
-# model = nn.Sequential(*list(model.children())[:-1])
+model = torch.hub.load('facebookresearch/swav:main', 'resnet50')
+model = nn.Sequential(*list(model.children())[:-1])
 
-# # Freeze parameters
-# for p in model.parameters():
-#     p.requires_grad = False
+# Freeze parameters
+for p in model.parameters():
+    p.requires_grad = False
 
-# model.eval()
+model.eval()
 
 transform_pipeline = transforms.Compose([
     transforms.Resize(256),
@@ -28,7 +28,7 @@ transform_pipeline = transforms.Compose([
 
 
 # Function: Convert PIL image to embedding
-def get_embedding(pil_image, model):
+def get_embedding(pil_image):
     image = pil_image.convert('RGB')  # Ensure RGB
     img_tensor = transform_pipeline(image).unsqueeze(0)
     with torch.no_grad():
@@ -37,18 +37,18 @@ def get_embedding(pil_image, model):
     return embedding  # Shape: (1, 2048)
 
 
-# def load_model():
-#     model = torch.hub.load('facebookresearch/swav:main', 'resnet50')
-#     model = nn.Sequential(*list(model.children())[:-1])
-#     model.eval()
-#     return model.to(torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
-
 def load_model():
-    weights = ResNet50_Weights.DEFAULT
-    model = resnet50(weights=weights)
+    model = torch.hub.load('facebookresearch/swav:main', 'resnet50')
     model = nn.Sequential(*list(model.children())[:-1])
     model.eval()
     return model.to(torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
+
+# def load_model():
+#     weights = ResNet50_Weights.DEFAULT
+#     model = resnet50(weights=weights)
+#     model = nn.Sequential(*list(model.children())[:-1])
+#     model.eval()
+#     return model.to(torch.device('cuda' if torch.cuda.is_available() else 'cpu'))
 
 def compare_passport_pdf_to_reference(pdf_path, ref_path):
     """
@@ -65,7 +65,7 @@ def compare_passport_pdf_to_reference(pdf_path, ref_path):
 
     # Get reference embedding
     reference_img_path=ref_path
-    ref_embedding = get_embedding(Image.open(reference_img_path), model=model)
+    ref_embedding = get_embedding(Image.open(reference_img_path))
 
     combine_strategy="average"
 
@@ -74,12 +74,12 @@ def compare_passport_pdf_to_reference(pdf_path, ref_path):
 
     if len(pages) == 1 or combine_strategy == "front_only":
         print("Detected 1 page or using front_only strategy.")
-        test_embedding = get_embedding(pages[0], model)
+        test_embedding = get_embedding(pages[0])
 
     elif len(pages) >= 2:
         print("Detected 2 pages in PDF.")
-        front_embedding = get_embedding(pages[0], model)
-        back_embedding = get_embedding(pages[1], model)
+        front_embedding = get_embedding(pages[0])
+        back_embedding = get_embedding(pages[1])
 
         if combine_strategy == "average":
             test_embedding = (front_embedding + back_embedding) / 2

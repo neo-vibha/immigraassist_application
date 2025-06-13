@@ -25,7 +25,7 @@
             <div class="petition-meta">
                 <span class="petition-id">Petition ID: {{ petition.id }}</span>
                 <span class="petition-type">Form Details </span>
-                <div class="status-badge status-{{ state|lower }}">{{ state }}</div>
+                <div class="status-badge status-{% if petition.state == 'Pending' %}submitted{% else %}{{ petition.state|lower }}{% endif %}">{% if petition.state == 'Pending' %}Submitted{% else %}{{ petition.state }}{% endif %}</div>
             </div>
         </div>
         

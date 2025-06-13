@@ -61,10 +61,11 @@
                                     </td>
                                     <td>{{ petition.company_name }}</td>
                                     <td>
-                                        <span class="status-badge status-{{ petition.status|lower }}">
-                                            <i class="fas {% if petition.status == 'Pending' %}fa-clock{% elif petition.status == 'Approved' %}fa-check-circle{% elif petition.status == 'Rejected' %}fa-times-circle{% elif petition.status == 'Under Review' or petition.status == 'In Review' %}fa-search{% else %}fa-exclamation-circle{% endif %}"></i>
-                                            {{ petition.status }}
+                                        <span class="status-badge {% if petition.status == 'Needs Information' %}status-needs-info{% elif petition.status == 'Pending' %}status-pending{% else %}status-{{ petition.status|lower }}{% endif %}">
+                                            <i class="fas {% if petition.status == 'Submitted for review' %}fa-clock{% elif petition.status == 'Approved' %}fa-check-circle{% elif petition.status == 'Rejected' %}fa-times-circle{% elif petition.status == 'Submitted' or petition.status == 'In Review' %}fa-search{% else %}fa-exclamation-circle{% endif %}"></i>
+                                            {% if petition.status == 'Pending' %}Submitted{% else %}{{ petition.status }}{% endif %}
                                         </span>
+ 
                                     </td>
                                     <td>
                                         <div class="table-progress">
@@ -85,134 +86,8 @@
                                 </tr>
                             {% endfor %}
                         {% else %}
-                            
-                            <!-- <tr class="petitioner-row">
-                                <td class="petitioner-name">John Smith</td>
-                                <td>Tech Solutions Inc.</td>
-                                <td>
-                                    <span class="status-badge status-pending">
-                                        <i class="fas fa-clock"></i> Pending
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="table-progress">
-                                        <div class="progress">
-                                            <div class="progress-fill" style="width: 75%"></div>
-                                        </div>
-                                        <span>75%</span>
-                                    </div>
-                                </td>
-                                <td class="action-column">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                    <a href="#" class="btn btn-sm btn-info">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr class="petitioner-row">
-                                <td class="petitioner-name">Maria Garcia</td>
-                                <td>Global Innovations</td>
-                                <td>
-                                    <span class="status-badge status-review">
-                                        <i class="fas fa-search"></i> In Review
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="table-progress">
-                                        <div class="progress">
-                                            <div class="progress-fill" style="width: 90%"></div>
-                                        </div>
-                                        <span>90%</span>
-                                    </div>
-                                </td>
-                                <td class="action-column">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                    <a href="#" class="btn btn-sm btn-info">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr class="petitioner-row">
-                                <td class="petitioner-name">Wei Chen</td>
-                                <td>Nexus Systems</td>
-                                <td>
-                                    <span class="status-badge status-submitted">
-                                        <i class="fas fa-exclamation-circle"></i> Needs Info
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="table-progress">
-                                        <div class="progress">
-                                            <div class="progress-fill" style="width: 60%"></div>
-                                        </div>
-                                        <span>60%</span>
-                                    </div>
-                                </td>
-                                <td class="action-column">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                    <a href="#" class="btn btn-sm btn-info">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr class="petitioner-row">
-                                <td class="petitioner-name">Priya Patel</td>
-                                <td>Horizon Healthcare</td>
-                                <td>
-                                    <span class="status-badge status-approved">
-                                        <i class="fas fa-check-circle"></i> Approved
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="table-progress">
-                                        <div class="progress">
-                                            <div class="progress-fill" style="width: 100%"></div>
-                                        </div>
-                                        <span>100%</span>
-                                    </div>
-                                </td>
-                                <td class="action-column">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                    <a href="#" class="btn btn-sm btn-info">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr class="petitioner-row">
-                                <td class="petitioner-name">Ahmed Hassan</td>
-                                <td>Quantum Research</td>
-                                <td>
-                                    <span class="status-badge status-rejected">
-                                        <i class="fas fa-times-circle"></i> Rejected
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="table-progress">
-                                        <div class="progress">
-                                            <div class="progress-fill" style="width: 100%"></div>
-                                        </div>
-                                        <span>100%</span>
-                                    </div>
-                                </td>
-                                <td class="action-column">
-                                    <a href="#" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                    <a href="#" class="btn btn-sm btn-info">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endif %}
-                    </tbody> </table> -->
+                     {% endif %}
+                    </tbody> </table>
   
                 <div class="pagination-controls">
                      <div class="pagination-info">
@@ -305,7 +180,10 @@
     }
     
     .status-pending {
+        .status-pending, .status-submitted {
         background-color: #ffc107;
+        color: white;
+    }   
     }
     
     .status-in-review {
@@ -522,6 +400,20 @@
             nextPageBtn.disabled = false;
             console.log('Next button enabled: ' + allRows.length + ' rows, ' + pageSize + ' per page');
         }
+    });
+    // Apply consistent yellow styling to all 'Submitted' badges
+    document.addEventListener('DOMContentLoaded', function() {
+       // Find all status badges
+         const allBadges = document.querySelectorAll('.status-badge');
+       
+        // Loop through each badge
+        allBadges.forEach(badge => {
+            // If the badge text contains 'Submitted', apply the yellow style
+            if (badge.textContent.trim().includes('Submitted')) {
+                badge.style.backgroundColor = '#ffc107';
+                badge.style.color = 'white';
+            }
+        });
     });
 </script>
 {% endblock %}
