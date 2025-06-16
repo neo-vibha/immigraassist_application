@@ -255,18 +255,18 @@
                 <div class="decision-options">
                     <form action="{{ url_for('attorney_update_petition_status', petition_id=petition.id) }}" method="post" id="petition-decision-form">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="status" id="decision-status" value="">
+                        <!-- Status is now set directly by the submit buttons -->
                         
                         <div class="form-group mb-3">
                             <label for="decision-notes" class="form-label">Feedback</label>
-                            <textarea name="notes" id="decision-notes" class="form-control" rows="4" placeholder="Enter your decision notes here..."></textarea>
+                            <textarea name="notes" id="decision-notes" class="form-control" rows="4" placeholder="Enter your decision notes here..." required></textarea>
                         </div>
                         
                         <div class="decision-buttons">
-                            <button type="button" class="btn btn-success btn-lg decision-btn" data-status="Approved" id="approve-btn">
+                            <button type="submit" class="btn btn-success btn-lg" name="status" value="Approved" id="approve-btn" onclick="return confirmAction('Approve', 'Are you sure you want to approve this form? This will notify the petitioner that their form has been approved.');">
                                 <i class="fas fa-check-circle"></i> Approve Form
                             </button>
-                            <button type="button" class="btn btn-danger btn-lg decision-btn" data-status="Rejected" id="reject-btn">
+                            <button type="submit" class="btn btn-danger btn-lg" name="status" value="Rejected" id="reject-btn" onclick="return confirmAction('Reject', 'Are you sure you want to reject this form? This will notify the petitioner that their form has been rejected.');">
                                 <i class="fas fa-times-circle"></i> Reject Form
                             </button>
                         </div>
@@ -315,27 +315,23 @@
     </div>
 </div>
 
-<!-- Confirmation Modal -->
-<div class="modal" id="confirmationModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="confirmation-title">Confirm Action</h3>
-                <button class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p id="confirmation-message">Are you sure you want to proceed with this action?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button id="confirm-action-btn" class="btn btn-primary">Confirm</button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- No confirmation modal needed as we're using native browser confirm dialog -->
 
 <script>
-
+// Function to confirm action with validation
+function confirmAction(action, message) {
+    // First validate the feedback field
+   const feedbackField = document.getElementById('decision-notes');
+    if (!feedbackField || feedbackField.value.trim() === '') {
+        let actionVerb = action.toLowerCase() === 'approve' ? 'approving' : 'rejecting';
+        alert('Please enter the feedback before ' + actionVerb + '.');
+        feedbackField.focus();
+        return false;
+    }
+    
+    // If validation passes, confirm the action
+    return confirm(message);
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize progress bars
@@ -425,174 +421,42 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Action buttons (approve, request changes, reject)
-    const approveBtn = document.getElementById('approve-btn');
     const requestChangesBtn = document.getElementById('request-changes-btn');
-    const rejectBtn = document.getElementById('reject-btn');
-    // const feedbackField = document.getElementById('decision-notes');
-    const confirmActionBtn = document.getElementById('confirm-action-btn');
-    let currentAction = null;
-
-    // function isFeedbackFilled() {
-    //     if (feedbackField.value.trim==""){
-    //         alert('Please provide feedback before approving the form.');
-    //     }
-    // // return feedbackField && feedbackField.value.trim() !== '';
-    // }
-
-    
-    function showConfirmation(title, message, action) {
-        document.getElementById('confirmation-title').textContent = title;
-        document.getElementById('confirmation-message').textContent = message;
-        currentAction = action;
-        openModal('confirmationModal');
-    }
-    
-    if (confirmActionBtn) {
-        confirmActionBtn.addEventListener('click', function() {
-            closeModal(document.getElementById('confirmationModal'));
-            if (currentAction) {
-                currentAction();
-            }
-        });
-    }
-    
-    if (approveBtn) {
-        approveBtn.addEventListener('click', function() {
-            showConfirmation(
-                'Confirm Approval',
-                'Are you sure you want to approve this form? This will notify the petitioner that their form has been approved.',
-                function() {
-                    // Show loading state
-                    approveBtn.disabled = true;
-                    approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Approving...';
-                    
-                    // In a real app, you would call an API to approve the form
-                    // For demo purposes, we'll just simulate a delay and redirect
-                    setTimeout(() => {
-                        window.location.href = "{{ url_for('admin') }}";
-                    }, 1000);
-                }
-            );
-        });
-    }
-//     if (approveBtn) {
-//     approveBtn.addEventListener('click', function () {
-//         // ✅ First check feedback
-//         if (!isFeedbackFilled()) {
-//             // alert('Please provide feedback before approving the form.');
-//             feedbackField.focus();
-//             return;
-//         }
-
-//         // ✅ Then show confirmation
-//         showConfirmation(
-//             'Confirm Approval',
-//             'Are you sure you want to approve this form? This will notify the petitioner that their form has been approved.',
-//             function () {
-//                 approveBtn.disabled = true;
-//                 approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Approving...';
-//                 setTimeout(() => {
-//                     window.location.href = "{{ url_for('attorney') }}";
-//                 }, 1000);
-//             }
-//         );
-//     });
-// }
-
     
     if (requestChangesBtn) {
         requestChangesBtn.addEventListener('click', function() {
-            showConfirmation(
-                'Confirm Request Changes',
-                'Are you sure you want to request changes to this form? This will notify the petitioner that they need to make changes.',
-                function() {
-                    // Show loading state
-                    requestChangesBtn.disabled = true;
-                    requestChangesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Requesting Changes...';
-                    
-                    // In a real app, you would call an API to request changes
-                    // For demo purposes, we'll just simulate a delay and redirect
-                    setTimeout(() => {
-                        window.location.href = "{{ url_for('admin') }}";
-                    }, 1000);
-                }
-            );
-        });
-    }
-    
-    if (rejectBtn) {
-        rejectBtn.addEventListener('click', function() {
-            showConfirmation(
-                'Confirm Rejection',
-                'Are you sure you want to reject this form? This will notify the petitioner that their form has been rejected.',
-                function() {
-                    // Show loading state
-                    rejectBtn.disabled = true;
-                    rejectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rejecting...';
-                    
-                    // In a real app, you would call an API to reject the form
-                    // For demo purposes, we'll just simulate a delay and redirect
-                    setTimeout(() => {
-                        window.location.href = "{{ url_for('admin') }}";
-                    }, 1000);
-                }
-            );
+            if (confirm('Are you sure you want to request changes to this form? This will notify the petitioner that they need to make changes.')) {
+                // Show loading state
+                requestChangesBtn.disabled = true;
+                requestChangesBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Requesting Changes...';
+                
+                // In a real app, you would call an API to request changes
+                // For demo purposes, we'll just simulate a delay and redirect
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('attorney_i129_form', petition_id=petition.id) }}";
+                }, 1000);
+            }
         });
     }
 
-    // if (rejectBtn) {
-    // rejectBtn.addEventListener('click', function () {
-    //     // ✅ First check feedback
-    //     if (!isFeedbackFilled()) {
-    //         alert('Please provide feedback before rejecting the form.');
-    //         feedbackField.focus();
-    //         return;
-    //     }
-    //     else{
-    //         // ✅ Then show confirmation
-    //     showConfirmation(
-    //         'Confirm Rejection',
-    //         'Are you sure you want to reject this form? This will notify the petitioner that their form has been rejected.',
-    //         function () {
-    //             rejectBtn.disabled = true;
-    //             rejectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rejecting...';
-    //             setTimeout(() => {
-    //                 window.location.href = "{{ url_for('attorney') }}";
-    //             }, 1000);
-    //         }
-    //     );
-    //     }
-        
-    // });
+    
 
     
-    // Modal functionality
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.style.display = 'block';
-            document.body.classList.add('modal-open');
-        }
-    }
-    
-    function closeModal(modal) {
-        modal.style.display = 'none';
-        document.body.classList.remove('modal-open');
-    }
-    
-    // Close modals when clicking close button or outside
+    // Document viewer modal functionality (keeping this part)
     const closeButtons = document.querySelectorAll('.modal .close, .modal .btn-secondary[data-dismiss="modal"]');
     closeButtons.forEach(button => {
         button.addEventListener('click', function() {
             const modal = this.closest('.modal');
-            closeModal(modal);
+            modal.style.display = 'none';
+            document.body.classList.remove('modal-open');
         });
     });
     
     window.addEventListener('click', function(e) {
         document.querySelectorAll('.modal').forEach(modal => {
             if (e.target === modal) {
-                closeModal(modal);
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open');
             }
         });
     });

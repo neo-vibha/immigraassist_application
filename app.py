@@ -144,10 +144,11 @@ def login():
 
         # Query user by email
         user = User.query.filter_by(email=email).first()
+        if not user:
+            flash('User does not exist. Please check your email or sign up for an account.', 'error')
+            return redirect(url_for('login'))
 
-        print(user.firstname)
-
-        if user and check_password_hash(user.password, password):
+        if check_password_hash(user.password, password):
             # Check for orphaned petitions associated with this email but not with this user
             # This ensures data persistence across login sessions with the same email
             orphaned_petitions = Petition.query.filter(
@@ -2274,7 +2275,6 @@ def validate_education():
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
-    
 
     try:
         text = extract_text_from_certificate(filepath)        
@@ -2318,7 +2318,6 @@ def validate_education():
             'university': split_data[0],'education': split_data[1],'name': split_data[2],'date': split_data[3]
         }
         
-
         if not result_dict:
             return jsonify({'verified': False, 'message': f'Missing fields: {", ".join(result_dict)}'}), 400
         filepath = "\static"+filepath.split("static")[-1]
@@ -2346,7 +2345,6 @@ def validate_emp_doc():
     filename = secure_filename(file.filename)
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
-    
 
     text = extract_text_from_file(filepath)
     ref_word_path = employer_ref_file_path

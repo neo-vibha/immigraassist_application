@@ -5,12 +5,12 @@
 {% block attorney_content %}
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h2>Immigration Form</h2>
-        <!-- <div>
-            <span class="badge {% if state == 'Approved' %}badge-success{% elif state == 'Under Review' %}badge-warning{% elif state == 'Pending' %}badge-info{% else %}badge-danger{% endif %}">
-                {{ state }}
-            </span> -->
-        <!-- </div> -->
+        <h2>Review Immigration Form</h2>
+        <div>
+            <span class="badge {% if petition.status == 'Approved' %}badge-success{% elif petition.status == 'Submitted' %}badge-warning{% elif petition.status == 'Submitted for review' %}badge-info{% else %}badge-warning{% endif %}">
+                {% if petition.status == 'Pending' %}Submitted{% else %}{{ petition.status }}{% endif %}
+            </span>
+        </div>
     </div>
     
     <div class="card-body">
@@ -231,7 +231,14 @@
                         </div>
                     </div>
                     
-                    <div class="row">
+                    <!-- <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="birth_date">Date of Birth (mm/dd/yyyy) *</label>
+                                <input type="date" class="form-control" id="birth_date" name="birth_date"
+                                    value="{{ petition.birth_date or '' }}" >
+                            </div>
+                        </div> -->
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label for="gender">Gender </label>
@@ -315,6 +322,16 @@
                     </div>
                     
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="lca_number" class="required-field">LCA Number *</label>
+                                <input type="text" class="form-control" id="lca_number" name="lca_number"
+                                    value="{{ petition.lca_number or '' }}" >
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="education_level" >Minimum Education Level Required</label>
@@ -325,6 +342,13 @@
                                     <option value="Doctorate" {% if petition.education_level == "Doctorate" %}selected{% endif %}>Doctorate</option>
                                     <option value="Other" {% if petition.education_level == "Other" %}selected{% endif %}>Other</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="education_qualification" class="required-field">Education Degree *</label>
+                                <input type="text" class="form-control" id="education_qualification" name="education_qualification"
+                                    placeholder="e.g. Computer Science, Engineering" value="{{ petition.education_qualification or '' }}" >
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -468,7 +492,7 @@
                 } else {
                     field.classList.remove('is-invalid');
                     alert("form saved")
-                    window.location.href = "{{ url_for('attorney') }}";
+                    window.location.href = "{{ url_for('attorney_review_petition', petition_id=petition.id) }}";
                 }
             });
             
@@ -482,10 +506,9 @@
                 }
                 return;
             }
-	    if (isValid) {
+            if (isValid) {
                 alert("form saved");
-                window.location.href = "{{ url_for('attorney_review_petition',petition_id=petition.id) }}";
-
+                window.location.href = "{{ url_for('attorney') }}";
             }
             
             // Show loading indicator
@@ -532,7 +555,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                // alert('An error occurred while saving the form. Please try again.');
+                alert('An error occurred while saving the form. Please try again.');
             })
             .finally(() => {
                 // Restore button state
