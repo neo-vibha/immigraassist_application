@@ -4,19 +4,59 @@
 
 {% block attorney_content %}
 <style>
-    #mismatchTable, 
-    #mismatchTable th, 
-    #mismatchTable td {
-        border: 1px solid #333; /* dark border */
-    }
     #mismatchTable {
         width: 100%;
         border-collapse: collapse;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
     }
-  table thead {
-    background-color: #1a5f7a;
-    color: white;
-  }
+    #mismatchTable th {
+        background-color: #1a5f7a;
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        border: none;
+    }
+    #mismatchTable td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e1e8ed;
+    }
+    #mismatchTable tr:nth-child(even) {
+        background-color: #f8fafc;
+    }
+    #mismatchTable tr:hover {
+        background-color: #e8f4fc;
+    }
+    .field-column {
+        font-weight: 600;
+        color: #2c3e50;
+        width: 30%;
+    }
+    .extracted-column {
+        background-color: #e8f8f5;
+        color: #16a085;
+        width: 35%;
+    }
+    .form-column {
+        background-color: #fef9e7;
+        color: #d35400;
+        width: 35%;
+    }
+    .recommended {
+        font-weight: 700;
+        color: #ffffff;
+        background-color: #27ae60;
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-left: 5px;
+    }
+    .mismatch-row td {
+        background-color: #ffeceb;
+    }
 </style>
 <div class="review-container">
     <div class="card">
@@ -119,23 +159,23 @@
                     {% if petition.has_mismatches %}
                         <div class="match-details">
                             <div class="match-list">
-                                <table id='mismatchTable' border='1' style='width:100%; border-collapse:collapse;border-color: #333;'>
+                                <table id='mismatchTable'>
                                 <thead>
                                 <tr>
-                                    <th>Field</th>
-                                    <th>Extracted Data (<span style="color: green;">Recommended</span>)</th>
-                                    <th>Data from Form</th>
+                                    <th class="field-column">Field</th>
+                                    <th class="extracted-column">Extracted Data <span class="recommended">(Recommended)</span></th>
+                                    <th class="form-column">Data from Form</th>
                                 </tr>
                                 </thead>
-                                {% for field in petition.field_matches %}
                                 <tbody>
-                                <tr>
-                                    <td>{{ field.field_name }}</td>
-                                    <td>{{ field.doc_value }}</td>
-                                    <td>{{ field.form_value }}</td>
+                                {% for field in petition.field_matches %}
+                                <tr class="{% if field.doc_value != field.form_value %}mismatch-row{% endif %}">
+                                    <td class="field-column">{{ field.field_name }}</td>
+                                    <td class="extracted-column">{{ field.doc_value }}</td>
+                                    <td class="form-column">{{ field.form_value }}</td>
                                 </tr>
-                                </tbody>
                                 {% endfor %}
+                                </tbody>
                                 </table>
                                 <!-- {% for field in petition.field_matches %}
                                 <div class="match-item {% if field.matches %}match{% else %}mismatch{% endif %}">
@@ -321,7 +361,7 @@
 // Function to confirm action with validation
 function confirmAction(action, message) {
     // First validate the feedback field
-   const feedbackField = document.getElementById('decision-notes');
+    const feedbackField = document.getElementById('decision-notes');
     if (!feedbackField || feedbackField.value.trim() === '') {
         let actionVerb = action.toLowerCase() === 'approve' ? 'approving' : 'rejecting';
         alert('Please enter the feedback before ' + actionVerb + '.');
@@ -334,6 +374,33 @@ function confirmAction(action, message) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Auto-populate feedback based on mismatches
+    const feedbackField = document.getElementById('decision-notes');
+    const approveBtn = document.getElementById('approve-btn');
+    const rejectBtn = document.getElementById('reject-btn');
+    
+    if (feedbackField && approveBtn && rejectBtn) {
+        // Define feedback messages
+        const mismatchMessage = "To proceed with your case, please update the form based on the verification results highlighted in your dashboard. All updates must align with the supporting documents.";
+        const matchMessage = "Pleased to inform you that the key details entered in the form exactly matches the supporting documents.";
+        
+        // Check if there are mismatches
+        const hasMismatches = document.getElementById('mismatchTable') !== null;
+        
+        // Auto-populate on button hover
+        approveBtn.addEventListener('mouseenter', function() {
+            if (feedbackField.value.trim() === '') {
+                feedbackField.value = hasMismatches ? mismatchMessage : matchMessage;
+            }
+        });
+        
+        rejectBtn.addEventListener('mouseenter', function() {
+            if (feedbackField.value.trim() === '') {
+                feedbackField.value = hasMismatches ? mismatchMessage : matchMessage;
+            }
+        });
+    }
+    
     // Initialize progress bars
     const progressFills = document.querySelectorAll('.progress-fill');
     progressFills.forEach(fill => {

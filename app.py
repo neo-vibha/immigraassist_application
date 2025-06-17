@@ -1517,6 +1517,32 @@ def user_view_petition(petition_id):
                 })
         except:
             pass
+    # Field Matching Details - Use the same approach as in attorney_review_petition
+    petition['field_matches'] = []
+    
+    # Get mismatch data from the database
+    if petition_data.mismatch_data is not None and isinstance(petition_data.mismatch_data, str):
+        try:
+            import ast
+            mismatch_data_list = ast.literal_eval(petition_data.mismatch_data)
+            
+            for mismatch_doc in mismatch_data_list:
+                inner_doc = {}
+                inner_doc['field_name'] = mismatch_doc['field']
+                inner_doc['form_value'] = mismatch_doc['form_from_Db']
+                inner_doc['doc_value'] = mismatch_doc['extracted_data']
+                petition['field_matches'].append(inner_doc)
+        except (ValueError, SyntaxError) as e:
+            # If the string is malformed, log an error and treat it as empty
+            print(f"Error evaluating mismatch_data for petition {petition_id}: {petition_data.mismatch_data} - {e}")
+            petition['field_matches'] = []
+    
+    # Explicitly set has_mismatches flag
+    petition['has_mismatches'] = False
+    for field in petition['field_matches']:
+        if str(field['doc_value']).strip() != str(field['form_value']).strip():
+            petition['has_mismatches'] = True
+            break
     
     return render_template('user_petition_view.html', petition=petition)
     

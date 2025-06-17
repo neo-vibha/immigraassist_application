@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Comparison Table</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .comparison-table th {
+            background-color: #1a5f7a;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        .comparison-table tr:hover {
+            background-color: #e8f4fc;
+        }
+        .field-column {
+            font-weight: 600;
+            color: #2c3e50;
+            width: 30%;
+        }
+        .extracted-column {
+            background-color: #e8f8f5;
+            color: #16a085;
+            width: 35%;
+        }
+        .form-column {
+            background-color: #fef9e7;
+            color: #d35400;
+            width: 35%;
+        }
+        .recommended {
+            font-weight: 700;
+            color: #ffffff;
+            background-color: #27ae60;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-left: 5px;
+        }
+        .mismatch {
+            background-color: #ffeceb;
+            position: relative;
+        }
+        .mismatch::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Document Data Comparison</h2>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th class="field-column">Field</th>
+                    <th class="extracted-column">Extracted Data <span class="recommended">(Recommended)</span></th>
+                    <th class="form-column">Data from Form</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="field-column">Federal Employer Identification Number (FEIN)</td>
+                    <td class="extracted-column">124563744</td>
+                    <td class="form-column mismatch">124563745</td>
+                </tr>
+                <tr>
+                    <td class="field-column">Beneficiary First Name</td>
+                    <td class="extracted-column">ADITYA</td>
+                    <td class="form-column mismatch">PANCHAL</td>
+                </tr>
+                <tr>
+                    <td class="field-column">Beneficiary Middle Name</td>
+                    <td class="extracted-column">BHADRESHKUMAR</td>
+                    <td class="form-column mismatch">ADITYA</td>
+                </tr>
+                <tr>
+                    <td class="field-column">Beneficiary Family Name</td>
+                    <td class="extracted-column">PANCHAL</td>
+                    <td class="form-column mismatch">BHADRESHKUMAR</td>
+                </tr>
+                <tr>
+                    <td class="field-column">Job Title</td>
+                    <td class="extracted-column">Senior Software Engineer</td>
+                    <td class="form-column mismatch">Software Engineer</td>
+                </tr>
+                <tr>
+                    <td class="field-column">Passport Number</td>
+                    <td class="extracted-column">P2539301</td>
+                    <td class="form-column mismatch">P2539302</td>
+                </tr>
+                <tr>
+                    <td class="field-column">LCA or ETA Case Number</td>
+                    <td class="extracted-column">I-2024-12345-67890</td>
+                    <td class="form-column mismatch">I-2024-12345-67998</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

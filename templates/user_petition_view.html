@@ -376,6 +376,122 @@
                                     </tr>
                                 </tbody>
                             </table>
+
+			    {% if petition.field_matches %}
+                            <h4 class="text-primary mt-4"><i class="fas fa-check-circle me-2"></i>Data Verification Summary</h4>
+                            <div class="verification-summary mb-3">
+                                <style>
+                                    .match-status {
+                                        margin-bottom: 20px;
+                                    }
+                                    .match-indicator {
+                                        display: inline-flex;
+                                        align-items: center;
+                                        padding: 10px 20px;
+                                        border-radius: 6px;
+                                        font-weight: 600;
+                                    }
+                                    .match-indicator i {
+                                        margin-right: 10px;
+                                        font-size: 1.2rem;
+                                    }
+                                    .match-indicator.match {
+                                        background-color: #d4edda;
+                                        color: #155724;
+                                    }
+                                    .match-indicator.mismatch {
+                                        background-color: #f8d7da;
+                                        color: #721c24;
+                                    }
+                                    
+                                    /* Mismatch Table Styling */
+                                    #mismatchTable {
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                        border-radius: 8px;
+                                        overflow: hidden;
+                                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                                        margin-bottom: 20px;
+                                    }
+                                    #mismatchTable th {
+                                        background-color: #1a5f7a;
+                                        color: white;
+                                        padding: 15px;
+                                        text-align: left;
+                                        font-weight: 600;
+                                        border: none;
+                                    }
+                                    #mismatchTable td {
+                                        padding: 12px 15px;
+                                        border-bottom: 1px solid #e1e8ed;
+                                    }
+                                    #mismatchTable tr:nth-child(even) {
+                                        background-color: #f8fafc;
+                                    }
+                                    #mismatchTable tr:hover {
+                                        background-color: #e8f4fc;
+                                    }
+                                    .field-column {
+                                        font-weight: 600;
+                                        color: #2c3e50;
+                                        width: 30%;
+                                    }
+                                    .extracted-column {
+                                        background-color: #e8f8f5;
+                                        color: #16a085;
+                                        width: 35%;
+                                    }
+                                    .form-column {
+                                        background-color: #fef9e7;
+                                        color: #d35400;
+                                        width: 35%;
+                                    }
+                                    .recommended {
+                                        font-weight: 700;
+                                        color: #ffffff;
+                                        background-color: #27ae60;
+                                        padding: 2px 6px;
+                                        border-radius: 4px;
+                                        display: inline-block;
+                                        margin-left: 5px;
+                                    }
+                                    .mismatch-row td {
+                                        background-color: #ffeceb;
+                                    }
+                                </style>
+                                <div class="match-status">
+                                    <div class="match-indicator {% if petition.has_mismatches %}mismatch{% else %}match{% endif %}">
+                                        <i class="fas {% if petition.has_mismatches %}fa-times-circle{% else %}fa-check-circle{% endif %}"></i>
+                                        <span>{% if petition.has_mismatches %}Mismatches Found{% else %}No Mismatch Has Been Found{% endif %}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if petition.has_mismatches %}
+                            <div class="match-details">
+                                <div class="match-list">
+                                    <table id='mismatchTable'>
+                                    <thead>
+                                    <tr>
+                                        <th class="field-column">Field</th>
+                                        <th class="extracted-column">Extracted Data <span class="recommended">(Recommended)</span></th>
+                                        <th class="form-column">Data from Form</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for field in petition.field_matches %}
+                                    <tr class="{% if field.doc_value != field.form_value %}mismatch-row{% endif %}">
+                                        <td class="field-column">{{ field.field_name }}</td>
+                                        <td class="extracted-column">{{ field.doc_value }}</td>
+                                        <td class="form-column">{{ field.form_value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endif %}
                         </div>
                         <div class="col-md-6">
                             <h4 class="text-primary"><i class="fas fa-chart-line me-2"></i>Status Information</h4>
