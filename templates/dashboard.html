@@ -1703,7 +1703,24 @@
             
         })
         .catch(error => {
-            console.error('Error in data validation:', error);
+             // Try to parse the error message as JSON (from our backend)
+        try {
+            const errorData = JSON.parse(error.message);
+            
+            // Check if it's our redirect error
+            if (errorData.redirect && errorData.redirect_url) {
+                alert(errorData.message || 'An error occurred. Redirecting to dashboard.');
+                window.location.href = errorData.redirect_url;
+                return;
+            }
+        } catch (parseError) {
+            // Error message is not JSON, handle as regular error
+            console.log('Could not parse error as JSON:', parseError);
+        }
+        
+        // Fallback error handling
+        alert('An error occurred while processing the documents. Please try again.');
+        window.location.href = '/dashboard'; // Fallback redirect
         });
     });
 

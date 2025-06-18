@@ -2249,7 +2249,7 @@ def validate_passport():
     try:
         # Step 1: Image similarity check
         indian_passport_similarity = compare_passport_pdf_to_reference(pdf_path=filepath, ref_path=passport_ref_file_path)
-        if not indian_passport_similarity>=0.70:
+        if not indian_passport_similarity>=0.80:
             return jsonify({'verified': False, 'message': 'Image similarity check failed.','reason':'Attached file is not passport.Please attach passport.'}), 400
 
         # Step 2: OCR + Text check
@@ -2316,7 +2316,7 @@ def validate_education():
         is_keyword_found = any(re.search(r'\b' + re.escape(keyword) + r'\b', text_lower) for keyword in keywords)
 
         if is_keyword_found and len(text)>400:
-            return jsonify({'verified': False, 'message': 'Resume might be uploadedm, Certificate is not uploaded','reason':'Resume might be uploadedm, Certificate is not uploaded'}), 400
+            return jsonify({'verified': False, 'message': 'Resume might be uploaded, Certificate is not uploaded','reason':'Resume might be uploadedm, Certificate is not uploaded'}), 400
         elif not is_keyword_found:
             return jsonify({'verified': False, 'message': 'Certificate is not uploaded','reason':'Certificate is not uploaded'}), 400
 
@@ -2471,148 +2471,163 @@ def validate_cv():
 @app.route('/process-documents', methods=['POST'])
 @login_required
 def process_documents():
-    petition_id = session.get('pet_id')
+    try:
+        petition_id = session.get('pet_id')
 
-    data = request.get_json()
-    print(data,">>>>>>>>============================")
-    passport = data.get('passportNumber').strip()
-    passport_expiry_date = data.get('dateOfExpiry').strip()
-    passport_expiry_date = datetime.strptime(passport_expiry_date, '%d/%m/%Y').date()
+        data = request.get_json()
+        print(data,">>>>>>>>============================")
+        passport = data.get('passportNumber').strip()
+        passport_expiry_date = data.get('dateOfExpiry').strip()
+        passport_expiry_date = datetime.strptime(passport_expiry_date, '%d/%m/%Y').date()
 
-    full_name_emp = data.get('employee_name').strip()   
-    full_name_edu = data.get('name').strip()          
-    position = data.get('position').strip()
-    
-    fein_number = str(data.get("fein_number"))
-    if fein_number:
-        fein_number = fein_number.strip()
-    lca_number = data.get("lca_number").strip()
-    education = data.get("education").strip()
-
-    if not passport:
-        return jsonify({"verified":False, 'reason':'Passport number is missing'})
-    elif not full_name_emp:
-        return jsonify({"verified":False, 'reason':'Full name in Employee support document is missing'})
-    elif not fein_number:
-        return jsonify({"verified":False, 'reason':'FEIN in Employee support document is missing'})
-    elif not lca_number:
-        return jsonify({"verified":False, 'reason':'LCA number in Employee support document is missing'})
+        full_name_emp = data.get('employee_name').strip()   
+        full_name_edu = data.get('name').strip()          
+        position = data.get('position').strip()
         
-    # Split full_name_emp
-    name_parts = full_name_emp.split()
-    name_parts_ed = full_name_edu.split()
+        fein_number = str(data.get("fein_number"))
+        if fein_number:
+            fein_number = fein_number.strip()
+        lca_number = data.get("lca_number").strip()
+        education = data.get("education").strip()
 
-    if len(name_parts) < 2:
-        return jsonify({'error': 'Full name must include at least first and last name'}), 400
-    
-    first_name, first_name_ed = name_parts[0], name_parts_ed[0]
-    middle_name, middle_name_ed = name_parts[1] if len(name_parts) > 2 else '', name_parts_ed[1] if len(name_parts_ed)>2 else''
-    last_name ,last_name_ed = name_parts[-1], name_parts_ed[-1]
+        if not passport:
+            return jsonify({"verified":False, 'reason':'Passport number is missing'})
+        elif not full_name_emp:
+            return jsonify({"verified":False, 'reason':'Full name in Employee support document is missing'})
+        elif not fein_number:
+            return jsonify({"verified":False, 'reason':'FEIN in Employee support document is missing'})
+        elif not lca_number:
+            return jsonify({"verified":False, 'reason':'LCA number in Employee support document is missing'})
+            
+        # Split full_name_emp
+        name_parts = full_name_emp.split()
+        name_parts_ed = full_name_edu.split()
 
+        if len(name_parts) < 2:
+            return jsonify({'error': 'Full name must include at least first and last name'}), 400
+        
+        first_name, first_name_ed = name_parts[0], name_parts_ed[0]
+        middle_name, middle_name_ed = name_parts[1] if len(name_parts) > 2 else '', name_parts_ed[1] if len(name_parts_ed)>2 else''
+        last_name ,last_name_ed = name_parts[-1], name_parts_ed[-1]
 
-    # Connect to MySQL
-    conn = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='123Qwerty!@#',
-        database='Immigraassist'
-    )
-    cursor = conn.cursor(dictionary=True)
+        # Get petition record using SQLAlchemy
+        petition = db.session.get(Petition, petition_id)
+        
+        if not petition:
+            return jsonify({"verified": False, 'reason': 'Petition not found'}), 404
 
-# //passport_number = %s
-    query = """
-    SELECT * FROM petitions WHERE id =%s LIMIT 1;"""
+        print("petition id>>>>>>>>>>", petition_id)
 
-    print("petition id>>>>>>>>>>", petition_id)
-    params = (petition_id,)
+        response_records = []
+        mismatch_records = []
+        flag_ = []
 
-    cursor.execute(query, params)
-    records = cursor.fetchall()
-    cursor.close()
-    conn.close()
+        # Match and mismatch tracking
+        fields = ["fein_number","education","lca_number","passport_expiry_data","job_title","passport_number", 
+                  "beneficiary-middle-name","beneficiary-given-name","beneficiary-family-name"]
+        
+        for field in fields:
+            if field == "beneficiary-middle-name":
+                data_dict, flag = compare(field, middle_name_ed, petition.beneficiary_middle_name)
+            elif field == "beneficiary-family-name":
+                data_dict, flag = compare(field, last_name_ed, petition.beneficiary_family_name)
+            elif field == "beneficiary-given-name":
+                data_dict, flag = compare(field, first_name_ed, petition.beneficiary_given_name)
+            elif field == "fein_number":
+                data_dict, flag = compare(field, fein_number, petition.fein)     
+            elif field == "education":
+                data_dict, flag = compare(field, education, petition.education_qualification)
+            elif field == "lca_number":
+                data_dict, flag = compare(field, lca_number, petition.lca_number)
+            # elif field == "passport_expiry_data":
+            #     data_dict, flag = compare(field, passport_expiry_date, petition.passport_expiry_date)
+            elif field == "job_title":
+                data_dict, flag = compare(field, position, petition.job_title)
+            elif field == "passport_number":
+                data_dict, flag = compare(field, passport, petition.passport_number)
 
-    response_records = []
-    mismatch_records = []
-    flag_ = []
+            if not flag:
+                flag_.append(flag)
+                mismatch_records.append(data_dict)
+            else:
+                response_records.append(data_dict)
 
-    # Match and mismatch tracking
-    fields = ["fein_number","education","lca_number","passport_expiry_data","job_title","passport_number", 
-              "beneficiary-middle-name","beneficiary-given-name","beneficiary-family-name"]
-    
-    for field in fields:
-        if field == "beneficiary-middle-name":
-            data_dict, flag = compare(field, middle_name_ed, records[0].get('beneficiary_middle_name'))
-        elif field == "beneficiary-family-name":
-            data_dict, flag = compare(field, last_name_ed, records[0].get('beneficiary_family_name'))
-        elif field == "beneficiary-given-name":
-            data_dict, flag = compare(field, first_name_ed, records[0].get('beneficiary_given_name'))
-        elif field == "fein_number":
-            data_dict, flag = compare(field, fein_number, records[0].get('fein'))     
-        elif field == "education":
-            data_dict, flag = compare(field, education, records[0].get('education_qualification'))
-        elif field == "lca_number":
-            data_dict, flag = compare(field, lca_number, records[0].get('lca_number'))
-        # elif field == "passport_expiry_data":
-        #     data_dict, flag = compare(field, passport_expiry_date, records[0].get('passport_expiry_date'))
-        elif field == "job_title":
-            data_dict, flag = compare(field,  position, records[0].get('job_title'))
-        elif field == "passport_number":
-            data_dict, flag = compare(field, passport, records[0].get('passport_number'))
+        mismatch_records = [dict(item) for item in set(tuple(sorted(d.items())) for d in mismatch_records)]
 
-        if not flag:
-            flag_.append(flag)
-            mismatch_records.append(data_dict)
+        print("response records ",response_records)
+        print("mismatch fields",mismatch_records)
+        all_true = all(flag_)
+
+        passport_location = data.get('passport_location')
+        print(data.get("cv_location"))
+        cv_location = data.get("cv_location")
+        emp_support_doc = data.get("emp_support_doc")
+        education_doc = data.get("education_doc")
+
+        if all_true:
+            match_data = None
         else:
-            response_records.append(data_dict)
+            match_data = str(mismatch_records)
 
-    mismatch_records = [dict(item) for item in set(tuple(sorted(d.items())) for d in mismatch_records)]
+        # Update petition record using SQLAlchemy
+        petition.passport_location = passport_location
+        petition.cv_location = cv_location
+        petition.emp_doc = emp_support_doc
+        petition.degree_location = education_doc
+        petition.mismatch_data = match_data
+        
+        # Commit the changes
+        db.session.commit()
 
-    print("response records ",response_records)
-    print("mismatch fields",mismatch_records)
-    all_true = all(flag_)
-
-    passport_location = data.get('passport_location')
-    print(data.get("cv_location"))
-    cv_location = data.get("cv_location")
-    emp_support_doc = data.get("emp_support_doc")
-    education_doc = data.get("education_doc")
-
-    if all_true:
-        match_data = None
-    else:
-        match_data = str(mismatch_records)
-
-    conn = mysql.connector.connect(
-        host='127.0.0.1',
-        user=db_username,
-        password='123Qwerty!@#',
-        database=db_name
-    )
-    cursor = conn.cursor(dictionary=True)
-    update_query = """
-        UPDATE petitions
-        SET passport_location = %s,cv_location=%s ,emp_doc = %s, degree_location=%s, mismatch_data=%s
-        WHERE id = %s
-        """
-    update_params = (passport_location, cv_location, emp_support_doc, education_doc, match_data, records[0]['id'])
-    cursor.execute(update_query, update_params)
-    conn.commit()  # Commit changes
-
-    cursor.close()
-    conn.close()
-
-    if all_true:
+        if all_true:
+            return jsonify({
+                'message': 'All records from form and documents are correct',
+                'error': False,
+                "verified":all_true,
+                "reason":response_records
+            })
+        else:
+            return jsonify({
+                'message': 'Mismatch records are found',
+                "verified":all_true,
+                'error': False,
+                "reason":mismatch_records
+            })
+    
+    except Exception as e:
+        # Rollback any changes in case of error
+        db.session.rollback()
+        
+        # Delete the petition record if it exists
+        try:
+            petition_id = session.get('pet_id')
+            if petition_id:
+                petition_to_delete = db.session.get(Petition, petition_id)
+                if petition_to_delete:
+                    db.session.delete(petition_to_delete)
+                    db.session.commit()
+                    print(f"Deleted petition record with ID: {petition_id}")
+        except Exception as delete_error:
+            print(f"Error deleting petition record: {str(delete_error)}")
+            db.session.rollback()
+        
+        # Clear session data
+        session.pop('pet_id', None)
+        
+        # Log the error for debugging
+        # print(f"Error in process_documents: {str(e)}")
+        
+        # Set flash message for dashboard alert
+        flash("Wrong files uploaded. Please fill the form again.", "error")
+        
+        # Return redirect response to dashboard
         return jsonify({
-            'message': 'All records from form and documents are correct',
-            "verified":all_true,
-            "reason":response_records
+            "redirect_url": url_for('dashboard'),
+            "redirect": True,
+            "error": True,
+            "message": "Wrong files uploaded. Please fill the form again."
         })
-    else:
-        return jsonify({
-            'message': 'Mismatch records are found',
-            "verified":all_true,
-            "reason":mismatch_records
-        })
+
 
 
 @app.route('/api/save_i140_form/<int:petition_id>', methods=['POST'])

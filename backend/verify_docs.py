@@ -5,8 +5,6 @@ from PIL import Image
 import numpy as np
 from pdf2image import convert_from_path
 from sklearn.metrics.pairwise import cosine_similarity
-from torchvision.models import resnet50, ResNet50_Weights
-import torch.nn as nn
 
 
 model = torch.hub.load('facebookresearch/swav:main', 'resnet50')
