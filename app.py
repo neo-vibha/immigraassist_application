@@ -2316,7 +2316,7 @@ def validate_education():
         is_keyword_found = any(re.search(r'\b' + re.escape(keyword) + r'\b', text_lower) for keyword in keywords)
 
         if is_keyword_found and len(text)>400:
-            return jsonify({'verified': False, 'message': 'Resume might be uploaded, Certificate is not uploaded','reason':'Resume might be uploadedm, Certificate is not uploaded'}), 400
+            return jsonify({'verified': False, 'message': 'Resume might be uploaded, Certificate is not uploaded','reason':'Resume might be uploaded, Certificate is not uploaded'}), 400
         elif not is_keyword_found:
             return jsonify({'verified': False, 'message': 'Certificate is not uploaded','reason':'Certificate is not uploaded'}), 400
 
@@ -2746,8 +2746,6 @@ def save_i140_form(petition_id):
             'success': False, 
             'message': f'Error saving I-140 form: {str(e)}'
         }), 500
-
-
 
 
 if __name__ == '__main__':
