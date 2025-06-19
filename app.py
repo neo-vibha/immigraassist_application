@@ -2628,6 +2628,42 @@ def process_documents():
             "message": "Wrong files uploaded. Please fill the form again."
         })
 
+@app.route('/apply-recommended/<int:petition_id>', methods=['POST'])
+@login_required
+def apply_recommended(petition_id):
+    import ast
+    petition = Petition.query.get_or_404(petition_id)
+ 
+    if not petition.mismatch_data:
+        flash("No recommended data found to apply.", "warning")
+        return redirect(url_for('attorney_petition_details', petition_id=petition.id))
+    
+    field_attr_map = {
+    "Federal Employer Identification Number (FEIN)": "fein",
+    "Educational Qualification": "education_qualification",
+    "LCA or ETA Case Number": "lca_number",
+    "Passport Number": "passport_number",
+    "Job Title": "job_title",
+    "Beneficiary Middle Name": "beneficiary_middle_name",
+    "Beneficiary First Name": "beneficiary_given_name",
+    "Beneficiary Family Name": "beneficiary_family_name"
+    }
+    print(ast.literal_eval(petition.mismatch_data))
+    print(type(ast.literal_eval(petition.mismatch_data)))
+
+    for field in ast.literal_eval(petition.mismatch_data):
+        print("field", field)
+        field_name =field_attr_map[field['field']] #.strip().lower().replace(" ", "_")
+        new_value = field['extracted_data']
+        if hasattr(petition, field_name):
+            setattr(petition, field_name, new_value)
+ 
+
+    petition.mismatch_data = None    # ✅ Also clear any old mismatch_data string
+    db.session.commit()
+ 
+    flash("Petition data updated with recommended values.", "success")
+    return redirect(url_for('user_view_petition', petition_id=petition.id))
 
 
 @app.route('/api/save_i140_form/<int:petition_id>', methods=['POST'])
